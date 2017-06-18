@@ -7,14 +7,8 @@
     <groupId>org.harctoolbox</groupId>
     <artifactId>Girr</artifactId>
     <packaging>jar</packaging>
-    <version>1.4.1</version>
+    <version>1.5dev</version>
     <name>Girr</name>
-    <parent>
-        <groupId>org.harctoolbox</groupId>
-        <artifactId>HarctoolboxBundle</artifactId>
-        <version>1.4.1</version>
-        <relativePath>..</relativePath>
-    </parent>
     <licenses>
         <license>
             <name>GPL 3+</name>
@@ -22,19 +16,12 @@
         </license>
     </licenses>
     <description>A universal format for storage and exchange of IR signals.</description>
-        <url>http://www.harctoolbox.org</url>
+        <url>http://www.harctoolbox.org/Girr.html</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-    <distributionManagement>
-        <repository>
-            <id>repos</id>
-            <name>Repository</name>
-            <url>file:///${project.basedir}/../repos</url>
-        </repository>
-    </distributionManagement>
     <build>
         <plugins>
 
@@ -59,7 +46,7 @@
                             <includes>
                                 <include>Version.xml</include>
                             </includes>
-                            <stylesheet>../tools/mkVersion.xsl</stylesheet>
+                            <stylesheet>tools/mkVersion.xsl</stylesheet>
                             <parameters>
                                 <parameter>
                                     <name>version</name>
@@ -88,7 +75,7 @@
                             <includes>
                                 <include>Girr.xml</include>
                             </includes>
-                            <stylesheet>../tools/xdoc2html.xsl</stylesheet>
+                            <stylesheet>tools/xdoc2html.xsl</stylesheet>
                             <fileMappers>
                                 <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
                                     <targetExtension>.html</targetExtension>
@@ -143,6 +130,23 @@
                     <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-remote-resources-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>bundle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <includes>
+                        <include>**/*.*</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -150,6 +154,7 @@
         <dependency>
             <groupId>org.harctoolbox</groupId>
             <artifactId>IrpMaster</artifactId>
+            <version>1.5dev</version>
         </dependency>
     </dependencies>
 </project>
