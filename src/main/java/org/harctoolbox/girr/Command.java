@@ -26,10 +26,12 @@ import java.util.Locale;
 import java.util.Map;
 import org.harctoolbox.IrpMaster.DecodeIR;
 import org.harctoolbox.IrpMaster.IncompatibleArgumentException;
+import org.harctoolbox.IrpMaster.IrSequence;
 import org.harctoolbox.IrpMaster.IrSignal;
 import org.harctoolbox.IrpMaster.IrpMaster;
 import org.harctoolbox.IrpMaster.IrpMasterException;
 import org.harctoolbox.IrpMaster.IrpUtils;
+import org.harctoolbox.IrpMaster.ModulatedIrSequence;
 import org.harctoolbox.IrpMaster.Pronto;
 import org.harctoolbox.IrpMaster.Protocol;
 import org.harctoolbox.IrpMaster.UnassignedException;
@@ -152,6 +154,20 @@ public final class Command implements Serializable {
             return str.substring(1);
         } else
             return element.getTextContent();
+    }
+
+    public static ModulatedIrSequence concatenateAsSequence(Collection<Command>commands) throws IrpMasterException {
+        double frequency = IrpUtils.invalid;
+        double dutyCycle = IrpUtils.invalid;
+        IrSequence seq = new IrSequence();
+        for (Command c : commands) {
+            if (frequency < 0) // take the first sensible frequency
+                frequency = c.getFrequency();
+            if (dutyCycle <= 0)
+                dutyCycle = c.getDutyCycle();
+            seq = seq.append(c.toIrSignal().toModulatedIrSequence(1));
+        }
+        return new ModulatedIrSequence(seq, frequency, dutyCycle);
     }
 
     /**
