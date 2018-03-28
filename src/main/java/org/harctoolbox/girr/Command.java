@@ -71,6 +71,8 @@ public final class Command implements Serializable {
     private static final String linefeed = System.getProperty("line.separator", "\n");
     private static IrpMaster irpMaster;
 
+    // TODO: migrate to BigInteger
+    // TODO: using IrCore.
     static long parseParameter(String s) throws NumberFormatException {
         return s.startsWith("0x") ? Long.parseLong(s.substring(2), 16) : Long.parseLong(s);
     }
@@ -353,6 +355,7 @@ public final class Command implements Serializable {
         this.masterType = masterType;
         this.name = name;
         this.comment = comment;
+        this.otherFormats = new HashMap<>(0);
         frequency = (int) IrpUtils.invalid;
         dutyCycle = IrpUtils.invalid;
         ccf = null;
@@ -546,12 +549,12 @@ public final class Command implements Serializable {
      * @param T toggle value
      * @throws IllegalArgumentException
      */
-    private void barfIfInvalidToggle(int T) throws IllegalArgumentException {
+    private void barfIfInvalidToggle(Integer T) throws IllegalArgumentException {
         barfIfInvalidToggle(T, numberOfToggleValues());
     }
 
-    private void barfIfInvalidToggle(int T, int noToggles) throws IllegalArgumentException {
-        if (T < 0 || T >= noToggles)
+    private void barfIfInvalidToggle(Integer T, int noToggles) throws IllegalArgumentException {
+        if (T != null && (T < 0 || T >= noToggles))
             throw new IllegalArgumentException("Illegal value of T = " + T);
     }
 
@@ -577,21 +580,34 @@ public final class Command implements Serializable {
      * @throws IrpMasterException
      */
     public IrSignal toIrSignal() throws IrpMasterException {
-        return toIrSignal(0);
+        return toIrSignal(null);
     }
 
     /**
      * Returns the IrSignal of the Command.
-     * @param T toggle value
+     * @param toggle toggle value; use null for unspecified.
      * @return IrSignal corresponding to the Command.
      * @throws IrpMasterException
      */
-    public IrSignal toIrSignal(int T) throws IrpMasterException {
-        barfIfInvalidToggle(T);
-        return
-                masterType == MasterType.parameters ? new IrSignal(irpMaster, protocolName, parameters)
-                : masterType == MasterType.raw ? new IrSignal(frequency, dutyCycle, intro[T], repeat[T], ending[T])
-                : new IrSignal(ccf[T]);
+    public IrSignal toIrSignal(Integer toggle) throws IrpMasterException {
+        barfIfInvalidToggle(toggle);
+        int T = toggle == null ? 0 : toggle;
+
+        switch (masterType) {
+            case parameters:
+                if (toggle != null) {
+                    Map<String, Long> params = new HashMap<>(parameters);
+                    params.put(toggleParameterName, toggle.longValue());
+                    return new IrSignal(irpMaster, protocolName, params);
+                } else
+                    return new IrSignal(irpMaster, protocolName, parameters);
+
+            case raw:
+                return new IrSignal(frequency, dutyCycle, intro[T], repeat[T], ending[T]);
+
+            default:
+                return new IrSignal(ccf[T]);
+        }
     }
 
 
