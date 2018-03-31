@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013, 2015 Bengt Martensson.
+Copyright (C) 2013, 2015, 2018 Bengt Martensson.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,13 +18,29 @@ this program. If not, see http://www.gnu.org/licenses/.
 package org.harctoolbox.girr;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.harctoolbox.IrpMaster.IrSignal;
-import org.harctoolbox.IrpMaster.IrpMasterException;
+import static org.harctoolbox.girr.XmlExporter.APPLICATIONDATA_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.APPLICATION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.APPPARAMETER_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.COMMANDSET_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.COMMENT_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.DEVICECLASS_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.DISPLAYNAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlExporter.MANUFACTURER_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.MODEL_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.NAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.REMOTENAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.REMOTE_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.VALUE_ATTRIBUTE_NAME;
+import org.harctoolbox.ircore.IrCoreException;
+import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.irp.IrpException;
+import static org.harctoolbox.irp.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -35,51 +51,52 @@ import org.w3c.dom.NodeList;
  * It has a name for identification, and a number of comment-like text fields. Most importantly,
  * it has a dictionary of Commands, indexed by their names.
  */
-public final class Remote implements Serializable {
+public final class Remote {
 
-    private static Map<String,Command> commandToMap(Command command) {
-        Map<String,Command> result = new HashMap<>(1);
+    private static Map<String, Command> commandToMap(Command command) {
+        Map<String, Command> result = new HashMap<>(1);
         result.put(command.getName(), command);
         return result;
     }
 
     private MetaData metaData;
     private String comment;
-    private String notes;
+    private Map<String, String> notes;
     private String protocol;
-    private Map<String, Long>parameters;
-    private Map<String, Command>commands;
+    private Map<String, Long> parameters;
+    private Map<String, Command> commands;
     private Map<String, Map<String, String>> applicationParameters;
 
     /**
      * XML import function.
      *
      * @param element Element to read from.
-     * @throws ParseException
+     * @throws org.harctoolbox.girr.GirrException
      */
-    public Remote(Element element) throws ParseException {
-        metaData = new MetaData(element.getAttribute("name"),
-                element.getAttribute("displayName"),
-                element.getAttribute("manufacturer"),
-                element.getAttribute("model"),
-                element.getAttribute("deviceClass"),
-                element.getAttribute("remoteName"));
+    public Remote(Element element) throws GirrException {
+        metaData = new MetaData(element.getAttribute(NAME_ATTRIBUTE_NAME),
+                element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME),
+                element.getAttribute(MANUFACTURER_ATTRIBUTE_NAME),
+                element.getAttribute(MODEL_ATTRIBUTE_NAME),
+                element.getAttribute(DEVICECLASS_ATTRIBUTE_NAME),
+                element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
         commands = new LinkedHashMap<>(32);
         applicationParameters = new LinkedHashMap<>(4);
-        comment = element.getAttribute("comment");
-        NodeList nl = element.getElementsByTagName("applicationData");
+        comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
+        notes = XmlExporter.parseNotes(element);
+        NodeList nl = element.getElementsByTagName(APPLICATIONDATA_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Element el = (Element) nl.item(i);
-            NodeList nodeList = el.getElementsByTagName("appParameter");
+            NodeList nodeList = el.getElementsByTagName(APPPARAMETER_ELEMENT_NAME);
             Map<String, String> map = new HashMap<>(32);
             for (int index = 0; index < nodeList.getLength(); index++) {
                 Element par = (Element) nodeList.item(index);
-                map.put(par.getAttribute("name"), par.getAttribute("value"));
+                map.put(par.getAttribute(NAME_ATTRIBUTE_NAME), par.getAttribute(VALUE_ATTRIBUTE_NAME));
             }
-            applicationParameters.put(el.getAttribute("application"), map);
+            applicationParameters.put(el.getAttribute(APPLICATION_ATTRIBUTE_NAME), map);
         }
 
-        nl = element.getElementsByTagName("commandSet");
+        nl = element.getElementsByTagName(COMMANDSET_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             CommandSet commandSet = new CommandSet((Element) nl.item(i));
             commands.putAll(commandSet.getCommands());
@@ -97,9 +114,9 @@ public final class Remote implements Serializable {
      * @param protocol
      * @param parameters
      */
-    public Remote(MetaData metaData, String comment, String notes,
+    public Remote(MetaData metaData, String comment, Map<String, String> notes,
             Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters,
-            String protocol, Map<String,Long>parameters) {
+            String protocol, Map<String, Long> parameters) {
         this.metaData = metaData;
         /*this.name = name;
         this.manufacturer = manufacturer;
@@ -123,7 +140,7 @@ public final class Remote implements Serializable {
      * @param commands
      * @param applicationParameters
      */
-    public Remote(MetaData metaData, String comment, String notes,
+    public Remote(MetaData metaData, String comment, Map<String, String> notes,
             Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters) {
         this(metaData, comment, notes, commands, applicationParameters, null, null);
     }
@@ -155,36 +172,39 @@ public final class Remote implements Serializable {
      * @param generateParameters
      * @return XML Element of gid "remote",
      */
-    public Element xmlExport(Document doc, boolean fatRaw,
-            boolean generateRaw, boolean generateCcf, boolean generateParameters) {
-        Element element = doc.createElementNS(XmlExporter.girrNamespace, "remote");
-        element.setAttribute("name", metaData.name);
-        if (metaData.displayName != null)
-            element.setAttribute("displayName", metaData.displayName);
-        if (metaData.manufacturer != null)
-            element.setAttribute("manufacturer", metaData.manufacturer);
-        if (metaData.model != null)
-            element.setAttribute("model", metaData.model);
-        if (metaData.deviceClass !=  null)
-            element.setAttribute("deviceClass", metaData.deviceClass);
-        if (metaData.remoteName != null)
-            element.setAttribute("remoteName", metaData.remoteName);
-        if (comment != null)
-            element.setAttribute("comment", comment);
-        if (notes != null) {
-            Element notesEl = doc.createElementNS(XmlExporter.girrNamespace, "notes");
-            notesEl.setTextContent(notes);
+    public Element toElement(Document doc, boolean fatRaw, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+        Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
+        element.setAttribute(NAME_ATTRIBUTE_NAME, metaData.name);
+        if (!metaData.displayName.isEmpty())
+            element.setAttribute(DISPLAYNAME_ATTRIBUTE_NAME, metaData.displayName);
+        if (!metaData.manufacturer.isEmpty())
+            element.setAttribute(MANUFACTURER_ATTRIBUTE_NAME, metaData.manufacturer);
+        if (!metaData.model.isEmpty())
+            element.setAttribute(MODEL_ATTRIBUTE_NAME, metaData.model);
+        if (!metaData.deviceClass.isEmpty())
+            element.setAttribute(DEVICECLASS_ATTRIBUTE_NAME, metaData.deviceClass);
+        if (!metaData.remoteName.isEmpty())
+            element.setAttribute(REMOTENAME_ATTRIBUTE_NAME, metaData.remoteName);
+        if (!comment.isEmpty())
+            element.setAttribute(COMMENT_ATTRIBUTE_NAME, comment);
+        notes.entrySet().stream().map((note) -> {
+            Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+            notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
+            notesEl.setTextContent(note.getValue());
+            return notesEl;
+        }).forEachOrdered((notesEl) -> {
             element.appendChild(notesEl);
-        }
+        });
+
         if (applicationParameters != null) {
             applicationParameters.entrySet().forEach((kvp) -> {
-                Element appEl = doc.createElementNS(XmlExporter.girrNamespace, "applicationData");
-                appEl.setAttribute("application", kvp.getKey());
+                Element appEl = doc.createElementNS(GIRR_NAMESPACE, APPLICATIONDATA_ELEMENT_NAME);
+                appEl.setAttribute(APPLICATION_ATTRIBUTE_NAME, kvp.getKey());
                 element.appendChild(appEl);
                 kvp.getValue().entrySet().stream().map((param) -> {
-                    Element paramEl = doc.createElementNS(XmlExporter.girrNamespace, "appParameter");
-                    paramEl.setAttribute("name", param.getKey());
-                    paramEl.setAttribute("value", param.getValue());
+                    Element paramEl = doc.createElementNS(GIRR_NAMESPACE, APPPARAMETER_ELEMENT_NAME);
+                    paramEl.setAttribute(NAME_ATTRIBUTE_NAME, param.getKey());
+                    paramEl.setAttribute(VALUE_ATTRIBUTE_NAME, param.getValue());
                     return paramEl;
                 }).forEachOrdered((paramEl) -> {
                     appEl.appendChild(paramEl);
@@ -193,7 +213,7 @@ public final class Remote implements Serializable {
         }
 
         CommandSet commandSet = new CommandSet(null, null, commands, protocol, parameters);
-        element.appendChild(commandSet.xmlExport(doc, fatRaw, generateRaw, generateCcf, generateParameters));
+        element.appendChild(commandSet.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
 
         return element;
     }
@@ -208,8 +228,8 @@ public final class Remote implements Serializable {
         commands.values().forEach((command) -> {
             try {
                 command.addFormat(format, repeatCount);
-            } catch (IrpMasterException ex) {
-                // TODO: invoke logger
+            } catch (IrCoreException | IrpException ex) {
+                //Logger.getLogger(Remote.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
@@ -218,9 +238,10 @@ public final class Remote implements Serializable {
      * Returns true if and only if all contained commands has the protocol in the argument.
      * @param protocolName
      * @return
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public boolean hasThisProtocol(String protocolName) throws IrpMasterException {
+    public boolean hasThisProtocol(String protocolName) throws IrpException, IrCoreException {
         for (Command command : commands.values()) {
             String prtcl = command.getProtocolName();
             if (prtcl == null || !prtcl.equalsIgnoreCase(protocolName))
@@ -229,7 +250,11 @@ public final class Remote implements Serializable {
         return true;
     }
 
-
+    /**
+     * Return the Command with the selected name.
+     * @param commandName
+     * @return
+     */
     public Command getCommand(String commandName) {
         return commands.get(commandName);
     }
@@ -248,6 +273,10 @@ public final class Remote implements Serializable {
      */
     public String getName() {
         return metaData.name;
+    }
+
+    public void setName(String name) {
+        metaData.name = name;
     }
 
     /**
@@ -310,13 +339,25 @@ public final class Remote implements Serializable {
     }
 
     /**
+     * @param lang
      * @return the notes
      */
-    public String getNotes() {
-        return notes;
+    public String getNotes(String lang) {
+        return notes.get(lang);
     }
 
-    public static class MetaData implements Serializable {
+    public void setNotes(String lang, String notes) {
+        this.notes.put(lang, notes);
+    }
+
+    void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    /**
+     * This class bundles different data for a remote together.
+     */
+    public static final class MetaData {
         private String name;
         private String displayName;
         private String manufacturer;
@@ -324,6 +365,9 @@ public final class Remote implements Serializable {
         private String deviceClass;
         private String remoteName;
 
+        /**
+         * Constructor for empty MetaData.
+         */
         public MetaData() {
             this.name = null;
             this.displayName = null;
@@ -333,11 +377,24 @@ public final class Remote implements Serializable {
             this.remoteName = null;
         }
 
+        /**
+         * Constructor with name.
+         * @param name
+         */
         public MetaData(String name) {
             this();
             this.name = name;
         }
 
+        /**
+         * Generic constructor.
+         * @param name
+         * @param displayName
+         * @param manufacturer
+         * @param model
+         * @param deviceClass
+         * @param remoteName
+         */
         public MetaData(String name, String displayName, String manufacturer, String model,
                 String deviceClass, String remoteName) {
             this.name = name;
@@ -394,14 +451,14 @@ public final class Remote implements Serializable {
     public static class CompareNameCaseSensitive implements Comparator<Remote>, Serializable {
         @Override
         public int compare(Remote o1, Remote o2) {
-            return o1.metaData.name.compareTo(o2.metaData.name);
+            return o1.getName().compareTo(o2.getName());
         }
     }
 
     public static class CompareNameCaseInsensitive implements Comparator<Remote>, Serializable {
         @Override
         public int compare(Remote o1, Remote o2) {
-            return o1.metaData.name.compareToIgnoreCase(o2.metaData.name);
+            return o1.getName().compareToIgnoreCase(o2.getName());
         }
     }
 }

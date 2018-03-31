@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2013, 2015 Bengt Martensson.
+ Copyright (C) 2013, 2015, 2018 Bengt Martensson.
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,13 +16,23 @@
  */
 package org.harctoolbox.girr;
 
-import java.io.Serializable;
-import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import org.harctoolbox.IrpMaster.IrpMasterException;
-import org.harctoolbox.IrpMaster.IrpUtils;
+import static org.harctoolbox.girr.XmlExporter.COMMANDSET_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.COMMAND_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlExporter.NAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.PARAMETERS_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.PARAMETER_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.PROTOCOL_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.VALUE_ATTRIBUTE_NAME;
+import org.harctoolbox.ircore.IrCoreException;
+import org.harctoolbox.ircore.IrCoreUtils;
+import org.harctoolbox.irp.IrpException;
+import static org.harctoolbox.irp.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,9 +41,9 @@ import org.w3c.dom.NodeList;
 /**
  * A CommandSet is a set of Command's with the same protocol, but different parameter values.
  */
-public final class CommandSet implements Serializable {
+public final class CommandSet {
 
-    private String notes;
+    private Map<String, String> notes;
     private String protocol;
     private final String name;
     private final Map<String, Long> parameters;
@@ -45,48 +55,45 @@ public final class CommandSet implements Serializable {
      * @param element
      * @throws ParseException
      */
-    CommandSet(Element element) throws ParseException {
-        name = element.getAttribute("name");
+    CommandSet(Element element) throws GirrException {
+        name = element.getAttribute(NAME_ATTRIBUTE_NAME);
         protocol = null;
         commands = new LinkedHashMap<>(4);
         parameters = new LinkedHashMap<>(4);
-        NodeList nl = element.getElementsByTagName("notes");
-        if (nl.getLength() > 0)
-            notes = nl.item(0).getTextContent();
+        notes = XmlExporter.parseNotes(element);
         // Cannot use getElementsByTagName("parameters") because it will find
         // the parameters of the child commands, which is not what we want.
-        nl = element.getChildNodes();
+        NodeList nl = element.getChildNodes();
         for (int nodeNr = 0; nodeNr < nl.getLength(); nodeNr++) {
             if (nl.item(nodeNr).getNodeType() != Node.ELEMENT_NODE)
                 continue;
             Element el = (Element) nl.item(nodeNr);
-            if (!el.getTagName().equals("parameters"))
+            if (!el.getTagName().equals(PARAMETERS_ELEMENT_NAME))
                 continue;
-            String newProtocol = el.getAttribute("protocol");
+            String newProtocol = el.getAttribute(PROTOCOL_ATTRIBUTE_NAME);
             if (!newProtocol.isEmpty())
                 protocol = newProtocol;
-            NodeList paramList = el.getElementsByTagName("parameter");
+            NodeList paramList = el.getElementsByTagName(PARAMETER_ELEMENT_NAME);
             for (int i = 0; i < paramList.getLength(); i++) {
                 Element e = (Element) paramList.item(i);
                 try {
-                    parameters.put(e.getAttribute("name"), Command.parseParameter(e.getAttribute("value")));
+                    parameters.put(e.getAttribute(NAME_ATTRIBUTE_NAME), IrCoreUtils.parseLong(e.getAttribute(VALUE_ATTRIBUTE_NAME)));
                 } catch (NumberFormatException ex) {
-                    throw new ParseException("NumberFormatException " + ex.getMessage(), (int) IrpUtils.invalid);
+                    throw new GirrException(ex);
                 }
             }
         }
 
-        nl = element.getElementsByTagName("command");
+        nl = element.getElementsByTagName(COMMAND_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Command irCommand;
             try {
                 irCommand = new Command((Element) nl.item(i), protocol, parameters);
                 commands.put(irCommand.getName(), irCommand);
-            } catch (IrpMasterException ex) {
+            } catch (GirrException ex) {
                 // Ignore erroneous commands, continue parsing
                 // TODO: invoke logger
             }
-
         }
     }
 
@@ -99,13 +106,18 @@ public final class CommandSet implements Serializable {
      * @param protocol
      * @param parameters
      */
-    CommandSet(String name, String notes, Map<String, Command> commands, String protocol, Map<String, Long>parameters) {
+    CommandSet(String name, Map<String, String> notes, Map<String, Command> commands, String protocol, Map<String, Long> parameters) {
         this.name = name != null ? name : "commandSet";
-        this.notes = notes;
+        this.notes = notes != null ? notes : new HashMap<>(0);
         this.commands = commands;
         this.protocol = protocol;
         this.parameters = parameters;
     }
+
+    /**
+     * Returns the Commands in the CommandSet.
+     * @return
+     */
     @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public Map<String, Command> getCommands() {
         return commands;
@@ -121,23 +133,25 @@ public final class CommandSet implements Serializable {
      * @param generateParameters
      * @return newly constructed element, belonging to the doc Document.
      */
-    public Element xmlExport(Document doc, boolean fatRaw,
-            boolean generateRaw, boolean generateCcf, boolean generateParameters) {
-        Element element = doc.createElementNS(XmlExporter.girrNamespace, "commandSet");
-        element.setAttribute("name", name);
-        if (notes != null) {
-            Element notesEl = doc.createElementNS(XmlExporter.girrNamespace, "notes");
-            notesEl.setTextContent(notes);
+    public Element toElement(Document doc, boolean fatRaw, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+        Element element = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
+        element.setAttribute(NAME_ATTRIBUTE_NAME, name);
+        notes.entrySet().stream().map((note) -> {
+            Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+            notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
+            notesEl.setTextContent(note.getValue());
+            return notesEl;
+        }).forEachOrdered((notesEl) -> {
             element.appendChild(notesEl);
-        }
+        });
         if (parameters != null && generateParameters) {
-            Element parametersEl = doc.createElementNS(XmlExporter.girrNamespace, "parameters");
-            parametersEl.setAttribute("protocol", protocol.toLowerCase(Locale.US));
+            Element parametersEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
+            parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocol.toLowerCase(Locale.US));
             element.appendChild(parametersEl);
             parameters.entrySet().stream().map((parameter) -> {
-                Element parameterEl = doc.createElementNS(XmlExporter.girrNamespace, "parameter");
-                parameterEl.setAttribute("name", parameter.getKey());
-                parameterEl.setAttribute("value", parameter.getValue().toString());
+                Element parameterEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameter.getKey());
+                parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, parameter.getValue().toString());
                 return parameterEl;
             }).forEachOrdered((parameterEl) -> {
                 parametersEl.appendChild(parameterEl);
@@ -145,7 +159,7 @@ public final class CommandSet implements Serializable {
         }
         if (commands != null) {
             commands.values().forEach((command) -> {
-                element.appendChild(command.xmlExport(doc, null, fatRaw,
+                element.appendChild(command.toElement(doc, null, fatRaw,
                         generateRaw, generateCcf, generateParameters));
             });
         }
@@ -162,8 +176,8 @@ public final class CommandSet implements Serializable {
         commands.values().forEach((command) -> {
             try {
                 command.addFormat(format, repeatCount);
-            } catch (IrpMasterException ex) {
-                // TODO: invoke logger
+            } catch (IrCoreException | IrpException ex) {
+                //Logger.getLogger(CommandSet.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
     }
