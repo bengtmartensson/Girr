@@ -22,6 +22,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.harctoolbox.girr.XmlExporter.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlExporter.COMMENT_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.DUTYCYCLE_ATTRIBUTE_NAME;
@@ -91,6 +93,8 @@ import org.w3c.dom.NodeList;
  * ignore individual unparseable commands.
  */
 public final class Command {
+
+    private final static Logger logger = Logger.getLogger(Command.class.getName());
 
     /** Name of the parameter containing the toggle in the IRP protocol. */
     private static final String TOGGLE_PARAMETER_NAME = "T";
@@ -176,6 +180,7 @@ public final class Command {
                         str.append(" -").append(el.getTextContent());
                         break;
                     default:
+                        logger.log(Level.SEVERE, "Invalid tag name: {0}", el.getTagName());
                         throw new ThisCannotHappenException("Invalid tag name");
                 }
             }
@@ -472,6 +477,7 @@ public final class Command {
             try {
                 protocol = irpDatabase.getProtocol(protocolName);
             } catch (IrpException ex) {
+                logger.log(Level.INFO, "Protocol \"{0}\" not found or not useable.", protocolName);
             }
     }
 
@@ -718,6 +724,7 @@ public final class Command {
         try {
             return toPrintString();
         } catch (IrpException | IrCoreException | GirrException ex) {
+            logger.log(Level.WARNING, null, ex);
             return name + ": (<erroneous signal>)";
         }
     }
@@ -851,16 +858,11 @@ public final class Command {
      * @return the number of possible values.
      */
     public int numberOfToggleValues() {
-        //try {
-            return (masterType == MasterType.parameters
-                    && !parameters.containsKey(TOGGLE_PARAMETER_NAME)
-                    && protocol != null
-                    && protocol.hasParameter(TOGGLE_PARAMETER_NAME)
-                    && protocol.hasParameterMemory(TOGGLE_PARAMETER_NAME)) ? ((int) protocol.getParameterMax(TOGGLE_PARAMETER_NAME)) + 1 : 1;
-        //} catch (UnassignedException ex) {
-            // cannot happen
-        //    throw new InternalError();
-        //}
+        return (masterType == MasterType.parameters
+                && !parameters.containsKey(TOGGLE_PARAMETER_NAME)
+                && protocol != null
+                && protocol.hasParameter(TOGGLE_PARAMETER_NAME)
+                && protocol.hasParameterMemory(TOGGLE_PARAMETER_NAME)) ? ((int) protocol.getParameterMax(TOGGLE_PARAMETER_NAME)) + 1 : 1;
     }
 
     private void generateRaw(IrSignal irSignal) {
@@ -869,11 +871,7 @@ public final class Command {
 
     private void generateRaw(IrSignal irSignal, int T) {
         barfIfInvalidToggle(T);
-        try {
         frequency = (int) Math.round(irSignal.getFrequency());
-        } catch (NullPointerException e) {
-            System.err.println("xxxxxxxxxxxxxxxx");
-        }
         dutyCycle = irSignal.getDutyCycle();
         if (intro == null)
             intro = new String[numberOfToggleValues()];
@@ -977,6 +975,7 @@ public final class Command {
                     });
                 }
             } catch (IrCoreException | IrpException ex) {
+                logger.log(Level.INFO, null, ex);
                 element.appendChild(doc.createComment("Parameters requested but could not be generated."));
             }
         }
@@ -998,10 +997,8 @@ public final class Command {
                         processRaw(doc, rawEl, ending[T], ENDING_ELEMENT_NAME, fatRaw);
                     }
                 }
-            //} catch ( ex) {
-                // NullPointerException thrown if irpMaster == null.
-            //    element.appendChild(doc.createComment("Raw signal requested but could not be generated. (" + ex.getMessage() + ")"));
             } catch (IrCoreException | GirrException | IrpException ex) {
+                logger.log(Level.INFO, null, ex);
                 element.appendChild(doc.createComment("Raw signal requested but could not be generated. (" + ex.getMessage() + ".)"));
             }
         }
@@ -1017,10 +1014,8 @@ public final class Command {
                         element.appendChild(prontoHexEl);
                     }
                 }
-            //} catch (NullPointerException ex) {
-                // NullPointerException thrown if irpMaster == null.
-            //    element.appendChild(doc.createComment("Pronto Hex requested but could not be generated. (" + ex.getMessage() + ")"));
             } catch (IrCoreException | IrpException | GirrException ex) {
+                logger.log(Level.INFO, null, ex);
                 element.appendChild(doc.createComment("Pronto Hex requested but could not be generated. (" + ex.getMessage() + ".)"));
             }
         }

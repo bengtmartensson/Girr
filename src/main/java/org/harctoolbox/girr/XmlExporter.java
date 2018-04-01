@@ -19,6 +19,7 @@ package org.harctoolbox.girr;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import static javax.xml.XMLConstants.XMLNS_ATTRIBUTE;
 import static org.harctoolbox.irp.XmlUtils.ENGLISH;
@@ -35,6 +36,8 @@ import org.w3c.dom.ProcessingInstruction;
  * Utility class for XML export. Usage in other contexts not recommended.
  */
 public final class XmlExporter {
+
+    private final static Logger logger = Logger.getLogger(XmlExporter.class.getName());
 
     /**
      * Namespace URI

@@ -31,6 +31,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import javax.xml.validation.Schema;
@@ -70,6 +72,8 @@ import org.xml.sax.SAXException;
  */
 public final class RemoteSet {
 
+    private final static Logger logger = Logger.getLogger(RemoteSet.class.getName());
+
     private static String dateFormatString = "yyyy-MM-dd_HH:mm:ss";
 
     /**
@@ -90,7 +94,7 @@ public final class RemoteSet {
             remoteSet.print(args.length > 1 ? args[1] : "-");
         }
         catch (IOException | GirrException | SAXException ex) {
-            System.err.println(ex.getMessage());
+            logger.log(Level.SEVERE, null, ex);
         }
     }
 
@@ -103,7 +107,7 @@ public final class RemoteSet {
                 coll.add(remoteSet);
             }
             catch (GirrException | IOException | SAXException ex) {
-                //Logger.getLogger(RemoteSet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.WARNING, null, ex);
             }
         } else if (Files.isDirectory(path)) {
             try {
@@ -114,7 +118,7 @@ public final class RemoteSet {
                 });
             }
             catch (IOException ex) {
-                //Logger.getLogger(RemoteSet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
         }
         return coll;

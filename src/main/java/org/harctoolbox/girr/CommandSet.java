@@ -20,6 +20,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.harctoolbox.girr.XmlExporter.COMMANDSET_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlExporter.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
@@ -42,6 +44,8 @@ import org.w3c.dom.NodeList;
  * A CommandSet is a set of Command's with the same protocol, but different parameter values.
  */
 public final class CommandSet {
+
+    private final static Logger logger = Logger.getLogger(CommandSet.class.getName());
 
     private Map<String, String> notes;
     private String protocol;
@@ -92,7 +96,7 @@ public final class CommandSet {
                 commands.put(irCommand.getName(), irCommand);
             } catch (GirrException ex) {
                 // Ignore erroneous commands, continue parsing
-                // TODO: invoke logger
+                logger.log(Level.WARNING, null, ex);
             }
         }
     }
@@ -177,7 +181,7 @@ public final class CommandSet {
             try {
                 command.addFormat(format, repeatCount);
             } catch (IrCoreException | IrpException ex) {
-                //Logger.getLogger(CommandSet.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.WARNING, null, ex);
             }
         });
     }

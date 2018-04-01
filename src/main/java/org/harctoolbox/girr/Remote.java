@@ -22,6 +22,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.harctoolbox.girr.XmlExporter.APPLICATIONDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlExporter.APPLICATION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.APPPARAMETER_ELEMENT_NAME;
@@ -52,6 +54,8 @@ import org.w3c.dom.NodeList;
  * it has a dictionary of Commands, indexed by their names.
  */
 public final class Remote {
+
+    private final static Logger logger = Logger.getLogger(Remote.class.getName());
 
     private static Map<String, Command> commandToMap(Command command) {
         Map<String, Command> result = new HashMap<>(1);
@@ -229,7 +233,7 @@ public final class Remote {
             try {
                 command.addFormat(format, repeatCount);
             } catch (IrCoreException | IrpException ex) {
-                //Logger.getLogger(Remote.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.WARNING, null, ex);
             }
         });
     }
