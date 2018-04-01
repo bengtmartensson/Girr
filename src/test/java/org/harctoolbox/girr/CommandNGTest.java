@@ -2,13 +2,17 @@ package org.harctoolbox.girr;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import org.harctoolbox.IrpMaster.IncompatibleArgumentException;
-import org.harctoolbox.IrpMaster.IrSignal;
-import org.harctoolbox.IrpMaster.IrpMasterException;
+import org.harctoolbox.ircore.IrCoreException;
+import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.ircore.ModulatedIrSequence;
+import org.harctoolbox.irp.IrpDatabase;
+import org.harctoolbox.irp.IrpException;
+import org.harctoolbox.irp.XmlUtils;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
@@ -18,7 +22,7 @@ import org.testng.annotations.Test;
 
 public class CommandNGTest {
     private static final String NEC1_12_34_56_CCF = "0000 006C 0022 0002 015B 00AD 0016 0016 0016 0016 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 06A4 015B 0057 0016 0E6C";
-    private static final String IRP_PROTOCOLS_PATH = "../IrpMaster/src/main/resources/IrpProtocols.ini";
+    private static final String IRP_PROTOCOLS_PATH = "../IrpTransmogrifier/src/main/resources/IrpProtocols.xml";
     private static final String NEC1_12_34_56_INTRO = "+9024 -4512 +564 -564 +564 -564 +564 -1692 +564 -1692 +564 -564 +564 -564 +564 -564 +564 -564 +564 -564 +564 -1692 +564 -564 +564 -564 +564 -564 +564 -1692 +564 -564 +564 -564 +564 -564 +564 -564 +564 -564 +564 -1692 +564 -1692 +564 -1692 +564 -564 +564 -564 +564 -1692 +564 -1692 +564 -1692 +564 -564 +564 -564 +564 -564 +564 -1692 +564 -1692 +564 -44268";
     private static final String NEC1_REPEAT = "+9024 -2256 +564 -96156";
     private static final String RC5_12_34_0 = "+889 -889 +1778 -889 +889 -1778 +889 -889 +1778 -889 +889 -1778 +1778 -889 +889 -889 +889 -1778 +1778 -90886";
@@ -41,8 +45,10 @@ public class CommandNGTest {
     private final Command rc5_12_34;
     private final Map<String, Long> rc5Params;
     private final IrSignal irSignal;
+    private final IrpDatabase irpDatabase;
 
-    public CommandNGTest() throws IrpMasterException, IOException {
+    public CommandNGTest() throws IOException, IrCoreException, GirrException {
+        irpDatabase = new IrpDatabase(IRP_PROTOCOLS_PATH);
         Command.setIrpMaster(IRP_PROTOCOLS_PATH);
         //nec1_12_34_56_ccf = new Command("nec1_12_34_56_ccf", "Test ccf", NEC1_12_34_56_CCF);
         nec1Params = new HashMap<>(3);
@@ -50,7 +56,7 @@ public class CommandNGTest {
         nec1Params.put("S", 34L);
         nec1Params.put("F", 56L);
         nec1_12_34_56_param = new Command("nec1_12_34_56_param", "Parametrized signal", "nec1", nec1Params);
-        irSignal = new IrSignal(38321, 0.42, NEC1_12_34_56_INTRO, NEC1_REPEAT, null);
+        irSignal = new IrSignal(NEC1_12_34_56_INTRO, NEC1_REPEAT, null, 38321, 0.42);
         nec1_12_34_56_irSignal = new Command("nec1_12_34_56_irSignal", "Command from IrSignal", irSignal);
         rc5Params = new HashMap<>(2);
         rc5Params.put("D", 12L);
@@ -68,39 +74,28 @@ public class CommandNGTest {
     }
 
     /**
-     * Test of parseParameter method, of class Command.
-     */
-    @Test
-    public void testParseParameter() {
-        System.out.println("parseParameter");
-        assertEquals(Command.parseParameter("1234567890"), 1234567890L);
-        assertEquals(Command.parseParameter("0x1234abcdef"), 0x1234abcdefL);
-    }
-
-    /**
      * Test of setIrpMaster method, of class Command.
      * @throws java.io.IOException
-     * @throws org.harctoolbox.IrpMaster.IncompatibleArgumentException
      */
     @Test
-    public void testSetIrpMaster_String() throws IOException, IncompatibleArgumentException {
+    public void testSetIrpMaster_String() throws IOException {
         System.out.println("setIrpMaster");
         Command.setIrpMaster(IRP_PROTOCOLS_PATH);
     }
 
-//    /**
-//     * Test of concatenateAsSequence method, of class Command.
-//     */
-//    @Test
-//    public void testConcatenateAsSequence() throws Exception {
-//        System.out.println("concatenateAsSequence");
-//        Collection<Command> commands = null;
-//        ModulatedIrSequence expResult = null;
-//        ModulatedIrSequence result = Command.concatenateAsSequence(commands);
-//        assertEquals(result, expResult);
-//        // TODO review the generated test code and remove the default call to fail.
-//        fail("The test case is a prototype.");
-//    }
+    /**
+     * Test of concatenateAsSequence method, of class Command.
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     */
+    @Test
+    public void testConcatenateAsSequence() throws IrpException, IrCoreException {
+        System.out.println("concatenateAsSequence");
+        Collection<Command> commands = new ArrayList<>(0);
+        ModulatedIrSequence expResult = new ModulatedIrSequence();
+        ModulatedIrSequence result = Command.concatenateAsSequence(commands);
+        assertTrue(result.approximatelyEquals(expResult));
+    }
 
     /**
      * Test of getDutyCycle method, of class Command.
@@ -129,7 +124,7 @@ public class CommandNGTest {
     @Test
     public void testGetNotes() {
         System.out.println("getNotes");
-        String result = nec1_12_34_56_irSignal.getNotes();
+        String result = nec1_12_34_56_irSignal.getNotes(XmlUtils.ENGLISH);
         assertEquals(result, null);
     }
 
@@ -155,10 +150,11 @@ public class CommandNGTest {
 
     /**
      * Test of getProtocolName method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
      */
     @Test
-    public void testGetProtocolName() throws IrpMasterException {
+    public void testGetProtocolName() throws IrCoreException, IrpException {
         System.out.println("getProtocolName");
         String result = nec1_12_34_56_irSignal.getProtocolName();
         assertEquals(result, "NEC1");
@@ -166,10 +162,11 @@ public class CommandNGTest {
 
     /**
      * Test of getParameters method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
      */
     @Test
-    public void testGetParameters() throws IrpMasterException {
+    public void testGetParameters() throws IrCoreException, IrpException {
         System.out.println("getParameters");
         Map<String, Long> result = nec1_12_34_56_irSignal.getParameters();
         assertEquals(result, nec1Params);
@@ -188,10 +185,12 @@ public class CommandNGTest {
 
     /**
      * Test of getIntro method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetIntro_0args() throws IrpMasterException {
+    public void testGetIntro_0args() throws IrCoreException, IrpException, GirrException {
         System.out.println("getIntro");
         String expResult = NEC1_12_34_56_INTRO;
         String result = nec1_12_34_56_irSignal.getIntro();
@@ -200,10 +199,12 @@ public class CommandNGTest {
 
     /**
      * Test of getIntro method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetIntro_int() throws IrpMasterException {
+    public void testGetIntro_int() throws IrCoreException, IrpException, GirrException {
         System.out.println("getIntro");
         int T = 0;
         String expResult = NEC1_12_34_56_INTRO;
@@ -213,10 +214,12 @@ public class CommandNGTest {
 
     /**
      * Test of getRepeat method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetRepeat_0args() throws IrpMasterException {
+    public void testGetRepeat_0args() throws IrCoreException, IrpException, GirrException {
         System.out.println("getRepeat");
         String expResult = NEC1_REPEAT;
         String result = nec1_12_34_56_irSignal.getRepeat();
@@ -225,10 +228,12 @@ public class CommandNGTest {
 
     /**
      * Test of getRepeat method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetRepeat_int() throws IrpMasterException {
+    public void testGetRepeat_int() throws IrCoreException, IrpException, GirrException {
         System.out.println("getRepeat");
         int T = 0;
         String expResult = RC5_12_34_0;
@@ -243,10 +248,12 @@ public class CommandNGTest {
 
     /**
      * Test of getEnding method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetEnding_0args() throws IrpMasterException {
+    public void testGetEnding_0args() throws IrCoreException, IrpException, GirrException {
         System.out.println("getEnding");
         Command instance = null;
         String expResult = "";
@@ -256,10 +263,12 @@ public class CommandNGTest {
 
     /**
      * Test of getEnding method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetEnding_int() throws IrpMasterException {
+    public void testGetEnding_int() throws IrCoreException, IrpException, GirrException {
         System.out.println("getEnding");
         int T = 0;
         String expResult = "";
@@ -268,31 +277,54 @@ public class CommandNGTest {
     }
 
     /**
-     * Test of getCcf method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * Test of getProntoHex method, of class Command.
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetCcf_0args() throws IrpMasterException {
-        System.out.println("getCcf");
+    public void testGetProntoHex_0args() throws IrpException, IrCoreException, GirrException {
+        System.out.println("getProntoHex");
         String expResult = NEC1_12_34_56_CCF;
-        String result = nec1_12_34_56_param.getCcf();
+        String result = nec1_12_34_56_param.getProntoHex();
         assertEquals(result, expResult);
     }
 
     /**
-     * Test of getCcf method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * Test of getProntoHex method, of class Command.
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetCcf_int() throws IrpMasterException {
-        System.out.println("getCcf");
+    public void testGetProntoHex_error() throws IrCoreException, IrpException, GirrException {
+        System.out.println("getProntoHex_error");
+        String expResult = NEC1_12_34_56_CCF;
+        Command silly = new Command("name", null, "nonexisting-protocol", nec1Params);
+
+        try {
+            silly.getProntoHex();
+            fail();
+        } catch (GirrException ex) {
+        }
+    }
+
+    /**
+     * Test of getProntoHex method, of class Command.
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.girr.GirrException
+     */
+    @Test
+    public void testGetPronoHex_int() throws IrpException, IrCoreException, GirrException {
+        System.out.println("getProntoHex");
         int T = 0;
         String expResult = RC5_12_34_0_CCF;
-        String result = rc5_12_34.getCcf(T);
+        String result = rc5_12_34.getProntoHex(T);
         assertEquals(result, expResult);
         T = 1;
         expResult = RC5_12_34_1_CCF;
-        result = rc5_12_34.getCcf(T);
+        result = rc5_12_34.getProntoHex(T);
         assertEquals(result, expResult);
     }
 
@@ -320,38 +352,40 @@ public class CommandNGTest {
 
     /**
      * Test of toIrSignal method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
      * @throws java.io.FileNotFoundException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
     @Test
-    public void testToIrSignal_0args() throws IrpMasterException, FileNotFoundException {
+    public void testToIrSignal_0args() throws FileNotFoundException, IrpException, IrCoreException {
         System.out.println("toIrSignal");
-        IrSignal expResult = new IrSignal(IRP_PROTOCOLS_PATH, "NEC1", nec1Params);
+        IrSignal expResult = irpDatabase.render("NEC1", nec1Params);
         IrSignal result = nec1_12_34_56_param.toIrSignal();
-        assertTrue(result.isEqual(expResult)); // TODO: IrSignal should probably implement equals(Object)
+        assertTrue(result.approximatelyEquals(expResult)); // TODO: IrSignal should probably implement equals(Object)
     }
 
     /**
      * Test of toIrSignal method, of class Command.
      * @throws java.io.FileNotFoundException
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
     @Test
-    public void testToIrSignal_int() throws FileNotFoundException, IrpMasterException {
+    public void testToIrSignal_int() throws FileNotFoundException, IrpException, IrCoreException {
         System.out.println("toIrSignal");
         int T = 0;
         Map<String, Long> params = new HashMap<>(3);
         params.put("D", 12L);
         params.put("F", 34L);
         params.put("T", (long) T);
-        IrSignal expResult = new IrSignal(IRP_PROTOCOLS_PATH, "RC5", params);
+        IrSignal expResult = irpDatabase.render("RC5", params);
         IrSignal result = rc5_12_34.toIrSignal(T);
-        assertTrue(result.isEqual(expResult));
+        assertTrue(result.approximatelyEquals(expResult));
         T = 1;
         params.put("T", (long) T);
-        expResult = new IrSignal(IRP_PROTOCOLS_PATH, "RC5", params);
+        expResult = irpDatabase.render("RC5", params);
         result = rc5_12_34.toIrSignal(T);
-        assertTrue(result.isEqual(expResult));
+        assertTrue(result.approximatelyEquals(expResult));
     }
 
     /**
@@ -378,10 +412,12 @@ public class CommandNGTest {
 
     /**
      * Test of toPrintString method, of class Command.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testToPrintString() throws IrpMasterException {
+    public void testToPrintString() throws IrpException, IrCoreException, GirrException {
         System.out.println("toPrintString");
         String expResult = "nec1_12_34_56_param: nec1, S=34 D=12 F=56";
         String result = nec1_12_34_56_param.toPrintString();

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2013, 2014, 2015 Bengt Martensson.
+ Copyright (C) 2013, 2014, 2015, 2018 Bengt Martensson.
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -18,24 +18,54 @@
 package org.harctoolbox.girr;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import org.harctoolbox.IrpMaster.DecodeIR;
-import org.harctoolbox.IrpMaster.IncompatibleArgumentException;
-import org.harctoolbox.IrpMaster.IrSequence;
-import org.harctoolbox.IrpMaster.IrSignal;
-import org.harctoolbox.IrpMaster.IrpMaster;
-import org.harctoolbox.IrpMaster.IrpMasterException;
-import org.harctoolbox.IrpMaster.IrpUtils;
-import org.harctoolbox.IrpMaster.ModulatedIrSequence;
-import org.harctoolbox.IrpMaster.Pronto;
-import org.harctoolbox.IrpMaster.Protocol;
-import org.harctoolbox.IrpMaster.UnassignedException;
-import org.harctoolbox.IrpMaster.UnknownProtocolException;
+import static org.harctoolbox.girr.XmlExporter.COMMAND_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.COMMENT_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.DUTYCYCLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.ENDING_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.FLASH_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.FORMAT_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.FREQUENCY_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.F_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.GAP_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlExporter.INTRO_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.MASTER_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.NAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.PARAMETERS_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.PARAMETER_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.PRONTO_HEX_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.PROTOCOL_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.PROTOCOL_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.RAW_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.REPEAT_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.SPACE;
+import static org.harctoolbox.girr.XmlExporter.TITLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.TOGGLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.VALUE_ATTRIBUTE_NAME;
+import org.harctoolbox.ircore.InvalidArgumentException;
+import org.harctoolbox.ircore.IrCoreException;
+import org.harctoolbox.ircore.IrCoreUtils;
+import org.harctoolbox.ircore.IrSequence;
+import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.ircore.ModulatedIrSequence;
+import org.harctoolbox.ircore.OddSequenceLengthException;
+import org.harctoolbox.ircore.Pronto;
+import org.harctoolbox.ircore.ThisCannotHappenException;
+import org.harctoolbox.irp.Decoder;
+import org.harctoolbox.irp.DomainViolationException;
+import org.harctoolbox.irp.InvalidNameException;
+import org.harctoolbox.irp.IrpDatabase;
+import org.harctoolbox.irp.IrpException;
+import org.harctoolbox.irp.IrpInvalidArgumentException;
+import org.harctoolbox.irp.NameUnassignedException;
+import org.harctoolbox.irp.Protocol;
+import static org.harctoolbox.irp.XmlUtils.ENGLISH;
+import static org.harctoolbox.irp.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -50,8 +80,8 @@ import org.w3c.dom.NodeList;
  * <ol>
  * <li>It the toggle parameter is explicitly specified, the signal is treated no different from other signals,
  * and no particular treatment of the toggle parameter occurs.
- * <li>If the toggle parameter is not explicitly specified, the CCF and the raw versions are computed for
- * all values of the toggle. They can be accessed by the version of the functions getCcf, toIrSignal, getIntro, getRepeat, getEnding
+ * <li>If the toggle parameter is not explicitly specified, the Pronto Hex and the raw versions are computed for
+ * all values of the toggle. They can be accessed by the version of the functions getProntoHex, toIrSignal, getIntro, getRepeat, getEnding
  * taking an argument, corresponding to the value of the toggle parameter.
  * </ol>
  *
@@ -60,62 +90,58 @@ import org.w3c.dom.NodeList;
  * erroneous data. The other classes in the package may not; they should just
  * ignore individual unparseable commands.
  */
-public final class Command implements Serializable {
-
-    /** Attribute name for toggle used in girr file */
-    private final static String toggleAttributeName = "T";
+public final class Command {
 
     /** Name of the parameter containing the toggle in the IRP protocol. */
-    private final static String toggleParameterName = "T";
+    private static final String TOGGLE_PARAMETER_NAME = "T";
+    private static final String F_PARAMETER_NAME      = "F";
+    private static final String D_PARAMETER_NAME      = "D";
+    private static final String S_PARAMETER_NAME      = "S";
 
-    private static final String linefeed = System.getProperty("line.separator", "\n");
-    private static IrpMaster irpMaster;
-
-    // TODO: migrate to BigInteger
-    // TODO: using IrCore.
-    static long parseParameter(String s) throws NumberFormatException {
-        return s.startsWith("0x") ? Long.parseLong(s.substring(2), 16) : Long.parseLong(s);
-    }
+    private static IrpDatabase irpDatabase = null;
+    private static Decoder decoder = null;
 
     /**
-     * Sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format.
-     * @param newIrpMaster IrpMaster instance
+     * Sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format,
+     * and for decodes.
+     * @param newIrpDatabase IrpDatabase instance
      */
-    public static void setIrpMaster(IrpMaster newIrpMaster) {
-        irpMaster = newIrpMaster;
+    public static void setIrpMaster(IrpDatabase newIrpDatabase) {
+        irpDatabase = newIrpDatabase;
+        decoder = new Decoder(irpDatabase);
     }
 
     /**
-     * Creates and sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format.
-     * @param irpProtocolsIniPath
+     * Creates and sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format,
+     * and for decodes.
+     * @param irpProtocolsIniPath Filename of IrpProtocols.xml
      * @throws java.io.IOException
-     * @throws org.harctoolbox.IrpMaster.IncompatibleArgumentException
      */
-    public static void setIrpMaster(String irpProtocolsIniPath) throws IOException, IncompatibleArgumentException {
-        irpMaster = new IrpMaster(irpProtocolsIniPath);
+    public static void setIrpMaster(String irpProtocolsIniPath) throws IOException {
+        setIrpMaster(new IrpDatabase(irpProtocolsIniPath));
     }
 
-    private static String toPrintString(Map<String,Long>map) {
+    private static String toPrintString(Map<String, Long> map) {
         if (map == null || map.isEmpty())
             return "";
         StringBuilder str = new StringBuilder(64);
         map.entrySet().forEach((kvp) -> {
-            str.append(kvp.getKey()).append("=").append(Long.toString(kvp.getValue())).append(" ");
+            str.append(kvp.getKey()).append("=").append(Long.toString(kvp.getValue())).append(SPACE);
         });
         return str.substring(0, str.length() - 1);
     }
 
     private static void processRaw(Document doc, Element element, String sequence, String tagName, boolean fatRaw) {
-        Element el = xmlExport(doc, sequence, tagName, fatRaw);
+        Element el = toElement(doc, sequence, tagName, fatRaw);
         if (el != null)
             element.appendChild(el);
     }
 
-    private static Element xmlExport(Document doc, String sequence, String tagName, boolean fatRaw) {
+    private static Element toElement(Document doc, String sequence, String tagName, boolean fatRaw) {
         if (sequence == null || sequence.isEmpty())
             return null;
 
-        Element el = doc.createElementNS(XmlExporter.girrNamespace, tagName);
+        Element el = doc.createElementNS(GIRR_NAMESPACE, tagName);
         if (fatRaw)
             insertFatElements(doc, el, sequence);
         else
@@ -125,17 +151,17 @@ public final class Command implements Serializable {
     }
 
     private static void insertFatElements(Document doc, Element el, String sequence) {
-        String[] durations = sequence.split(" ");
+        String[] durations = sequence.split(SPACE);
         for (int i = 0; i < durations.length; i++) {
             String duration = durations[i].replaceAll("[\\+-]", "");
-            Element e = doc.createElementNS(XmlExporter.girrNamespace, i % 2 == 0 ? "flash" : "gap");
+            Element e = doc.createElementNS(GIRR_NAMESPACE, i % 2 == 0 ? FLASH_ELEMENT_NAME : GAP_ELEMENT_NAME);
             e.setTextContent(duration);
             el.appendChild(e);
         }
     }
 
     private static String parseSequence(Element element) {
-        if (element.getElementsByTagName("flash").getLength() > 0) {
+        if (element.getElementsByTagName(FLASH_ELEMENT_NAME).getLength() > 0) {
             StringBuilder str = new StringBuilder(64);
             NodeList nl = element.getChildNodes();
             for (int i = 0; i < nl.getLength(); i++) {
@@ -143,14 +169,14 @@ public final class Command implements Serializable {
                     continue;
                 Element el = (Element) nl.item(i);
                 switch (el.getTagName()) {
-                    case "flash":
+                    case FLASH_ELEMENT_NAME:
                         str.append(" +").append(el.getTextContent());
                         break;
-                    case "gap":
+                    case GAP_ELEMENT_NAME:
                         str.append(" -").append(el.getTextContent());
                         break;
                     default:
-                        throw new RuntimeException("Invalid tag name");
+                        throw new ThisCannotHappenException("Invalid tag name");
                 }
             }
             return str.substring(1);
@@ -158,65 +184,48 @@ public final class Command implements Serializable {
             return element.getTextContent();
     }
 
-    public static ModulatedIrSequence concatenateAsSequence(Collection<Command>commands) throws IrpMasterException {
-        double frequency = IrpUtils.invalid;
-        double dutyCycle = IrpUtils.invalid;
+    /**
+     * Concatenates the Commands in the argument using IrSignal.toModulatedIrSequence.
+     * @param commands Collection of Commands to be concatenated.
+     * @return ModulatedIrSequence
+     *
+     * @throws IrCoreException
+     * @throws IrpException
+     */
+    public static ModulatedIrSequence concatenateAsSequence(Collection<Command> commands) throws IrpException, IrCoreException {
+        Double frequency = null;
+        Double dutyCycle = null;
         IrSequence seq = new IrSequence();
         for (Command c : commands) {
-            if (frequency < 0) // take the first sensible frequency
+            if (frequency == null) // take the first sensible frequency
                 frequency = c.getFrequency();
-            if (dutyCycle <= 0)
+            if (dutyCycle == null)
                 dutyCycle = c.getDutyCycle();
             seq = seq.append(c.toIrSignal().toModulatedIrSequence(1));
         }
         return new ModulatedIrSequence(seq, frequency, dutyCycle);
     }
 
-    /**
-     * Just for testing, not for deployment.
-     * @param args
-     * /
-     * public static void main(String[] args) {
-     * try {
-     * //                String ccf = "0000 006C 0022 0002 015B 00AD 0016 0016 0016 0016 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 06A4 015B 0057 0016 0E6C";
-     * //            try {
-     * //                Command irCommand = new Command("test", "A very cool signal", ccf);
-     * //                Document doc = XmlUtils.newDocument();
-     * //                Element el = irCommand.xmlExport(doc, "A very silly title", args.length > 1, true, true, true);
-     * //                doc.appendChild(el);
-     * //                XmlUtils.printDOM(new File("junk.xml"), doc);
-     *
-     *
-     * HashMap<String, Long> parameters = new HashMap<>();
-     * parameters.put("F", 1L);
-     * parameters.put("D", 0L);
-     * Command.setIrpMaster("/usr/local/share/irscrutinizer/IrpProtocols.ini");
-     * Command irCommand = new Command("nombre", "komment", "RC5", parameters);
-     * String ccf1 = irCommand.getCcf(1);
-     * System.out.println(ccf1);
-     * System.out.println(irCommand.getRepeat());
-     * Document doc = XmlUtils.newDocument();
-     * Element el = irCommand.xmlExport(doc, "A very silly title", args.length > 1, true, true, true);
-     * doc.appendChild(el);
-     * XmlUtils.printDOM(new File("junk.xml"), doc);
-     *
-     * } catch (IOException | IrpMasterException ex) {
-     * System.err.println(ex.getMessage());
-     * }
-     * }*/
+    private static Protocol getProtocolOrNull(IrpDatabase irpDatabase, String protocolName) {
+        try {
+            return irpDatabase.getProtocol(protocolName);
+        } catch (IrpException ex) {
+            return null;
+        }
+    }
 
     private Protocol protocol;
     private MasterType masterType;
-    private String notes;
+    private Map<String, String> notes;
     private String name;
     private String protocolName;
     private Map<String, Long> parameters;
-    private int frequency;
-    private double dutyCycle;
+    private Integer frequency;
+    private Double dutyCycle;
     private String[] intro;
     private String[] repeat;
     private String[] ending;
-    private String[] ccf;
+    private String[] prontoHex;
     private String comment;
     private Map<String, String> otherFormats;
 
@@ -225,36 +234,34 @@ public final class Command implements Serializable {
      * @param element
      * @param inheritProtocol
      * @param inheritParameters
-     * @throws ParseException
-     * @throws IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
      */
-    public Command(Element element, String inheritProtocol, Map<String, Long> inheritParameters) throws ParseException, IrpMasterException {
-        this(MasterType.safeValueOf(element.getAttribute("master")), element.getAttribute("name"), element.getAttribute("comment"));
+    public Command(Element element, String inheritProtocol, Map<String, Long> inheritParameters) throws GirrException {
+        this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME), element.getAttribute(COMMENT_ATTRIBUTE_NAME));
         protocolName = inheritProtocol;
         parameters = new HashMap<>(4);
         parameters.putAll(inheritParameters);
-        otherFormats = new HashMap<>(1);
-        NodeList nl = element.getElementsByTagName("notes");
-        if (nl.getLength() > 0)
-            notes = nl.item(0).getTextContent();
+        otherFormats = new HashMap<>(0);
+        notes = XmlExporter.parseNotes(element);
 
         try {
-            NodeList paramsNodeList = element.getElementsByTagName("parameters");
+            NodeList nl;
+            NodeList paramsNodeList = element.getElementsByTagName(PARAMETERS_ELEMENT_NAME);
             if (paramsNodeList.getLength() > 0) {
                 Element params = (Element) paramsNodeList.item(0);
-                String proto = params.getAttribute("protocol");
+                String proto = params.getAttribute(PROTOCOL_ELEMENT_NAME);
                 if (!proto.isEmpty())
                     this.protocolName = proto;
-                nl = params.getElementsByTagName("parameter");
+                nl = params.getElementsByTagName(PARAMETER_ELEMENT_NAME);
                 for (int i = 0; i < nl.getLength(); i++) {
                     Element el = (Element) nl.item(i);
-                    parameters.put(el.getAttribute("name"), parseParameter(el.getAttribute("value")));
+                    parameters.put(el.getAttribute(NAME_ATTRIBUTE_NAME), IrCoreUtils.parseLong(el.getAttribute(VALUE_ATTRIBUTE_NAME)));
                 }
             }
-            String Fstring = element.getAttribute("F");
+            String Fstring = element.getAttribute(F_ATTRIBUTE_NAME);
             if (!Fstring.isEmpty())
-                parameters.put("F", parseParameter(Fstring));
-            nl = element.getElementsByTagName("raw");
+                parameters.put(F_PARAMETER_NAME, IrCoreUtils.parseLong(Fstring));
+            nl = element.getElementsByTagName(RAW_ELEMENT_NAME);
             if (nl.getLength() > 0) {
                 intro = new String[nl.getLength()];
                 repeat = new String[nl.getLength()];
@@ -263,53 +270,53 @@ public final class Command implements Serializable {
                     Element el = (Element) nl.item(i);
                     int T;
                     try {
-                        T = Integer.parseInt(el.getAttribute(toggleAttributeName));
+                        T = Integer.parseInt(el.getAttribute(TOGGLE_ATTRIBUTE_NAME));
                     } catch (NumberFormatException ex) {
                         T = 0;
                     }
-                    barfIfInvalidToggle(T, nl.getLength()); // throws IllegalArgumentException
-                    String freq = el.getAttribute("frequency");
+                    barfIfInvalidToggle(T, nl.getLength());
+                    String freq = el.getAttribute(FREQUENCY_ATTRIBUTE_NAME);
                     if (!freq.isEmpty())
                         frequency = Integer.parseInt(freq);
-                    String dc = el.getAttribute("dutyCycle");
+                    String dc = el.getAttribute(DUTYCYCLE_ATTRIBUTE_NAME);
                     if (!dc.isEmpty()) {
                         dutyCycle = Double.parseDouble(dc);
-                        if (dutyCycle <= 0 || dutyCycle >= 1)
-                            throw new ParseException("Invalid dutyCycle: " + dutyCycle + "; must be between 0 and 1.", (int) IrpUtils.invalid);
+                        if (!ModulatedIrSequence.isValidDutyCycle(dutyCycle))
+                            throw new GirrException("Invalid dutyCycle: " + dutyCycle + "; must be between 0 and 1.");
                     }
-                    NodeList nodeList = el.getElementsByTagName("intro");
+                    NodeList nodeList = el.getElementsByTagName(INTRO_ELEMENT_NAME);
                     if (nodeList.getLength() > 0)
                         intro[T] = parseSequence((Element) nodeList.item(0));
-                    nodeList = el.getElementsByTagName("repeat");
+                    nodeList = el.getElementsByTagName(REPEAT_ELEMENT_NAME);
                     if (nodeList.getLength() > 0)
                         repeat[T] = parseSequence((Element) nodeList.item(0));
-                    nodeList = el.getElementsByTagName("ending");
+                    nodeList = el.getElementsByTagName(ENDING_ELEMENT_NAME);
                     if (nodeList.getLength() > 0)
                         ending[T] = parseSequence((Element) nodeList.item(0));
                 }
             }
-            nl = element.getElementsByTagName("ccf");
+            nl = element.getElementsByTagName(PRONTO_HEX_ELEMENT_NAME);
             if (nl.getLength() > 0) {
-                ccf = new String[nl.getLength()];
+                prontoHex = new String[nl.getLength()];
                 for (int i = 0; i < nl.getLength(); i++) {
                     Element el = (Element) nl.item(i);
                     int T;
                     try {
-                        T = Integer.parseInt(el.getAttribute(toggleAttributeName));
+                        T = Integer.parseInt(el.getAttribute(TOGGLE_ATTRIBUTE_NAME));
                     } catch (NumberFormatException ex) {
                         T = 0;
                     }
-                    barfIfInvalidToggle(T, nl.getLength()); // throws IllegalArgumentException
-                    ccf[T] = el.getTextContent();
+                    barfIfInvalidToggle(T, nl.getLength());
+                    prontoHex[T] = el.getTextContent();
                 }
             }
-            nl = element.getElementsByTagName("format");
+            nl = element.getElementsByTagName(FORMAT_ELEMENT_NAME);
             for (int i = 0; i < nl.getLength(); i++) {
                 Element el = (Element) nl.item(0);
-                otherFormats.put(el.getAttribute("name"), el.getTextContent());
+                otherFormats.put(el.getAttribute(NAME_ATTRIBUTE_NAME), el.getTextContent());
             }
         } catch (IllegalArgumentException ex) { // contains NumberFormatException
-            throw new ParseException(ex.getClass().getSimpleName() + " " + ex.getMessage(), (int) IrpUtils.invalid);
+            throw new GirrException(ex);
         }
         sanityCheck();
     }
@@ -333,17 +340,15 @@ public final class Command implements Serializable {
      * @param comment
      * @param protocolName
      * @param parameters
-     * @throws IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
      */
     @SuppressWarnings("unchecked")
-    public Command(String name, String comment, String protocolName, Map<String, Long> parameters)
-            throws IrpMasterException {
-        this(name, comment, protocolName, irpMaster.newProtocolOrNull(protocolName), parameters);
+    public Command(String name, String comment, String protocolName, Map<String, Long> parameters) throws GirrException {
+        this(name, comment, protocolName, getProtocolOrNull(irpDatabase, protocolName), parameters);
     }
 
     @SuppressWarnings("unchecked")
-    private Command(String name, String comment, String protocolName, Protocol protocol, Map<String, Long> parameters)
-            throws IrpMasterException {
+    private Command(String name, String comment, String protocolName, Protocol protocol, Map<String, Long> parameters) throws GirrException {
         this(MasterType.parameters, name, comment);
         this.parameters = new HashMap<>(parameters);
         this.protocolName = protocolName;
@@ -356,32 +361,38 @@ public final class Command implements Serializable {
         this.name = name;
         this.comment = comment;
         this.otherFormats = new HashMap<>(0);
-        frequency = (int) IrpUtils.invalid;
-        dutyCycle = IrpUtils.invalid;
-        ccf = null;
+        this.notes = new HashMap<>(0);
+        frequency = null;
+        dutyCycle = null;
+        prontoHex = null;
         intro = null;
         repeat = null;
         ending = null;
     }
 
     /**
-     * Construct a Command from CCF form.
+     * Construct a Command from Pronto Hex form.
      *
      * @param name
      * @param comment
-     * @param ccf
-     * @throws IrpMasterException
+     * @param prontoHex
+     * @throws org.harctoolbox.girr.GirrException
      */
-    public Command(String name, String comment, String ccf) throws IrpMasterException {
-        this(MasterType.ccf, name, comment);
-        this.ccf = new String[1];
-        this.ccf[0] = ccf;
+    public Command(String name, String comment, String prontoHex) throws GirrException {
+        this(MasterType.prontoHex, name, comment);
+        this.prontoHex = new String[1];
+        this.prontoHex[0] = prontoHex;
         sanityCheck();
     }
 
+    /**
+     * Create an empty command.
+     * @param name Name of command.
+     */
     public Command(String name) {
         this(MasterType.empty, name, null);
     }
+
 
     /**
      * @return duty cycle, a number between 0 and 1.
@@ -402,10 +413,11 @@ public final class Command implements Serializable {
     }
 
     /**
+     * @param lang
      * @return the notes
      */
-    public String getNotes() {
-        return notes;
+    public String getNotes(String lang) {
+        return notes.get(lang);
     }
 
     /**
@@ -424,19 +436,22 @@ public final class Command implements Serializable {
 
     /**
      * @return name of the protocol
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.ircore.InvalidArgumentException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.Pronto.NonProntoFormatException
      */
-    public String getProtocolName() throws IrpMasterException {
+    public String getProtocolName() throws IrpException, IrCoreException {
         checkForParameters();
         return protocolName;
     }
 
     /**
      * @return the parameters
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
     @SuppressWarnings("ReturnOfCollectionOrArrayField")
-    public Map<String, Long> getParameters() throws IrpMasterException {
+    public Map<String, Long> getParameters() throws IrpException, IrCoreException {
         checkForParameters();
         return parameters;
     }
@@ -455,17 +470,19 @@ public final class Command implements Serializable {
     private void checkForProtocol() {
         if (protocol == null)
             try {
-                protocol = irpMaster.newProtocol(protocolName);
-            } catch (UnassignedException | org.harctoolbox.IrpMaster.ParseException | UnknownProtocolException ex) {
+                protocol = irpDatabase.getProtocol(protocolName);
+            } catch (IrpException ex) {
             }
     }
 
     /**
      * Returns the first intro sequence. Equivalent to getIntro(0);
      * @return the intro
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
      */
-    public String getIntro() throws IrpMasterException {
+    public String getIntro() throws GirrException, IrCoreException, IrpException {
         return getIntro(0);
     }
 
@@ -473,9 +490,11 @@ public final class Command implements Serializable {
      *
      * @param T toggle value
      * @return intro sequence corresponding to T.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
      */
-    public String getIntro(int T) throws IrpMasterException {
+    public String getIntro(int T) throws GirrException, IrCoreException, IrpException {
         checkForRaw();
         barfIfInvalidToggle(T);
         return intro[T];
@@ -484,9 +503,11 @@ public final class Command implements Serializable {
     /**
      * Returns the first repeat sequence. Equivalent to getRepeat(0);
      * @return the repeat
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
      */
-    public String getRepeat() throws IrpMasterException {
+    public String getRepeat() throws GirrException, IrCoreException, IrpException {
         return getRepeat(0);
     }
 
@@ -494,9 +515,11 @@ public final class Command implements Serializable {
      *
      * @param T toggle value
      * @return repeat sequence corresponding to T.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.irp.IrpException
      */
-    public String getRepeat(int T) throws IrpMasterException {
+    public String getRepeat(int T) throws GirrException, IrCoreException, IrpException {
         checkForRaw();
         barfIfInvalidToggle(T);
         return repeat[T];
@@ -505,9 +528,11 @@ public final class Command implements Serializable {
     /**
      * Returns the first ending sequence. Equivalent to getEnding(0).
      * @return the ending
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public String getEnding() throws IrpMasterException {
+    public String getEnding() throws GirrException, IrpException, IrCoreException {
         return getEnding(0);
     }
 
@@ -515,45 +540,50 @@ public final class Command implements Serializable {
      *
      * @param T toggle value
      * @return ending sequence corresponding to T.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public String getEnding(int T) throws IrpMasterException {
+    public String getEnding(int T) throws GirrException, IrpException, IrCoreException {
         checkForRaw();
         barfIfInvalidToggle(T);
         return ending[T];
     }
 
     /**
-     * Returns the  CCF (Pronto Hex) version of the first signal. Equivalent to getCcf(0).
-     * @return the ccf
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * Returns the  Pronto Hex version of the first signal. Equivalent to getProntoHex(0).
+     * @return Pronto Hex
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public String getCcf() throws IrpMasterException {
-        return getCcf(0);
+    public String getProntoHex() throws GirrException, IrpException, IrCoreException {
+        return getProntoHex(0);
     }
 
     /**
      *
      * @param T toggle value
-     * @return ccf corresponding to T
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @return Pronto Hex corresponding to T
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public String getCcf(int T) throws IrpMasterException {
-        checkForCcf();
+    public String getProntoHex(int T) throws GirrException, IrpException, IrCoreException {
+        checkForProntoHex();
         barfIfInvalidToggle(T);
-        return ccf[T];
+        return prontoHex[T];
     }
 
     /**
      * Checks that the parameter T is a valid toggle value; throws an exception otherwise.
      * @param T toggle value
-     * @throws IllegalArgumentException
      */
-    private void barfIfInvalidToggle(Integer T) throws IllegalArgumentException {
+    private void barfIfInvalidToggle(Integer T) {
         barfIfInvalidToggle(T, numberOfToggleValues());
     }
 
-    private void barfIfInvalidToggle(Integer T, int noToggles) throws IllegalArgumentException {
+    private void barfIfInvalidToggle(Integer T, int noToggles) {
         if (T != null && (T < 0 || T >= noToggles))
             throw new IllegalArgumentException("Illegal value of T = " + T);
     }
@@ -577,9 +607,10 @@ public final class Command implements Serializable {
     /**
      * Returns the IrSignal of the Command.
      * @return IrSignal
-     * @throws IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public IrSignal toIrSignal() throws IrpMasterException {
+    public IrSignal toIrSignal() throws IrpException, IrCoreException {
         return toIrSignal(null);
     }
 
@@ -587,9 +618,10 @@ public final class Command implements Serializable {
      * Returns the IrSignal of the Command.
      * @param toggle toggle value; use null for unspecified.
      * @return IrSignal corresponding to the Command.
-     * @throws IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public IrSignal toIrSignal(Integer toggle) throws IrpMasterException {
+    public IrSignal toIrSignal(Integer toggle) throws IrpException, IrCoreException {
         barfIfInvalidToggle(toggle);
         int T = toggle == null ? 0 : toggle;
 
@@ -597,19 +629,21 @@ public final class Command implements Serializable {
             case parameters:
                 if (toggle != null) {
                     Map<String, Long> params = new HashMap<>(parameters);
-                    params.put(toggleParameterName, toggle.longValue());
-                    return new IrSignal(irpMaster, protocolName, params);
+                    params.put(TOGGLE_PARAMETER_NAME, toggle.longValue());
+                    return irpDatabase.render(protocolName, params);
                 } else
-                    return new IrSignal(irpMaster, protocolName, parameters);
+                    return irpDatabase.render(protocolName, parameters);
 
             case raw:
-                return new IrSignal(frequency, dutyCycle, intro[T], repeat[T], ending[T]);
+                return new IrSignal(intro[T], repeat[T], ending[T], frequency, dutyCycle);
+
+            case prontoHex:
+                return Pronto.parse(prontoHex[T]);
 
             default:
-                return new IrSignal(ccf[T]);
+                throw new ThisCannotHappenException();
         }
     }
-
 
     // Nice to have: a version that takes a user supplied format string as argument.
     /**
@@ -622,16 +656,16 @@ public final class Command implements Serializable {
             str.append(": <no decode>");
         } else {
             str.append(": ").append(protocolName);
-            if (parameters.containsKey("D"))
-                str.append(" Device: ").append(parameters.get("D"));
-            if (parameters.containsKey("S"))
-                str.append(".").append(parameters.get("S"));
-            if (parameters.containsKey("F"))
-                str.append(" Function: ").append(parameters.get("F"));
+            if (parameters.containsKey(D_PARAMETER_NAME))
+                str.append(" Device: ").append(parameters.get(D_PARAMETER_NAME));
+            if (parameters.containsKey(S_PARAMETER_NAME))
+                str.append(".").append(parameters.get(S_PARAMETER_NAME));
+            if (parameters.containsKey(F_PARAMETER_NAME))
+                str.append(" Function: ").append(parameters.get(F_PARAMETER_NAME));
             parameters.entrySet().forEach((kvp) -> {
                 String parName = kvp.getKey();
-                if (!(parName.equals("F") || parName.equals("D") || parName.equals("F")))
-                    str.append(" ").append(parName).append("=").append(kvp.getValue());
+                if (!(parName.equals(F_PARAMETER_NAME) || parName.equals(D_PARAMETER_NAME) || parName.equals(F_PARAMETER_NAME)))
+                    str.append(SPACE).append(parName).append("=").append(kvp.getValue());
             });
         }
 
@@ -648,28 +682,31 @@ public final class Command implements Serializable {
 
         try {
             checkForParameters();
-        } catch (IrpMasterException ex) {
+        } catch (IrCoreException | IrpException ex) {
             return "Undecoded signal";
         }
+
         return (parameters != null && !parameters.isEmpty()) ? protocolName + ", " + toPrintString(parameters)
-                : ccf != null ? ccf[0]
+                : prontoHex != null ? prontoHex[0]
                 : "Undecoded signal";
     }
 
     /**
      *
      * @return Nicely formatted string the way the user would like to see it if truncated to "small" length.
-     * @throws org.harctoolbox.IrpMaster.IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     * @throws org.harctoolbox.girr.GirrException
      */
-    public String toPrintString() throws IrpMasterException {
+    public String toPrintString() throws IrpException, IrCoreException, GirrException {
         StringBuilder str = new StringBuilder(name != null ? name : "<unnamed>");
         str.append(": ");
         if (parameters != null)
             str.append(protocolName).append(", ").append(toPrintString(parameters));
-        else if (ccf != null)
-            str.append(getCcf());
+        else if (prontoHex != null)
+            str.append(getProntoHex());
         else
-            str.append(toIrSignal().toPrintString(true));
+            str.append(toIrSignal().toString(true));
 
         return str.toString();
     }
@@ -680,94 +717,88 @@ public final class Command implements Serializable {
             return "no information present";
         try {
             return toPrintString();
-        } catch (IrpMasterException ex) {
+        } catch (IrpException | IrCoreException | GirrException ex) {
             return name + ": (<erroneous signal>)";
         }
     }
 
-    private void sanityCheck() throws IrpMasterException {
-        boolean protocolOk = protocolName != null && ! protocolName.isEmpty();
-        boolean parametersOk = parameters != null && ! parameters.isEmpty();
-        boolean rawOk = (intro != null && intro[0] != null && ! intro[0].isEmpty())
-                || (repeat != null && repeat[0] != null && ! repeat[0].isEmpty());
-        boolean ccfOk = ccf != null && ccf[0] != null && ! ccf[0].isEmpty();
+    private void sanityCheck() throws GirrException {
+        boolean protocolOk = protocolName != null && !protocolName.isEmpty();
+        boolean parametersOk = parameters != null && !parameters.isEmpty();
+        boolean rawOk = (intro != null && intro[0] != null && !intro[0].isEmpty())
+                || (repeat != null && repeat[0] != null && !repeat[0].isEmpty());
+        boolean prontoHexOk = prontoHex != null && prontoHex[0] != null && !prontoHex[0].isEmpty();
 
         if (masterType == null)
             masterType = (protocolOk && parametersOk) ? MasterType.parameters
                     : rawOk ? MasterType.raw
-                    : ccfOk ? MasterType.ccf
+                    : prontoHexOk ? MasterType.prontoHex
                     : null;
 
         if (masterType == null)
-            throw new IrpMasterException("Command " + name + ": No usable data or parameters.");
+            throw new GirrException("Command " + name + ": No usable data or parameters.");
 
         if (masterType == MasterType.parameters && !protocolOk)
-            throw new IrpMasterException("Command " + name + ": MasterType is parameters, but no protocol found.");
+            throw new GirrException("Command " + name + ": MasterType is parameters, but no protocol found.");
         if (masterType == MasterType.parameters && !parametersOk)
-            throw new IrpMasterException("Command " + name + ": MasterType is parameters, but no parameters found.");
+            throw new GirrException("Command " + name + ": MasterType is parameters, but no parameters found.");
         if (masterType == MasterType.raw && !rawOk)
-            throw new IrpMasterException("Command " + name + ": MasterType is raw, but both intro- and repeat-sequence empty.");
-        if (masterType == MasterType.ccf && !ccfOk)
-            throw new IrpMasterException("Command " + name + ": MasterType is ccf, but no ccf found.");
+            throw new GirrException("Command " + name + ": MasterType is raw, but both intro- and repeat-sequence empty.");
+        if (masterType == MasterType.prontoHex && !prontoHexOk)
+            throw new GirrException("Command " + name + ": MasterType is prontoHex, but no Pronto Hex found.");
     }
 
 
-    private void generateRawCcfAllT(Map<String, Long> parameters, boolean generateRaw, boolean generateCcf) throws IrpMasterException {
+    private void generateRawProntoHexAllT(Map<String, Long> parameters, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
         if (numberOfToggleValues() == 1)
-            generateRawCcf(parameters, generateRaw, generateCcf);
+            generateRawProntoHex(parameters, generateRaw, generateProntoHex);
         else
             for (int T = 0; T < numberOfToggleValues(); T++)
-                generateRawCcfForceT(parameters, T, generateRaw, generateCcf);
+                generateRawProntoHexForceT(parameters, T, generateRaw, generateProntoHex);
     }
 
-    private void generateRawCcfForceT(Map<String, Long> parameter, int T, boolean generateRaw, boolean generateCcf) throws IrpMasterException {
+    private void generateRawProntoHexForceT(Map<String, Long> parameter, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
         @SuppressWarnings("unchecked")
-        Map<String, Long> params = new HashMap(parameters);
-        params.put(toggleParameterName, (long) T);
-        generateRawCcf(params, T, generateRaw, generateCcf);
+        Map<String, Long> params = new HashMap<>(parameters);
+        params.put(TOGGLE_PARAMETER_NAME, (long) T);
+        generateRawProntoHex(params, T, generateRaw, generateProntoHex);
     }
 
-    private void generateRawCcf(Map<String, Long> parameter, boolean generateRaw, boolean generateCcf) throws IrpMasterException {
+    private void generateRawProntoHex(Map<String, Long> parameter, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
+        checkForProtocol();
         if (protocol == null)
-            throw new IrpMasterException("Protocol " + protocolName + " unknown or unusable");
-        IrSignal irSignal = protocol.renderIrSignal(parameters);
+            throw new GirrException("protocol named " + this.protocolName + " not found or erroneous");
+
+        IrSignal irSignal = protocol.toIrSignal(parameters);
+
         if (generateRaw)
             generateRaw(irSignal);
-        if (generateCcf)
-            generateCcf(irSignal);
+        if (generateProntoHex)
+            generateProntoHex(irSignal);
     }
 
-    private void generateRawCcf(Map<String, Long> parameters, int T, boolean generateRaw, boolean generateCcf) throws IrpMasterException {
-        IrSignal irSignal = protocol.renderIrSignal(parameters);
+    private void generateRawProntoHex(Map<String, Long> parameters, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
+        IrSignal irSignal = protocol.toIrSignal(parameters);
         if (generateRaw)
             generateRaw(irSignal, T);
-        if (generateCcf)
-            generateCcf(irSignal, T);
+        if (generateProntoHex)
+            generateProntoHex(irSignal, T);
     }
 
 
     private void generateDecode(IrSignal irSignal) {
-        DecodeIR.DecodedSignal[] decodes = DecodeIR.decode(irSignal);
+        //DecodeIR.DecodedSignal[] decodes = DecodeIR.decode(irSignal);
+        Map<String, Decoder.Decode> decodes = decoder.decode(irSignal);
 
-        if (decodes == null) {
-            notes = "DecodeIR was attempted, but not found.";
-        } else {
-            if (decodes.length > 0 && !decodes[0].getProtocol().startsWith("Gap") && decodes[0].getParameters().size() > 0) {
-                protocolName = decodes[0].getProtocol();
-                parameters = decodes[0].getParameters();
-            }
-
-            if (decodes.length == 0)
-                notes = "DecodeIr was invoked, but found no decode.";
-            else if (decodes.length > 1 || decodes[0].getProtocol().startsWith("Gap") || decodes[0].getParameters().isEmpty()) {
-                notes = (decodes.length > 1)
-                        ? "Several decodes from DecodeIr:"
-                        : "Failed decodes from DecodeIr:";
-                for (DecodeIR.DecodedSignal dec : decodes) {
-                    notes = notes + linefeed + dec.toString();
-                }
-            }
+        if (decodes.isEmpty())
+            notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
+        else {
+            Decoder.Decode firstDecode = decodes.values().iterator().next();
+            protocolName = firstDecode.getName();
+            parameters = firstDecode.getNameEngine().toMap();
         }
+        if (decodes.size() > 1)
+            notes.put(ENGLISH, "Several decodes");
     }
 
     /**
@@ -775,7 +806,7 @@ public final class Command implements Serializable {
      * unless parameters already are present.
      * @throws IrpMasterException
      */
-    private void checkForParameters() throws IrpMasterException {
+    private void checkForParameters() throws IrpException, IrCoreException {
         if (parameters == null || parameters.isEmpty())
             generateDecode(toIrSignal());
     }
@@ -784,31 +815,32 @@ public final class Command implements Serializable {
      * Tries to generate the raw version of the signal, unless already present.
      * @throws IrpMasterException
      */
-    private void checkForRaw() throws IrpMasterException {
+    private void checkForRaw() throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidArgumentException, Pronto.NonProntoFormatException, InvalidNameException {
         if ((intro != null) || (repeat != null) || (ending != null))
             return;
 
         if (masterType == MasterType.parameters)
-            generateRawCcfAllT(parameters, true, false);
+            generateRawProntoHexAllT(parameters, true, false);
         else {
-            IrSignal irSignal = new IrSignal(ccf[0]);
+            IrSignal irSignal = Pronto.parse(prontoHex[0]);
             generateRaw(irSignal);
         }
     }
 
     /**
-     * Tries to generate the CCF (Pronto Hex) version of the signal, unless already present.
+     * Tries to generate the Pronto Hex version of the signal, unless already present.
      * @throws IrpMasterException
      */
-    private void checkForCcf() throws IrpMasterException {
-        if (ccf != null)
+    private void checkForProntoHex() throws GirrException, IrpInvalidArgumentException, DomainViolationException, NameUnassignedException, OddSequenceLengthException, InvalidNameException {
+        if (prontoHex != null)
             return;
 
         if (masterType == MasterType.parameters)
-            generateRawCcfAllT(parameters, false, true);
+            generateRawProntoHexAllT(parameters, false, true);
         else {
-            IrSignal irSignal = new IrSignal(frequency, dutyCycle, intro[0], repeat[0], ending[0]);
-            generateCcf(irSignal);
+            IrSignal irSignal;
+            irSignal = new IrSignal(intro[0], repeat[0], ending[0], frequency, dutyCycle);
+            generateProntoHex(irSignal);
         }
     }
 
@@ -819,48 +851,57 @@ public final class Command implements Serializable {
      * @return the number of possible values.
      */
     public int numberOfToggleValues() {
-        try {
+        //try {
             return (masterType == MasterType.parameters
-                    && !parameters.containsKey(toggleParameterName)
+                    && !parameters.containsKey(TOGGLE_PARAMETER_NAME)
                     && protocol != null
-                    && protocol.hasParameter(toggleParameterName)
-                    && protocol.hasParameterMemory(toggleParameterName)) ? ((int)protocol.getParameterMax(toggleParameterName)) + 1 : 1;
-        } catch (UnassignedException ex) {
+                    && protocol.hasParameter(TOGGLE_PARAMETER_NAME)
+                    && protocol.hasParameterMemory(TOGGLE_PARAMETER_NAME)) ? ((int) protocol.getParameterMax(TOGGLE_PARAMETER_NAME)) + 1 : 1;
+        //} catch (UnassignedException ex) {
             // cannot happen
-            throw new InternalError();
-        }
+        //    throw new InternalError();
+        //}
     }
 
     private void generateRaw(IrSignal irSignal) {
         generateRaw(irSignal,  0);
     }
 
-    private void generateRaw(IrSignal irSignal, int T) throws IllegalArgumentException {
+    private void generateRaw(IrSignal irSignal, int T) {
         barfIfInvalidToggle(T);
+        try {
         frequency = (int) Math.round(irSignal.getFrequency());
+        } catch (NullPointerException e) {
+            System.err.println("xxxxxxxxxxxxxxxx");
+        }
         dutyCycle = irSignal.getDutyCycle();
         if (intro == null)
             intro = new String[numberOfToggleValues()];
-        intro[T] = irSignal.getIntroSequence().toPrintString(true, false, " ", false);
+        intro[T] = irSignal.getIntroSequence().toString(true, SPACE, "", "");
         if (repeat == null)
             repeat = new String[numberOfToggleValues()];
-        repeat[T] = irSignal.getRepeatSequence().toPrintString(true, false, " ", false);
+        repeat[T] = irSignal.getRepeatSequence().toString(true, SPACE, "", "");
         if (ending == null)
             ending = new String[numberOfToggleValues()];
-        ending[T] = irSignal.getEndingSequence().toPrintString(true, false, " ", false);
+        ending[T] = irSignal.getEndingSequence().toString(true, SPACE, "", "");
     }
 
-    private void generateCcf(IrSignal irSignal) {
-        generateCcf(irSignal, 0);
+    private void generateProntoHex(IrSignal irSignal) {
+        generateProntoHex(irSignal, 0);
     }
 
-    private void generateCcf(IrSignal irSignal, int T) throws IllegalArgumentException {
+    private void generateProntoHex(IrSignal irSignal, int T) {
         barfIfInvalidToggle(T);
-        if (ccf == null)
-            ccf = new String[numberOfToggleValues()];
-        ccf[T] = Pronto.toPrintString(irSignal);
+        if (prontoHex == null)
+            prontoHex = new String[numberOfToggleValues()];
+        prontoHex[T] = Pronto.toPrintString(irSignal);
     }
 
+    /**
+     * Add another format.
+     * @param name Name of format.
+     * @param value Text string for value of format.
+     */
     public void addFormat(String name, String value) {
         if (otherFormats == null)
             otherFormats = new HashMap<>(1);
@@ -871,9 +912,10 @@ public final class Command implements Serializable {
      * Add an extra format to the Command.
      * @param format
      * @param repeatCount
-     * @throws IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    public void addFormat(CommandTextFormat format, int repeatCount) throws IrpMasterException {
+    public void addFormat(CommandTextFormat format, int repeatCount) throws IrpException, IrCoreException {
         addFormat(format.getName(), format.format(toIrSignal(), repeatCount));
     }
 
@@ -884,52 +926,57 @@ public final class Command implements Serializable {
      * @param title
      * @param fatRaw
      * @param generateRaw
-     * @param generateCcf
+     * @param generateProntoHex
      * @param generateParameters
      * @return XML Element with tag name "command".
      */
-    public Element xmlExport(Document doc, String title, boolean fatRaw,
-            boolean generateRaw, boolean generateCcf, boolean generateParameters) {
-        Element element = doc.createElementNS(XmlExporter.girrNamespace, "command");
+    public Element toElement(Document doc, String title, boolean fatRaw,
+            boolean generateRaw, boolean generateProntoHex, boolean generateParameters) {
+        Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
         if (title != null)
-            element.setAttribute("title", title);
-        element.setAttribute("name", name);
+            element.setAttribute(TITLE_ATTRIBUTE_NAME, title);
+        element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         MasterType actualMasterType = masterType;
         if (masterType == MasterType.raw && !generateRaw
-                || masterType == MasterType.ccf && !generateCcf
+                || masterType == MasterType.prontoHex && !generateProntoHex
                 || masterType == MasterType.parameters && !generateParameters) {
             actualMasterType = generateRaw ? MasterType.raw
                     : generateParameters ? MasterType.parameters
-                    : generateCcf ? MasterType.ccf
+                    : generateProntoHex ? MasterType.prontoHex
                     : null;
         }
         if (actualMasterType != null)
-            element.setAttribute("master", actualMasterType.name());
-        if (comment != null)
-            element.setAttribute("comment", comment);
-        if (notes != null) {
-            Element notesEl = doc.createElementNS(XmlExporter.girrNamespace, "notes");
-            notesEl.setTextContent(notes);
+            element.setAttribute(MASTER_ATTRIBUTE_NAME, actualMasterType.name());
+        if (!comment.isEmpty())
+            element.setAttribute(COMMENT_ATTRIBUTE_NAME, comment);
+
+        notes.entrySet().stream().map((note) -> {
+            Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+            notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
+            notesEl.setTextContent(note.getValue());
+            return notesEl;
+        }).forEachOrdered((notesEl) -> {
             element.appendChild(notesEl);
-        }
+        });
+
         if (generateParameters) {
             try {
                 checkForParameters();
                 if (parameters != null) {
-                    Element parametersEl = doc.createElementNS(XmlExporter.girrNamespace, "parameters");
+                    Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
                     if (protocolName != null)
-                        parametersEl.setAttribute("protocol", protocolName.toLowerCase(Locale.US));
+                        parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName.toLowerCase(Locale.US));
                     element.appendChild(parametersEl);
                     parameters.entrySet().stream().map((parameter) -> {
-                        Element parameterEl = doc.createElementNS(XmlExporter.girrNamespace, "parameter");
-                        parameterEl.setAttribute("name", parameter.getKey());
-                        parameterEl.setAttribute("value", parameter.getValue().toString());
+                        Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                        parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameter.getKey());
+                        parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, parameter.getValue().toString());
                         return parameterEl;
                     }).forEachOrdered((parameterEl) -> {
                         parametersEl.appendChild(parameterEl);
                     });
                 }
-            } catch (IrpMasterException ex) {
+            } catch (IrCoreException | IrpException ex) {
                 element.appendChild(doc.createComment("Parameters requested but could not be generated."));
             }
         }
@@ -938,44 +985,49 @@ public final class Command implements Serializable {
                 checkForRaw();
                 if (intro != null || repeat != null || ending != null) {
                     for (int T = 0; T < numberOfToggleValues(); T++) {
-                        Element rawEl = doc.createElementNS(XmlExporter.girrNamespace, "raw");
-                        rawEl.setAttribute("frequency", Integer.toString(frequency));
-                        if (dutyCycle > 0)
-                            rawEl.setAttribute("dutyCycle", Double.toString(dutyCycle));
+                        Element rawEl = doc.createElementNS(GIRR_NAMESPACE, RAW_ELEMENT_NAME);
+                        if (frequency != null)
+                                rawEl.setAttribute(FREQUENCY_ATTRIBUTE_NAME, Integer.toString(frequency));
+                        if (dutyCycle != null)
+                            rawEl.setAttribute(DUTYCYCLE_ATTRIBUTE_NAME, Double.toString(dutyCycle));
                         if (numberOfToggleValues() > 1)
-                            rawEl.setAttribute(toggleAttributeName, Integer.toString(T));
+                            rawEl.setAttribute(TOGGLE_ATTRIBUTE_NAME, Integer.toString(T));
                         element.appendChild(rawEl);
-                        processRaw(doc, rawEl, intro[T], "intro", fatRaw);
-                        processRaw(doc, rawEl, repeat[T], "repeat", fatRaw);
-                        processRaw(doc, rawEl, ending[T], "ending", fatRaw);
+                        processRaw(doc, rawEl, intro[T], INTRO_ELEMENT_NAME, fatRaw);
+                        processRaw(doc, rawEl, repeat[T], REPEAT_ELEMENT_NAME, fatRaw);
+                        processRaw(doc, rawEl, ending[T], ENDING_ELEMENT_NAME, fatRaw);
                     }
                 }
-            } catch (IrpMasterException | NullPointerException ex) {
+            //} catch ( ex) {
                 // NullPointerException thrown if irpMaster == null.
-                element.appendChild(doc.createComment("Raw signal requested but could not be generated. (" + ex.getMessage() + ")"));
+            //    element.appendChild(doc.createComment("Raw signal requested but could not be generated. (" + ex.getMessage() + ")"));
+            } catch (IrCoreException | GirrException | IrpException ex) {
+                element.appendChild(doc.createComment("Raw signal requested but could not be generated. (" + ex.getMessage() + ".)"));
             }
         }
-        if (generateCcf) {
+        if (generateProntoHex) {
             try {
-                checkForCcf();
-                if (ccf != null) {
+                checkForProntoHex();
+                if (prontoHex != null) {
                     for (int T = 0; T < numberOfToggleValues(); T++) {
-                        Element ccfEl = doc.createElementNS(XmlExporter.girrNamespace, "ccf");
+                        Element prontoHexEl = doc.createElementNS(GIRR_NAMESPACE, PRONTO_HEX_ELEMENT_NAME);
                         if (numberOfToggleValues() > 1)
-                            ccfEl.setAttribute(toggleAttributeName, Integer.toString(T));
-                        ccfEl.setTextContent(ccf[T]);
-                        element.appendChild(ccfEl);
+                            prontoHexEl.setAttribute(TOGGLE_ATTRIBUTE_NAME, Integer.toString(T));
+                        prontoHexEl.setTextContent(prontoHex[T]);
+                        element.appendChild(prontoHexEl);
                     }
                 }
-            } catch (IrpMasterException | NullPointerException ex) {
+            //} catch (NullPointerException ex) {
                 // NullPointerException thrown if irpMaster == null.
-                element.appendChild(doc.createComment("Pronto Hex requested but could not be generated. (" + ex.getMessage() + ")"));
+            //    element.appendChild(doc.createComment("Pronto Hex requested but could not be generated. (" + ex.getMessage() + ")"));
+            } catch (IrCoreException | IrpException | GirrException ex) {
+                element.appendChild(doc.createComment("Pronto Hex requested but could not be generated. (" + ex.getMessage() + ".)"));
             }
         }
         if (otherFormats != null) {
             otherFormats.entrySet().stream().map((format) -> {
-                Element formatEl = doc.createElementNS(XmlExporter.girrNamespace, "format");
-                formatEl.setAttribute("name", format.getKey());
+                Element formatEl = doc.createElementNS(GIRR_NAMESPACE, FORMAT_ELEMENT_NAME);
+                formatEl.setAttribute(NAME_ATTRIBUTE_NAME, format.getKey());
                 formatEl.setTextContent(format.getValue());
                 return formatEl;
             }).forEachOrdered((formatEl) -> {
@@ -988,21 +1040,26 @@ public final class Command implements Serializable {
     /**
      * This describes which representation of a Command constitutes the master,
      * from which the other representations are derived.
-     * Note that raw and ccf cannot have toggles.
+     * Note that raw and prontoHex cannot have toggles.
      */
-    public static enum MasterType {
+    public enum MasterType {
         /** The raw representation is the master. Does not have multiple toggle values. */
         raw,
 
-        /** The CCF (also called Pronto Hex) representation is the master. Does not have multiple toggle values. */
-        ccf,
+        /** The Pronto Hex representation is the master. Does not have multiple toggle values. */
+        prontoHex,
 
-        /** The protocol/parameter version is the master. May have multiple CCF/raw representations if the protocol has a toggle. */
+        /** The protocol/parameter version is the master. May have multiple Pronto Hex/raw representations if the protocol has a toggle. */
         parameters,
 
         /** This is a dummy signal, without data. */
         empty;
 
+        /**
+         * Safe version of valueOf. Returns null for unrecognized arguments.
+         * @param s
+         * @return
+         */
         public static MasterType safeValueOf(String s) {
             try {
                 return valueOf(s);

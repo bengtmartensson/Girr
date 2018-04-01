@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013, 2015 Bengt Martensson.
+Copyright (C) 2013, 2015, 2018 Bengt Martensson.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,9 +18,12 @@ this program. If not, see http://www.gnu.org/licenses/.
 package org.harctoolbox.girr;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
-import java.text.ParseException;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,12 +31,35 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.xml.transform.TransformerException;
-import org.harctoolbox.IrpMaster.DecodeIR;
-import org.harctoolbox.IrpMaster.IrSignal;
-import org.harctoolbox.IrpMaster.IrpMasterException;
-import org.harctoolbox.IrpMaster.Version;
-import org.harctoolbox.IrpMaster.XmlUtils;
+import java.util.stream.Stream;
+import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
+import javax.xml.validation.Schema;
+import static org.harctoolbox.girr.XmlExporter.ADMINDATA_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.CREATINGUSER_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.CREATIONDATA_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.CREATIONDATE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlExporter.GIRR_SCHEMA_LOCATION_URI;
+import static org.harctoolbox.girr.XmlExporter.GIRR_VERSION;
+import static org.harctoolbox.girr.XmlExporter.GIRR_VERSION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.REMOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.REMOTE_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlExporter.SOURCE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.SPACE;
+import static org.harctoolbox.girr.XmlExporter.TITLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.TOOL2VERSION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.TOOL2_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.TOOLVERSIION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
+import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.irp.XmlUtils;
+import static org.harctoolbox.irp.XmlUtils.DEFAULT_CHARSETNAME;
+import static org.harctoolbox.irp.XmlUtils.HTML_NAMESPACE;
+import static org.harctoolbox.irp.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
+import static org.harctoolbox.irp.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
+import static org.harctoolbox.irp.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
+import static org.harctoolbox.irp.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -42,13 +68,7 @@ import org.xml.sax.SAXException;
 /**
  * This class models a collection of Remotes, indexed by their names.
  */
-public final class RemoteSet implements Serializable {
-
-    /**
-     * String of the form major.minor identifying the protocol version
-     * (not to be confused with the version of an implementation).
-     */
-    public final static String girrVersion = "1.0";
+public final class RemoteSet {
 
     private static String dateFormatString = "yyyy-MM-dd_HH:mm:ss";
 
@@ -65,16 +85,43 @@ public final class RemoteSet implements Serializable {
      */
     public static void main(String[] args) {
         try {
-            Document doc = XmlUtils.openXmlFile(new File(args[0]), new File(args[1]), true, false);
-            RemoteSet remoteList = new RemoteSet(doc);
-
-            Document newdoc = remoteList.xmlExportDocument("This is a silly title",
-                    "xsl", "simplehtml.xsl", true, false, true, true, true);
-            XmlExporter exporter = new XmlExporter(newdoc);
-            exporter.printDOM(new File("junk.xml"));
-        } catch (IOException | ParseException | SAXException | TransformerException ex) {
+            Command.setIrpMaster("../IrpTransmogrifier/src/main/resources/IrpProtocols.xml");
+            RemoteSet remoteSet = parseFileOrDirectory(new File(args[0]));
+            remoteSet.print(args.length > 1 ? args[1] : "-");
+        }
+        catch (IOException | GirrException | SAXException ex) {
             System.err.println(ex.getMessage());
         }
+    }
+
+    public static Collection<RemoteSet> parseFiles(Path path) {
+        Collection<RemoteSet> coll = new ArrayList<>(10);
+        System.out.println(path.toString());
+        if (Files.isRegularFile(path)) {
+            try {
+                RemoteSet remoteSet = new RemoteSet(path.toFile());
+                coll.add(remoteSet);
+            }
+            catch (GirrException | IOException | SAXException ex) {
+                //Logger.getLogger(RemoteSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else if (Files.isDirectory(path)) {
+            try {
+                Stream<Path> stream = Files.list(path);
+                stream.forEach((f) -> {
+                    Collection<RemoteSet> c = parseFiles(f);
+                    coll.addAll(c);
+                });
+            }
+            catch (IOException ex) {
+                //Logger.getLogger(RemoteSet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return coll;
+    }
+
+    public static RemoteSet parseFileOrDirectory(File file) throws GirrException, IOException, SAXException {
+        return file.isFile() ? new RemoteSet(file) : new RemoteSet(file.toPath());
     }
 
     private String creatingUser;
@@ -84,54 +131,88 @@ public final class RemoteSet implements Serializable {
     private String toolVersion;
     private String tool2;
     private String tool2Version;
-    private String notes;
+    private Map<String, String> notes;
     private Map<String, Remote> remotes;
 
+    public RemoteSet(Path path) {
+        this(System.getProperty("user.name"), path.toString(), parseFiles(path));
+    }
+
+    public RemoteSet(String creatingUser, String source, Collection<RemoteSet> remoteSets) {
+        this(creatingUser, source, (new SimpleDateFormat(dateFormatString)).format(new Date()),
+                Version.appName,
+                Version.versionString,
+                null, null);
+        remoteSets.stream().map((remoteSet) -> remoteSet.getRemotes()).forEach((Collection<Remote> coll) -> {
+            coll.forEach((Remote remote) -> {
+                String originalName = remote.getName();
+                String name = originalName;
+                int i = 0;
+                while (remotes.containsKey(name)) {
+                    i++;
+                    name = originalName + "_" + Integer.toString(i);
+                    remote.setName(name);
+                    remote.setComment("Name changed from \"" + originalName + "\" to \"" + name + "\".");
+                }
+                remotes.put(name, remote);
+            });
+        });
+    }
+
     /**
-     * This constructor is used to import an XML document.
+     * This constructor is used to import a Document.
      * @param doc W3C Document
-     * @throws ParseException
+     * @throws org.harctoolbox.girr.GirrException
      */
-    public RemoteSet(Document doc) throws ParseException {
+    public RemoteSet(Document doc) throws GirrException {
         remotes = new LinkedHashMap<>(4);
 
         Element root = doc.getDocumentElement();
-        NodeList nl = root.getElementsByTagName("adminData");
+        NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
         if (nl.getLength() > 0) {
             Element adminData = (Element) nl.item(0);
-            NodeList nodeList = adminData.getElementsByTagName("notes");
-            if (nodeList.getLength() > 0)
-                notes = nodeList.item(0).getTextContent();
-
-            nodeList = adminData.getElementsByTagName("creationData");
+            notes = XmlExporter.parseNotes(adminData);
+            NodeList nodeList = adminData.getElementsByTagName(CREATIONDATA_ELEMENT_NAME);
             if (nodeList.getLength() > 0) {
                 Element creationdata = (Element) nodeList.item(0);
-                creatingUser = creationdata.getAttribute("creatingUser");
-                source = creationdata.getAttribute("source");
-                creationDate = creationdata.getAttribute("creationDate");
-                tool = creationdata.getAttribute("tool");
-                toolVersion = creationdata.getAttribute("toolVersion");
-                tool2 = creationdata.getAttribute("tool2");
-                tool2Version = creationdata.getAttribute("tool2Version");
+                creatingUser = creationdata.getAttribute(CREATINGUSER_ATTRIBUTE_NAME);
+                source = creationdata.getAttribute(SOURCE_ATTRIBUTE_NAME);
+                creationDate = creationdata.getAttribute(CREATIONDATE_ATTRIBUTE_NAME);
+                tool = creationdata.getAttribute(TOOL_ATTRIBUTE_NAME);
+                toolVersion = creationdata.getAttribute(TOOLVERSIION_ATTRIBUTE_NAME);
+                tool2 = creationdata.getAttribute(TOOL2_ATTRIBUTE_NAME);
+                tool2Version = creationdata.getAttribute(TOOL2VERSION_ATTRIBUTE_NAME);
             }
-        }
-        nl = root.getElementsByTagName("remote");
+        } else
+            notes = new HashMap<>(0);
+        nl = root.getElementsByTagName(REMOTE_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Remote remote = new Remote((Element) nl.item(i));
             remotes.put(remote.getName(), remote);
         }
     }
 
-    /* *
-     * This constructor is used to import an XML document.
+    /**
+     * This constructor is used to read a Girr file into a RemoteSet.
      * @param file
-     * @throws SAXException
-     * @throws IOException
-     * @throws ParseException
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
      */
-    //public RemoteSet(File file) throws SAXException, IOException, ParseException {
-    //    this(XmlUtils.openXmlFile(file, (File) null, false, false));
-    //}
+    public RemoteSet(File file) throws GirrException, IOException, SAXException {
+        this(XmlUtils.openXmlFile(file, (Schema) null, false, false));
+    }
+
+    /**
+     * This constructor is used to read a Reader into a RemoteSet.
+     * @param reader
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public RemoteSet(Reader reader) throws IOException, SAXException, GirrException {
+        this(XmlUtils.openXmlReader(reader, null, true, true));
+    }
 
     /**
      * This constructor sets up a RemoteSet from a given Map of Remotes, so that it can later be used through
@@ -153,17 +234,39 @@ public final class RemoteSet implements Serializable {
             String toolVersion,
             String tool2,
             String tool2Version,
-            String notes,
+            Map<String, String> notes,
             Map<String, Remote> remotes) {
+        this(creatingUser, source, creationDate, tool, toolVersion, tool2, tool2Version);
+        this.notes = notes;
+        this.remotes = remotes;
+    }
+
+    /**
+     * This constructor sets up a RemoteSet with no Remotes.
+     * @param creatingUser Comment field for the creating user, if wanted.
+     * @param source Comment field describing the origin of the data; e.g. name of human author or creating program.
+     * @param creationDate Date of creation, as text string.
+     * @param tool Name of creating tool.
+     * @param toolVersion Version of creating tool.
+     * @param tool2 Name of secondary tppl, if applicable.
+     * @param tool2Version Version of secondary tool.
+     */
+    public RemoteSet(String creatingUser,
+            String source,
+            String creationDate,
+            String tool,
+            String toolVersion,
+            String tool2,
+            String tool2Version) {
         this.creatingUser = creatingUser;
         this.source = source;
-        this.creationDate = creationDate != null ? creationDate : (new SimpleDateFormat(dateFormatString)).format(new Date()) ;
+        this.creationDate = creationDate != null ? creationDate : (new SimpleDateFormat(dateFormatString)).format(new Date());
         this.tool = tool;
         this.toolVersion = toolVersion;
         this.tool2 = tool2;
         this.tool2Version = tool2Version;
-        this.notes = notes;
-        this.remotes = remotes;
+        this.notes = new HashMap<>(0);
+        this.remotes = new LinkedHashMap<>(1);
     }
 
     /**
@@ -186,7 +289,7 @@ public final class RemoteSet implements Serializable {
             String toolVersion,
             String tool2,
             String tool2Version,
-            String notes,
+            Map<String, String> notes,
             Remote remote) {
         this(creatingUser,
                 source,
@@ -194,9 +297,8 @@ public final class RemoteSet implements Serializable {
                 tool,
                 toolVersion,
                 tool2,
-                tool2Version,
-                notes,
-                new HashMap<String, Remote>(1));
+                tool2Version);
+        this.notes = notes;
         remotes.put(remote.getName(), remote);
     }
 
@@ -212,9 +314,9 @@ public final class RemoteSet implements Serializable {
                 null,
                 Version.appName,
                 Version.versionString,
-                DecodeIR.appName,
-                DecodeIR.getVersion(),
-                null,
+                org.harctoolbox.irp.Version.appName,
+                org.harctoolbox.irp.Version.version,
+                new HashMap<String, String>(0),
                 remote);
     }
 
@@ -224,14 +326,14 @@ public final class RemoteSet implements Serializable {
      * @param source
      * @param remotes
      */
-    public RemoteSet(String creatingUser, String source, Map<String,Remote> remotes) {
+    public RemoteSet(String creatingUser, String source, Map<String, Remote> remotes) {
         this(creatingUser,
                 source,
                 null,
                 Version.appName,
                 Version.versionString,
-                DecodeIR.appName,
-                DecodeIR.getVersion(),
+                org.harctoolbox.irp.Version.appName,
+                org.harctoolbox.irp.Version.version,
                 null,
                 remotes);
     }
@@ -270,45 +372,53 @@ public final class RemoteSet implements Serializable {
      * @param generateParameters
      * @return Element describing the RemoteSet
      */
-    public Element xmlExport(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
+    public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
             boolean generateRaw, boolean generateCcf, boolean generateParameters) {
-        Element element = doc.createElementNS(XmlExporter.girrNamespace, "remotes");
-        element.setAttribute("girrVersion", girrVersion);
+        Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
         if (createSchemaLocation) {
-            element.setAttribute("xmlns:xsi", XmlExporter.w3cSchemaNamespace);
-            element.setAttribute("xsi:schemaLocation",
-                    XmlExporter.girrNamespace + " " + XmlExporter.girrSchemaLocationURL);
+            element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE);
+            element.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
+            element.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + SPACE + GIRR_SCHEMA_LOCATION_URI);
         }
+        element.setAttribute(GIRR_VERSION_ATTRIBUTE_NAME, GIRR_VERSION);
 
         if (title != null)
-            element.setAttribute("title", title);
+            element.setAttribute(TITLE_ATTRIBUTE_NAME, title);
 
-        Element adminDataEl = doc.createElementNS(XmlExporter.girrNamespace, "adminData");
-        element.appendChild(adminDataEl);
-        Element creationEl = doc.createElementNS(XmlExporter.girrNamespace, "creationData");
-        adminDataEl.appendChild(creationEl);
+        Element adminDataEl = doc.createElementNS(GIRR_NAMESPACE, ADMINDATA_ELEMENT_NAME);
+        Element creationEl = doc.createElementNS(GIRR_NAMESPACE, CREATIONDATA_ELEMENT_NAME);
+
         if (creatingUser != null)
-            creationEl.setAttribute("creatingUser", creatingUser);
+            creationEl.setAttribute(CREATINGUSER_ATTRIBUTE_NAME, creatingUser);
         if (source != null)
-            creationEl.setAttribute("source", source);
+            creationEl.setAttribute(SOURCE_ATTRIBUTE_NAME, source);
         if (creationDate != null)
-            creationEl.setAttribute("creationDate", creationDate);
+            creationEl.setAttribute(CREATIONDATE_ATTRIBUTE_NAME, creationDate);
         if (tool != null)
-            creationEl.setAttribute("tool", tool);
+            creationEl.setAttribute(TOOL_ATTRIBUTE_NAME, tool);
         if (toolVersion != null)
-            creationEl.setAttribute("toolVersion", toolVersion);
+            creationEl.setAttribute(TOOLVERSIION_ATTRIBUTE_NAME, toolVersion);
         if (tool2 != null)
-            creationEl.setAttribute("tool2", tool2);
+            creationEl.setAttribute(TOOL2_ATTRIBUTE_NAME, tool2);
         if (tool2Version != null)
-            creationEl.setAttribute("tool2Version", tool2Version);
-        if (notes != null) {
-            Element notesEl = doc.createElementNS(XmlExporter.girrNamespace, "notes");
-            notesEl.setTextContent(notes);
+            creationEl.setAttribute(TOOL2VERSION_ATTRIBUTE_NAME, tool2Version);
+        if (creationEl.hasChildNodes())
+            adminDataEl.appendChild(creationEl);
+
+        notes.entrySet().stream().map((note) -> {
+            Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+            notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
+            notesEl.setTextContent(note.getValue());
+            return notesEl;
+        }).forEachOrdered((notesEl) -> {
             adminDataEl.appendChild(notesEl);
-        }
+        });
+
+        if (adminDataEl.hasChildNodes())
+            element.appendChild(adminDataEl);
 
         remotes.values().forEach((remote) -> {
-            element.appendChild(remote.xmlExport(doc, fatRaw, generateRaw, generateCcf, generateParameters));
+            element.appendChild(remote.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
         });
         return element;
     }
@@ -325,21 +435,34 @@ public final class RemoteSet implements Serializable {
      * @param generateParameters If true, the protocol/parameter description will be generated.
      * @return XmlExporter
      */
-    public Document xmlExportDocument(String title, String stylesheetType, String stylesheetUrl,
+    public Document toDocument(String title, String stylesheetType, String stylesheetUrl,
             boolean fatRaw, boolean createSchemaLocation,
             boolean generateRaw, boolean generateCcf, boolean generateParameters) {
-        Element root = xmlExport(XmlExporter.newDocument(), title, fatRaw, createSchemaLocation,
+        Element root = toElement(XmlUtils.newDocument(true), title, fatRaw, createSchemaLocation,
             generateRaw, generateCcf, generateParameters);
         return XmlExporter.createDocument(root, stylesheetType, stylesheetUrl, createSchemaLocation);
+    }
+
+    public void print(OutputStream ostr) {
+        Document doc = toDocument("untitled", "xsl", null/*"xsimplehtml.xsl"*/, false, true, true, true, true);
+        XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
+    }
+
+    public void print(String file) throws IOException {
+        if (file.endsWith("-"))
+            print(System.out);
+        else
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                print(fileOutputStream);
+            }
     }
 
     /**
      * Applies the format argument to all Command's in the CommandSet.
      * @param format
      * @param repeatCount
-     * @throws IrpMasterException
      */
-    public void addFormat(Command.CommandTextFormat format, int repeatCount) throws IrpMasterException {
+    public void addFormat(Command.CommandTextFormat format, int repeatCount) {
         remotes.values().forEach((remote) -> {
             remote.addFormat(format, repeatCount);
         });
@@ -408,10 +531,11 @@ public final class RemoteSet implements Serializable {
     }
 
     /**
+     * @param lang
      * @return the notes
      */
-    public String getNotes() {
-        return notes;
+    public String getNotes(String lang) {
+        return notes.get(lang);
     }
 
     /**
