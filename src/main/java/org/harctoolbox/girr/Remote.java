@@ -87,7 +87,7 @@ public final class Remote {
         commands = new LinkedHashMap<>(32);
         applicationParameters = new LinkedHashMap<>(4);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
-        notes = XmlExporter.parseNotes(element);
+        notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
         NodeList nl = element.getElementsByTagName(APPLICATIONDATA_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Element el = (Element) nl.item(i);
@@ -122,11 +122,6 @@ public final class Remote {
             Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters,
             String protocol, Map<String, Long> parameters) {
         this.metaData = metaData;
-        /*this.name = name;
-        this.manufacturer = manufacturer;
-        this.model = model;
-        this.deviceClass = deviceClass;
-        this.remoteName = remoteName;*/
         this.comment = comment;
         this.notes = notes;
         this.commands = commands;

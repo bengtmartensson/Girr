@@ -247,7 +247,7 @@ public final class Command {
         parameters = new HashMap<>(4);
         parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
-        notes = XmlExporter.parseNotes(element);
+        notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
 
         try {
             NodeList nl;

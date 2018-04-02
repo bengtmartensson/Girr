@@ -175,7 +175,7 @@ public final class RemoteSet {
         NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
         if (nl.getLength() > 0) {
             Element adminData = (Element) nl.item(0);
-            notes = XmlExporter.parseNotes(adminData);
+            notes = XmlExporter.parseElementsByLanguage(adminData.getElementsByTagName(NOTES_ELEMENT_NAME));
             NodeList nodeList = adminData.getElementsByTagName(CREATIONDATA_ELEMENT_NAME);
             if (nodeList.getLength() > 0) {
                 Element creationdata = (Element) nodeList.item(0);

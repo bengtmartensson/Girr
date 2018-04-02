@@ -154,8 +154,7 @@ public final class XmlExporter {
         return document;
     }
 
-    static Map<String, String> parseNotes(Element el) {
-        NodeList nodeList = el.getElementsByTagName(NOTES_ELEMENT_NAME);
+    static Map<String, String> parseElementsByLanguage(NodeList nodeList) {
         Map<String, String> map = new HashMap<>(nodeList.getLength());
         for (int i = 0; i < nodeList.getLength(); i++) {
             Element note = (Element) nodeList.item(i);

@@ -64,7 +64,7 @@ public final class CommandSet {
         protocol = null;
         commands = new LinkedHashMap<>(4);
         parameters = new LinkedHashMap<>(4);
-        notes = XmlExporter.parseNotes(element);
+        notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
         // Cannot use getElementsByTagName("parameters") because it will find
         // the parameters of the child commands, which is not what we want.
         NodeList nl = element.getChildNodes();
