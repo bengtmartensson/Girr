@@ -7,7 +7,7 @@
     <groupId>org.harctoolbox</groupId>
     <artifactId>Girr</artifactId>
     <packaging>jar</packaging>
-    <version>1.5dev</version>
+    <version>1.4.2</version>
     <name>Girr</name>
     <licenses>
         <license>
@@ -154,7 +154,7 @@
         <dependency>
             <groupId>org.harctoolbox</groupId>
             <artifactId>IrpMaster</artifactId>
-            <version>1.5dev</version>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
