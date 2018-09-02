@@ -12,6 +12,7 @@ import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.ircore.ModulatedIrSequence;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
+import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.irp.XmlUtils;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
@@ -47,7 +48,7 @@ public class CommandNGTest {
     private final IrSignal irSignal;
     private final IrpDatabase irpDatabase;
 
-    public CommandNGTest() throws IOException, IrCoreException, GirrException {
+    public CommandNGTest() throws IOException, IrCoreException, GirrException, IrpParseException {
         irpDatabase = new IrpDatabase(IRP_PROTOCOLS_PATH);
         Command.setIrpMaster(IRP_PROTOCOLS_PATH);
         //nec1_12_34_56_ccf = new Command("nec1_12_34_56_ccf", "Test ccf", NEC1_12_34_56_CCF);
@@ -76,9 +77,10 @@ public class CommandNGTest {
     /**
      * Test of setIrpMaster method, of class Command.
      * @throws java.io.IOException
+     * @throws org.harctoolbox.irp.IrpParseException
      */
     @Test
-    public void testSetIrpMaster_String() throws IOException {
+    public void testSetIrpMaster_String() throws IOException, IrpParseException {
         System.out.println("setIrpMaster");
         Command.setIrpMaster(IRP_PROTOCOLS_PATH);
     }

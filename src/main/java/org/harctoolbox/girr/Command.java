@@ -64,6 +64,7 @@ import org.harctoolbox.irp.InvalidNameException;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpInvalidArgumentException;
+import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.irp.NameUnassignedException;
 import org.harctoolbox.irp.Protocol;
 import static org.harctoolbox.irp.XmlUtils.ENGLISH;
@@ -109,8 +110,9 @@ public final class Command {
      * Sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format,
      * and for decodes.
      * @param newIrpDatabase IrpDatabase instance
+     * @throws org.harctoolbox.irp.IrpParseException
      */
-    public static void setIrpMaster(IrpDatabase newIrpDatabase) {
+    public static void setIrpMaster(IrpDatabase newIrpDatabase) throws IrpParseException {
         irpDatabase = newIrpDatabase;
         decoder = new Decoder(irpDatabase);
     }
@@ -120,8 +122,9 @@ public final class Command {
      * and for decodes.
      * @param irpProtocolsIniPath Filename of IrpProtocols.xml
      * @throws java.io.IOException
+     * @throws org.harctoolbox.irp.IrpParseException
      */
-    public static void setIrpMaster(String irpProtocolsIniPath) throws IOException {
+    public static void setIrpMaster(String irpProtocolsIniPath) throws IOException, IrpParseException {
         setIrpMaster(new IrpDatabase(irpProtocolsIniPath));
     }
 
@@ -802,7 +805,7 @@ public final class Command {
         else {
             Decoder.Decode firstDecode = decodes.values().iterator().next();
             protocolName = firstDecode.getName();
-            parameters = firstDecode.getNameEngine().toMap();
+            parameters = firstDecode.getMap();
         }
         if (decodes.size() > 1)
             notes.put(ENGLISH, "Several decodes");

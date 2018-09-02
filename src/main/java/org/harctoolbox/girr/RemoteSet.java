@@ -55,6 +55,7 @@ import static org.harctoolbox.girr.XmlExporter.TOOL2_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOLVERSIION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.irp.XmlUtils;
 import static org.harctoolbox.irp.XmlUtils.DEFAULT_CHARSETNAME;
 import static org.harctoolbox.irp.XmlUtils.HTML_NAMESPACE;
@@ -93,7 +94,7 @@ public final class RemoteSet {
             RemoteSet remoteSet = parseFileOrDirectory(new File(args[0]));
             remoteSet.print(args.length > 1 ? args[1] : "-");
         }
-        catch (IOException | GirrException | SAXException ex) {
+        catch (IOException | GirrException | SAXException | IrpParseException ex) {
             logger.log(Level.SEVERE, null, ex);
         }
     }
