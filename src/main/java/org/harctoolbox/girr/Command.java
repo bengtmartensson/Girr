@@ -895,7 +895,7 @@ public final class Command {
         barfIfInvalidToggle(T);
         if (prontoHex == null)
             prontoHex = new String[numberOfToggleValues()];
-        prontoHex[T] = Pronto.toPrintString(irSignal);
+        prontoHex[T] = Pronto.toString(irSignal);
     }
 
     /**
