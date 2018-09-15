@@ -42,7 +42,7 @@ import static org.harctoolbox.girr.XmlExporter.VALUE_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.irp.IrpException;
-import static org.harctoolbox.irp.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
+import static org.harctoolbox.ircore.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
