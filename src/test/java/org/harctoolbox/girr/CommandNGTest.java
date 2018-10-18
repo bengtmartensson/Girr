@@ -57,7 +57,7 @@ public class CommandNGTest {
         nec1Params.put("S", 34L);
         nec1Params.put("F", 56L);
         nec1_12_34_56_param = new Command("nec1_12_34_56_param", "Parametrized signal", "nec1", nec1Params);
-        irSignal = new IrSignal(NEC1_12_34_56_INTRO, NEC1_REPEAT, null, 38321, 0.42);
+        irSignal = new IrSignal(NEC1_12_34_56_INTRO, NEC1_REPEAT, null, 38321.0, 0.42);
         nec1_12_34_56_irSignal = new Command("nec1_12_34_56_irSignal", "Command from IrSignal", irSignal);
         rc5Params = new HashMap<>(2);
         rc5Params.put("D", 12L);
