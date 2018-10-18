@@ -410,14 +410,16 @@ public final class RemoteSet {
         if (creationEl.hasChildNodes())
             adminDataEl.appendChild(creationEl);
 
-        notes.entrySet().stream().map((note) -> {
-            Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
-            notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
-            notesEl.setTextContent(note.getValue());
-            return notesEl;
-        }).forEachOrdered((notesEl) -> {
-            adminDataEl.appendChild(notesEl);
-        });
+        if (notes != null) {
+            notes.entrySet().stream().map((note) -> {
+                Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+                notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
+                notesEl.setTextContent(note.getValue());
+                return notesEl;
+            }).forEachOrdered((notesEl) -> {
+                adminDataEl.appendChild(notesEl);
+            });
+        }
 
         if (adminDataEl.hasChildNodes())
             element.appendChild(adminDataEl);

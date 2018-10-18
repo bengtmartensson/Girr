@@ -174,26 +174,28 @@ public final class Remote {
     public Element toElement(Document doc, boolean fatRaw, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
         element.setAttribute(NAME_ATTRIBUTE_NAME, metaData.name);
-        if (!metaData.displayName.isEmpty())
+        if (metaData.displayName != null && !metaData.displayName.isEmpty())
             element.setAttribute(DISPLAYNAME_ATTRIBUTE_NAME, metaData.displayName);
-        if (!metaData.manufacturer.isEmpty())
+        if (metaData.manufacturer != null && !metaData.manufacturer.isEmpty())
             element.setAttribute(MANUFACTURER_ATTRIBUTE_NAME, metaData.manufacturer);
-        if (!metaData.model.isEmpty())
+        if (metaData.model != null && !metaData.model.isEmpty())
             element.setAttribute(MODEL_ATTRIBUTE_NAME, metaData.model);
-        if (!metaData.deviceClass.isEmpty())
+        if (metaData.deviceClass != null && !metaData.deviceClass.isEmpty())
             element.setAttribute(DEVICECLASS_ATTRIBUTE_NAME, metaData.deviceClass);
-        if (!metaData.remoteName.isEmpty())
+        if (metaData.remoteName != null && !metaData.remoteName.isEmpty())
             element.setAttribute(REMOTENAME_ATTRIBUTE_NAME, metaData.remoteName);
-        if (!comment.isEmpty())
+        if (comment != null && !comment.isEmpty())
             element.setAttribute(COMMENT_ATTRIBUTE_NAME, comment);
-        notes.entrySet().stream().map((note) -> {
-            Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
-            notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
-            notesEl.setTextContent(note.getValue());
-            return notesEl;
-        }).forEachOrdered((notesEl) -> {
-            element.appendChild(notesEl);
-        });
+        if (notes != null) {
+            notes.entrySet().stream().map((note) -> {
+                Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+                notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
+                notesEl.setTextContent(note.getValue());
+                return notesEl;
+            }).forEachOrdered((notesEl) -> {
+                element.appendChild(notesEl);
+            });
+        }
 
         if (applicationParameters != null) {
             applicationParameters.entrySet().forEach((kvp) -> {

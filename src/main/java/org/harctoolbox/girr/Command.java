@@ -644,7 +644,7 @@ public final class Command {
                     return irpDatabase.render(protocolName, parameters);
 
             case raw:
-                return new IrSignal(intro[T], repeat[T], ending[T], frequency, dutyCycle);
+                return new IrSignal(intro[T], repeat[T], ending[T], frequency != null ? frequency.doubleValue() : null, dutyCycle);
 
             case prontoHex:
                 return Pronto.parse(prontoHex[T]);
@@ -849,7 +849,7 @@ public final class Command {
             generateRawProntoHexAllT(parameters, false, true);
         else {
             IrSignal irSignal;
-            irSignal = new IrSignal(intro[0], repeat[0], ending[0], frequency, dutyCycle);
+            irSignal = new IrSignal(intro[0], repeat[0], ending[0], frequency != null ? frequency.doubleValue() : null, dutyCycle);
             generateProntoHex(irSignal);
         }
     }
@@ -948,7 +948,7 @@ public final class Command {
         }
         if (actualMasterType != null)
             element.setAttribute(MASTER_ATTRIBUTE_NAME, actualMasterType.name());
-        if (!comment.isEmpty())
+        if (comment != null && !comment.isEmpty())
             element.setAttribute(COMMENT_ATTRIBUTE_NAME, comment);
 
         notes.entrySet().stream().map((note) -> {
