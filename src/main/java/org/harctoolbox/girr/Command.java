@@ -69,6 +69,7 @@ import org.harctoolbox.irp.IrpInvalidArgumentException;
 import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.irp.NameUnassignedException;
 import org.harctoolbox.irp.Protocol;
+import org.harctoolbox.irp.ShortPronto;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -647,7 +648,7 @@ public final class Command {
                 return new IrSignal(intro[T], repeat[T], ending[T], frequency != null ? frequency.doubleValue() : null, dutyCycle);
 
             case prontoHex:
-                return Pronto.parse(prontoHex[T]);
+                return ShortPronto.parse(prontoHex[T]);
 
             default:
                 throw new ThisCannotHappenException();
