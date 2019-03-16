@@ -396,7 +396,7 @@ public class CommandNGTest {
     @Test
     public void testNameProtocolParameterString() {
         System.out.println("nameProtocolParameterString");
-        String expResult = "nec1_12_34_56_param: nec1 Device: 12.34 Function: 56 S=34";
+        String expResult = "nec1_12_34_56_param: nec1 Device: 12.34 Function: 56";
         String result = nec1_12_34_56_param.nameProtocolParameterString();
         assertEquals(result, expResult);
     }

@@ -674,7 +674,7 @@ public final class Command {
                 str.append(" Function: ").append(parameters.get(F_PARAMETER_NAME));
             parameters.entrySet().forEach((kvp) -> {
                 String parName = kvp.getKey();
-                if (!(parName.equals(F_PARAMETER_NAME) || parName.equals(D_PARAMETER_NAME) || parName.equals(F_PARAMETER_NAME)))
+                if (!(parName.equals(F_PARAMETER_NAME) || parName.equals(D_PARAMETER_NAME) || parName.equals(S_PARAMETER_NAME)))
                     str.append(SPACE).append(parName).append("=").append(kvp.getValue());
             });
         }
