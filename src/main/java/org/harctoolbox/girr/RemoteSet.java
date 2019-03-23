@@ -102,13 +102,13 @@ public final class RemoteSet {
     public static Collection<RemoteSet> parseFiles(Path path) {
         Collection<RemoteSet> coll = new ArrayList<>(10);
         System.out.println(path.toString());
-        if (Files.isRegularFile(path)) {
+        if (Files.isRegularFile(path) && !(path.toString().endsWith(".jpg") || path.toString().endsWith(".jpeg"))) {
             try {
                 RemoteSet remoteSet = new RemoteSet(path.toFile());
                 coll.add(remoteSet);
             }
             catch (GirrException | IOException | SAXException ex) {
-                logger.log(Level.WARNING, null, ex);
+                logger.log(Level.WARNING, "Could not read file {0}", path.toString());
             }
         } else if (Files.isDirectory(path)) {
             try {
@@ -119,7 +119,7 @@ public final class RemoteSet {
                 });
             }
             catch (IOException ex) {
-                logger.log(Level.SEVERE, null, ex);
+                logger.log(Level.WARNING, "Could not read directory {0}", path.toString());
             }
         }
         return coll;
