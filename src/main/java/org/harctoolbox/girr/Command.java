@@ -862,6 +862,7 @@ public final class Command {
      * @return the number of possible values.
      */
     public int numberOfToggleValues() {
+        checkForProtocol();
         return (masterType == MasterType.parameters
                 && !parameters.containsKey(TOGGLE_PARAMETER_NAME)
                 && protocol != null
