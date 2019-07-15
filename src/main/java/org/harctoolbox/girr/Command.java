@@ -876,7 +876,7 @@ public final class Command {
 
     private void generateRaw(IrSignal irSignal, int T) {
         barfIfInvalidToggle(T);
-        frequency = (int) Math.round(irSignal.getFrequency());
+        frequency = irSignal.getFrequency() != null ? irSignal.getFrequency().intValue() : null;
         dutyCycle = irSignal.getDutyCycle();
         if (intro == null)
             intro = new String[numberOfToggleValues()];
