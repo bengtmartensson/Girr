@@ -101,9 +101,10 @@ public class CommandNGTest {
 
     /**
      * Test of getDutyCycle method, of class Command.
+     * @throws org.harctoolbox.irp.IrpException
      */
     @Test
-    public void testGetDutyCycle() {
+    public void testGetDutyCycle() throws IrpException {
         System.out.println("getDutyCycle");
         double expResult = 0.42;
         double result = nec1_12_34_56_irSignal.getDutyCycle();
@@ -176,9 +177,10 @@ public class CommandNGTest {
 
     /**
      * Test of getFrequency method, of class Command.
+     * @throws org.harctoolbox.irp.IrpException
      */
     @Test
-    public void testGetFrequency() {
+    public void testGetFrequency() throws IrpException {
         System.out.println("getFrequency");
         double expResult = 38321f;
         double result = nec1_12_34_56_irSignal.getFrequency();

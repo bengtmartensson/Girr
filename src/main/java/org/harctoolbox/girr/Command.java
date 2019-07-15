@@ -405,8 +405,9 @@ public final class Command {
 
     /**
      * @return duty cycle, a number between 0 and 1.
+     * @throws org.harctoolbox.irp.IrpException
      */
-    public double getDutyCycle() {
+    public double getDutyCycle() throws IrpException {
         if (masterType == MasterType.parameters) {
             checkForProtocol();
             return protocol.getDutyCycle();
@@ -467,8 +468,9 @@ public final class Command {
 
     /**
      * @return the frequency
+     * @throws org.harctoolbox.irp.IrpException
      */
-    public double getFrequency() {
+    public double getFrequency() throws IrpException {
         if (masterType == MasterType.parameters) {
             checkForProtocol();
             return protocol.getFrequency();
@@ -476,13 +478,23 @@ public final class Command {
         return frequency;
     }
 
-    private void checkForProtocol() {
+    private void checkForProtocol() throws IrpException {
         if (protocol == null)
+            protocol = irpDatabase.getProtocol(protocolName);
+    }
+
+    private boolean checkIfProtocol() {
+        if (protocol != null)
+            return true;
+
+        if (irpDatabase.isKnown(protocolName)) {
             try {
                 protocol = irpDatabase.getProtocol(protocolName);
             } catch (IrpException ex) {
-                logger.log(Level.INFO, "Protocol \"{0}\" not found or not useable.", protocolName);
+                throw new ThisCannotHappenException();
             }
+        }
+        return protocol != null;
     }
 
     /**
@@ -776,8 +788,7 @@ public final class Command {
     }
 
     private void generateRawProntoHex(Map<String, Long> parameter, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
-        checkForProtocol();
-        if (protocol == null)
+        if (!checkIfProtocol())
             throw new GirrException("protocol named " + this.protocolName + " not found or erroneous");
 
         IrSignal irSignal = protocol.toIrSignal(parameters);
@@ -862,7 +873,9 @@ public final class Command {
      * @return the number of possible values.
      */
     public int numberOfToggleValues() {
-        checkForProtocol();
+        if (!checkIfProtocol())
+            return 1;
+
         return (masterType == MasterType.parameters
                 && !parameters.containsKey(TOGGLE_PARAMETER_NAME)
                 && protocol != null
@@ -990,8 +1003,8 @@ public final class Command {
                 if (intro != null || repeat != null || ending != null) {
                     for (int T = 0; T < numberOfToggleValues(); T++) {
                         Element rawEl = doc.createElementNS(GIRR_NAMESPACE, RAW_ELEMENT_NAME);
-                        if (frequency != null)
-                                rawEl.setAttribute(FREQUENCY_ATTRIBUTE_NAME, Integer.toString(frequency));
+                        rawEl.setAttribute(FREQUENCY_ATTRIBUTE_NAME,
+                                Integer.toString(frequency != null ? frequency : (int) ModulatedIrSequence.DEFAULT_FREQUENCY));
                         if (dutyCycle != null)
                             rawEl.setAttribute(DUTYCYCLE_ATTRIBUTE_NAME, Double.toString(dutyCycle));
                         if (numberOfToggleValues() > 1)
