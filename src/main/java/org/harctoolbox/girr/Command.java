@@ -810,7 +810,7 @@ public final class Command {
 
     private void generateDecode(IrSignal irSignal) {
         //DecodeIR.DecodedSignal[] decodes = DecodeIR.decode(irSignal);
-        Map<String, Decoder.Decode> decodes = decoder.decode(irSignal);
+        Map<String, Decoder.Decode> decodes = decoder.decodeIrSignal(irSignal);
 
         if (decodes.isEmpty())
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
