@@ -12,3 +12,5 @@ NOTE: Earlier versions of the code used IrpMaster. This program/library is
 obsolete and no longer maintained, and replaced by the superior IrpTransmogrifier.
 This version uses IrpTransmogrifier. The last version using IrpMaster can be
 found in the branch "IrpMaster".
+
+[API documentation](https://bengtmartensson.github.io/Girr/)

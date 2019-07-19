@@ -16,15 +16,15 @@
         </license>
     </licenses>
     <description>A universal format for storage and exchange of IR signals.</description>
-        <url>http://www.harctoolbox.org/Girr.html</url>
+    <url>http://www.harctoolbox.org/Girr.html</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
     <build>
         <plugins>
-
             <!-- Generate Version.java from Version.xml using mkVersion.xsl. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -83,9 +83,6 @@
                             </fileMappers>
                         </transformationSet>
                     </transformationSets>
-                    <catalogs>
-                        <catalog>../schemas/catalog.xml</catalog>
-                    </catalogs>
                 </configuration>
 
                 <!-- Use xalan instead of builtin parser which doesn't really work -->
@@ -165,6 +162,18 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+                    <show>package</show> <!-- Document also package private classes -->
+                    <aggregate>true</aggregate>
+                    <!--failOnWarnings>false</failOnWarnings>
+                    <failOnError>false</failOnError-->
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -181,7 +190,8 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-    <reporting>
+
+    <!--reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -192,5 +202,5 @@
                 </configuration>
             </plugin>
         </plugins>
-    </reporting>
+    </reporting-->
 </project>

@@ -57,7 +57,7 @@ public final class CommandSet {
      * Imports a CommandSet from an Element.
      *
      * @param element
-     * @throws ParseException
+     * @throws GirrException
      */
     CommandSet(Element element) throws GirrException {
         name = element.getAttribute(NAME_ATTRIBUTE_NAME);
