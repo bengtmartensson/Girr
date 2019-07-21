@@ -70,7 +70,7 @@
                         <transformationSet>
                             <dir>src/main/xdocs</dir>
                             <outputDir>
-                                ${project.build.directory}/generated-documents
+                                ${project.build.directory}
                             </outputDir>
                             <includes>
                                 <include>Girr.xml</include>
@@ -79,6 +79,20 @@
                             <fileMappers>
                                 <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
                                     <targetExtension>.html</targetExtension>
+                                </fileMapper>
+                            </fileMappers>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/xdocs</dir>
+                            <outputDir>${basedir}</outputDir>
+                            <includes>
+                                <include>${project.name}.xml</include>
+                            </includes>
+                            <stylesheet>${basedir}/tools/xdoc2md.xsl</stylesheet>
+                            <fileMappers>
+                                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                                    <pattern>${project.name}.xml</pattern>
+                                    <replacement>README.md</replacement>
                                 </fileMapper>
                             </fileMappers>
                         </transformationSet>
