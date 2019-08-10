@@ -6,11 +6,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.ircore.ModulatedIrSequence;
 import org.harctoolbox.ircore.XmlUtils;
+import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
@@ -30,6 +32,7 @@ public class CommandNGTest {
     private static final String RC5_12_34_1 = "+889 -889 +889 -889 +1778 -1778 +889 -889 +1778 -889 +889 -1778 +1778 -889 +889 -889 +889 -1778 +1778 -90886";
     private static final String RC5_12_34_0_CCF = "0000 0073 0000 000A 0020 0020 0040 0020 0020 0040 0020 0020 0040 0020 0020 0040 0040 0020 0020 0020 0020 0040 0040 0CC8";
     private static final String RC5_12_34_1_CCF = "0000 0073 0000 000A 0020 0020 0020 0020 0040 0040 0020 0020 0040 0020 0020 0040 0040 0020 0020 0020 0020 0040 0040 0CC8";
+    private static final String XMP = "0000 006D 0012 0012 0008 0027 0008 003C 0008 0022 0008 006A 0008 0032 0008 0032 0008 001D 0008 001D 0008 020C 0008 0027 0008 0060 0008 001D 0008 0022 0008 001D 0008 001D 0008 001D 0008 001D 0008 0BEF 0008 0027 0008 003C 0008 0022 0008 006A 0008 0032 0008 0032 0008 001D 0008 001D 0008 020C 0008 0027 0008 0037 0008 0046 0008 0022 0008 001D 0008 001D 0008 001D 0008 001D 0008 0BEF";
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -465,5 +468,34 @@ public class CommandNGTest {
         Command cmd = new Command("covfefe");
         cmd.addFormat(name, value);
         assertEquals(cmd.getFormat(name), value);
+    }
+
+    /**
+     * Test of Command(String, String, String)
+     *
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     */
+    @Test
+    public void testCommandPronto() throws GirrException, IrpException, IrCoreException {
+        System.out.println("CommandPronto");
+        Decoder.setDebugProtocolRegExp("xmp-1");
+        Command xmp1Command = new Command("xyz", "covfefe", XMP);
+        String protocolName = xmp1Command.getProtocolName();
+        assertTrue(protocolName.toLowerCase(Locale.US).startsWith("xmp"));
+
+        // https://github.com/bengtmartensson/Girr/issues/12
+        Decoder.DecoderParameters params = new Decoder.DecoderParameters();
+        params.setRelativeTolerance(0.3);
+        Command.setDecoderParameters(params);
+        xmp1Command = new Command("xyz", "covfefe", XMP);
+        protocolName = xmp1Command.getProtocolName();
+        assertNull(protocolName);
+
+        params.setOverride(false);
+        xmp1Command = new Command("xyz", "covfefe", XMP);
+        protocolName = xmp1Command.getProtocolName();
+        assertTrue(protocolName.toLowerCase(Locale.US).startsWith("xmp"));
     }
 }

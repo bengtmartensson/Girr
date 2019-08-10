@@ -106,6 +106,7 @@ public final class Command {
 
     private static IrpDatabase irpDatabase = null;
     private static Decoder decoder = null;
+    private static Decoder.DecoderParameters decoderParameters = new Decoder.DecoderParameters();
 
     /**
      * Sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format,
@@ -116,6 +117,15 @@ public final class Command {
     public static void setIrpMaster(IrpDatabase newIrpDatabase) throws IrpParseException {
         irpDatabase = newIrpDatabase;
         decoder = new Decoder(irpDatabase);
+    }
+
+    /**
+     * Sets an global Decoder.DecoderParameters instance, which will be used in subsequent transformations from parameter format,
+     * and for decodes.
+     * @param newDecoderParameters
+     */
+    public static void setDecoderParameters(Decoder.DecoderParameters newDecoderParameters) {
+        decoderParameters = newDecoderParameters;
     }
 
     /**
@@ -810,7 +820,7 @@ public final class Command {
 
     private void generateDecode(IrSignal irSignal) {
         //DecodeIR.DecodedSignal[] decodes = DecodeIR.decode(irSignal);
-        Map<String, Decoder.Decode> decodes = decoder.decodeIrSignal(irSignal);
+        Map<String, Decoder.Decode> decodes = decoder.decodeIrSignal(irSignal, decoderParameters);
 
         if (decodes.isEmpty())
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
