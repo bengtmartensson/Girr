@@ -24,12 +24,26 @@
     </properties>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>src/main/xdocs</directory>
+            </resource>
+            <resource>
+                <directory>src/main/schemas</directory>
+            </resource>
+            <resource>
+                <directory>src/main/stylesheets</directory>
+            </resource>
+        </resources>
         <plugins>
             <!-- Generate Version.java from Version.xml using mkVersion.xsl. -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
-                <version>1.0</version>
+                <version>1.0.2</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -109,11 +123,59 @@
                 </dependencies>
             </plugin>
 
+            <plugin>
+                <!-- Copy resources  in src/main/config to target dir. -->
+                <!-- Problem: there will be both a Girr.xml (manual) and a
+                     girr.xml (mime description) in the target dir, making
+                     case insensitive file systems loose.
+                     It does not bite, so right now I do not care. -->
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                        <include>girr.xml</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>src/main/schemas</directory>
+                                    <includes>
+                                        <include>*.xsd</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>src/main/stylesheets</directory>
+                                    <includes>
+                                        <include>*.xsl</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>src/main/xdocs</directory>
+                                    <includes>
+                                        <include>Girr.xml</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Source and binary tarballs from src/assembly/* files. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.6</version>
+                <version>3.1.1</version>
                 <configuration>
                     <!--descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -136,7 +198,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.8.1</version>
                 <configuration>
                     <showDeprecation>true</showDeprecation>
                 </configuration>
@@ -144,7 +206,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-remote-resources-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -153,15 +215,18 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <resourcesDirectory>target</resourcesDirectory> <!-- Pretty awful, use while only one resourcesDirectory permitted -->
                     <includes>
-                        <include>**/*.*</include>
+                        <include>girr.xml</include>
+                        <include>Girr.xml</include>
+                        <include>*.xsd</include>
                     </includes>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.9.1</version>
+                <version>3.0.0</version>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -195,7 +260,7 @@
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8.1</version>
+            <version>6.14.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
