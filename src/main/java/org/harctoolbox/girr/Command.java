@@ -496,6 +496,8 @@ public final class Command {
     private boolean checkIfProtocol() {
         if (protocol != null)
             return true;
+        if (protocolName == null || protocolName.isEmpty())
+            return false;
 
         if (irpDatabase.isKnown(protocolName)) {
             try {
