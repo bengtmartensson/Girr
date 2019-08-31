@@ -6,8 +6,13 @@ BROWSE := xdg-open
 
 MYDIR := $(dir $(firstword $(MAKEFILE_LIST)))
 TOP := $(realpath $(MYDIR)..)
+
+include $(MYDIR)/paths.mk
+
 GH_PAGES := $(TOP)/gh-pages
 ORIGINURL := $(shell git remote get-url origin)
+EXTRACT_VERSION := $(TOP)/tools/extract_project_version.xsl
+VERSION := $(shell $(XSLTPROC) $(EXTRACT_VERSION) pom.xml)
 
 default:
 	mvn install
@@ -26,8 +31,14 @@ gh-pages: target/site/apidocs
 	( cd ${GH_PAGES};  \
 	cp -r ../target/site/apidocs/* . ; \
 	git add * ; \
-	git commit -a -m "Update of API documentation" )
-	echo Now perform \"git push\" from ${GH_PAGES}
+	git commit -a -m "Update of API documentation" ; \
+	git push )
+
+tag:
+	git checkout master
+	git status
+	git tag -a Version-$(VERSION) -m "Tagging Version-$(VERSION)"
+	git push origin Version-$(VERSION)
 
 clean:
 	mvn clean
