@@ -822,12 +822,12 @@ public final class Command {
 
     private void generateDecode(IrSignal irSignal) {
         //DecodeIR.DecodedSignal[] decodes = DecodeIR.decode(irSignal);
-        Map<String, Decoder.Decode> decodes = decoder.decodeIrSignal(irSignal, decoderParameters);
+        Decoder.SimpleDecodesSet decodes = decoder.decodeIrSignal(irSignal, decoderParameters);
 
         if (decodes.isEmpty())
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
         else {
-            Decoder.Decode firstDecode = decodes.values().iterator().next();
+            Decoder.Decode firstDecode = decodes.first();
             protocolName = firstDecode.getName();
             parameters = firstDecode.getMap();
         }
