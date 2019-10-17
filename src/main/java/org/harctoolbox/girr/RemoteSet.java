@@ -57,8 +57,8 @@ import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.ircore.XmlUtils;
 import static org.harctoolbox.ircore.XmlUtils.DEFAULT_CHARSETNAME;
-import static org.harctoolbox.ircore.XmlUtils.HTML_NAMESPACE;
 import static org.harctoolbox.ircore.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
+import static org.harctoolbox.ircore.XmlUtils.HTML_NAMESPACE_URI;
 import static org.harctoolbox.ircore.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
 import static org.harctoolbox.ircore.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.ircore.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
@@ -381,7 +381,7 @@ public final class RemoteSet {
             boolean generateRaw, boolean generateCcf, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
         if (createSchemaLocation) {
-            element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE);
+            element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
             element.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
             element.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + SPACE + GIRR_SCHEMA_LOCATION_URI);
         }
