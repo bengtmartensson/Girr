@@ -488,6 +488,7 @@ public class CommandNGTest {
         // https://github.com/bengtmartensson/Girr/issues/12
         Decoder.DecoderParameters params = new Decoder.DecoderParameters();
         params.setRelativeTolerance(0.3);
+        params.setOverride(true);
         Command.setDecoderParameters(params);
         xmp1Command = new Command("xyz", "covfefe", XMP);
         protocolName = xmp1Command.getProtocolName();
