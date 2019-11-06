@@ -108,6 +108,16 @@ public final class Command {
     private static Decoder decoder = null;
     private static Decoder.DecoderParameters decoderParameters = new Decoder.DecoderParameters();
 
+    static {
+        try {
+            IrpDatabase database = new IrpDatabase((String) null);
+            decoder = new Decoder(database);
+            irpDatabase = database;
+        } catch (IOException | IrpParseException ex) {
+            throw new ThisCannotHappenException(ex);
+        }
+    }
+
     /**
      * Sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format,
      * and for decodes.
