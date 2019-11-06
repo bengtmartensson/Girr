@@ -275,6 +275,13 @@ public final class RemoteSet {
     }
 
     /**
+     * This constructor sets up a RemoteSet with no Remotes.
+     */
+    public RemoteSet() {
+        this(null, null, null, null, null, null, null);
+    }
+
+    /**
      * This constructor sets up a RemoteSet from one single Remote.
      *
      * @param creatingUser
