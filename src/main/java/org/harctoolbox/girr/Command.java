@@ -848,9 +848,10 @@ public final class Command {
     /**
      * Tries to generate the parameter version of the signal (decoding the signals),
      * unless parameters already are present.
-     * @throws IrpMasterException
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
      */
-    private void checkForParameters() throws IrpException, IrCoreException {
+    public void checkForParameters() throws IrpException, IrCoreException {
         if (parameters == null || parameters.isEmpty())
             generateDecode(toIrSignal());
     }

@@ -355,6 +355,11 @@ public final class Remote {
         this.comment = comment;
     }
 
+    public void checkForParameters() throws IrpException, IrCoreException {
+        for (Command command : commands.values())
+            command.checkForParameters();
+    }
+
     /**
      * This class bundles different data for a remote together.
      */

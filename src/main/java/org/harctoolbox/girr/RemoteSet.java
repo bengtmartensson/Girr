@@ -54,6 +54,7 @@ import static org.harctoolbox.girr.XmlExporter.TOOL2VERSION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOL2_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOLVERSIION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
+import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.ircore.XmlUtils;
 import static org.harctoolbox.ircore.XmlUtils.DEFAULT_CHARSETNAME;
@@ -62,6 +63,7 @@ import static org.harctoolbox.ircore.XmlUtils.HTML_NAMESPACE_URI;
 import static org.harctoolbox.ircore.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
 import static org.harctoolbox.ircore.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.ircore.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
+import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -494,6 +496,18 @@ public final class RemoteSet {
         });
         return allCommands;
     }
+
+    /**
+     * Tries to generate the parameter version of the signal (decoding the signals),
+     * unless parameters already are present.
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     */
+    public void checkForParameters() throws IrpException, IrCoreException {
+        for (Remote remote : remotes.values())
+            remote.checkForParameters();
+    }
+
 
     /**
      * @return the creatingUser
