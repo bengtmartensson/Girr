@@ -241,7 +241,7 @@ The Girr [namespace](http://en.wikipedia.org/wiki/Xml_namespace) is
 Except for the "namespace" namespace (`http://www.w3.org/XML/1998/namespace`), the namespaces XInclude
     (`http://www.w3.org/2001/XInclude`) and html (`http://www.w3.org/1999/xhtml`) are imported.
     XInclude- and html elements can be used at appropriate places, see the schema.
-    
+
 
 ### Schema
 The grammar of Girr is formally described as an [XML schema](http://harctoolbox.org/Glossary.html#XMLSchema) residing in the file
@@ -290,6 +290,18 @@ root element is supported.
 At the time of writing, the library carries the version number 2.0.0.
 
 The library requires the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) classes.
+
+## Integration in Maven projects
+This project can be integrated into other projects using Maven. For this, include the lines
+```
+        <dependency>
+            <groupId>org.harctoolbox</groupId>
+            <artifactId>Girr</artifactId>
+            <version>1.2.3</version>  <!-- or another supported version -->
+        </dependency>
+```
+in the `pom.xml` of the importing project.
+This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.
 
 ## Sources
 The sources, both the Java library, the schema, and the current document, are
