@@ -96,7 +96,8 @@ public final class CommandSet {
                 commands.put(irCommand.getName(), irCommand);
             } catch (GirrException ex) {
                 // Ignore erroneous commands, continue parsing
-                logger.log(Level.WARNING, null, ex);
+                String cmdName = ((Element) nl.item(i)).getAttribute(NAME_ATTRIBUTE_NAME);
+                logger.log(Level.WARNING, "Command {0}: {1}", new Object[]{cmdName, ex.getMessage()});
             }
         }
     }
