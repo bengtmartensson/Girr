@@ -408,7 +408,7 @@ public final class Command {
      * @throws org.harctoolbox.girr.GirrException
      */
     public Command(String name, String comment, String prontoHex) throws GirrException {
-        this(MasterType.prontoHex, name, comment);
+        this(MasterType.ccf, name, comment);
         this.prontoHex = new String[1];
         this.prontoHex[0] = prontoHex;
         sanityCheck();
@@ -681,7 +681,7 @@ public final class Command {
             case raw:
                 return new IrSignal(intro[T], repeat[T], ending[T], frequency != null ? frequency.doubleValue() : null, dutyCycle);
 
-            case prontoHex:
+            case ccf:
                 return ShortPronto.parse(prontoHex[T]);
 
             default:
@@ -777,7 +777,7 @@ public final class Command {
         if (masterType == null)
             masterType = (protocolOk && parametersOk) ? MasterType.parameters
                     : rawOk ? MasterType.raw
-                    : prontoHexOk ? MasterType.prontoHex
+                    : prontoHexOk ? MasterType.ccf
                     : null;
 
         if (masterType == null)
@@ -789,7 +789,7 @@ public final class Command {
             throw new GirrException("Command " + name + ": MasterType is parameters, but no parameters found.");
         if (masterType == MasterType.raw && !rawOk)
             throw new GirrException("Command " + name + ": MasterType is raw, but both intro- and repeat-sequence empty.");
-        if (masterType == MasterType.prontoHex && !prontoHexOk)
+        if (masterType == MasterType.ccf && !prontoHexOk)
             throw new GirrException("Command " + name + ": MasterType is prontoHex, but no Pronto Hex found.");
     }
 
@@ -977,11 +977,11 @@ public final class Command {
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         MasterType actualMasterType = masterType;
         if (masterType == MasterType.raw && !generateRaw
-                || masterType == MasterType.prontoHex && !generateProntoHex
+                || masterType == MasterType.ccf && !generateProntoHex
                 || masterType == MasterType.parameters && !generateParameters) {
             actualMasterType = generateRaw ? MasterType.raw
                     : generateParameters ? MasterType.parameters
-                    : generateProntoHex ? MasterType.prontoHex
+                    : generateProntoHex ? MasterType.ccf
                     : null;
         }
         if (actualMasterType != null)
@@ -1083,7 +1083,7 @@ public final class Command {
         raw,
 
         /** The Pronto Hex representation is the master. Does not have multiple toggle values. */
-        prontoHex,
+        ccf, // to be compatible with the Schema
 
         /** The protocol/parameter version is the master. May have multiple Pronto Hex/raw representations if the protocol has a toggle. */
         parameters,
