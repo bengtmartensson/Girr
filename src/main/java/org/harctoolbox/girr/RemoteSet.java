@@ -27,9 +27,12 @@ import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -365,6 +368,19 @@ public final class RemoteSet {
     public RemoteSet(String source, String creatingUser, IrSignal irSignal, String name,
             String comment, String deviceName) {
         this(creatingUser, source, new Remote(irSignal, name, comment, deviceName));
+    }
+
+    public void sort(Comparator<Remote> comparator) {
+        List<Remote> list = new ArrayList<>(remotes.values());
+        Collections.sort(list, comparator);
+        remotes.clear();
+        list.forEach((cmd) -> {
+            remotes.put(cmd.getName(), cmd);
+        });
+    }
+
+    public boolean isEmpty() {
+        return remotes.isEmpty();
     }
 
     /**

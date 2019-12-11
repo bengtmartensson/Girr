@@ -18,7 +18,9 @@
 package org.harctoolbox.girr;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -1122,5 +1124,19 @@ public final class Command {
          * @return string of formatted signal.
          */
         public String format(IrSignal irSignal, int repeatCount);
+    }
+
+    public static class CompareNameCaseSensitive implements Comparator<Command>, Serializable {
+        @Override
+        public int compare(Command o1, Command o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    }
+
+    public static class CompareNameCaseInsensitive implements Comparator<Command>, Serializable {
+        @Override
+        public int compare(Command o1, Command o2) {
+            return o1.getName().compareToIgnoreCase(o2.getName());
+        }
     }
 }

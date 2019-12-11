@@ -18,6 +18,8 @@ this program. If not, see http://www.gnu.org/licenses/.
 package org.harctoolbox.girr;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -217,6 +219,15 @@ public final class Remote {
         element.appendChild(commandSet.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
 
         return element;
+    }
+
+    public void sort(Comparator<Command> comparator) {
+        ArrayList<Command> list = new ArrayList<>(commands.values());
+        Collections.sort(list, comparator);
+        commands.clear();
+        list.forEach((cmd) -> {
+            commands.put(cmd.getName(), cmd);
+        });
     }
 
     /**
