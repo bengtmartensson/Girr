@@ -151,7 +151,7 @@ public final class CommandSet {
         });
         if (parameters != null && generateParameters) {
             Element parametersEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
-            parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocol.toLowerCase(Locale.US));
+            parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocol);
             element.appendChild(parametersEl);
             parameters.entrySet().stream().map((parameter) -> {
                 Element parameterEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);

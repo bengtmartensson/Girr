@@ -1006,7 +1006,7 @@ public final class Command {
                 if (parameters != null) {
                     Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
                     if (protocolName != null)
-                        parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName.toLowerCase(Locale.US));
+                        parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
                     element.appendChild(parametersEl);
                     parameters.entrySet().stream().map((parameter) -> {
                         Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
