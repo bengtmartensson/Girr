@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -55,7 +56,7 @@ import org.w3c.dom.NodeList;
  * It has a name for identification, and a number of comment-like text fields. Most importantly,
  * it has a dictionary of Commands, indexed by their names.
  */
-public final class Remote {
+public final class Remote implements Iterable<Command> {
 
     private final static Logger logger = Logger.getLogger(Remote.class.getName());
 
@@ -369,6 +370,11 @@ public final class Remote {
     public void checkForParameters() throws IrpException, IrCoreException {
         for (Command command : commands.values())
             command.checkForParameters();
+    }
+
+    @Override
+    public Iterator<Command> iterator() {
+        return commands.values().iterator();
     }
 
     /**

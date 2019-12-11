@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +77,7 @@ import org.xml.sax.SAXException;
 /**
  * This class models a collection of Remotes, indexed by their names.
  */
-public final class RemoteSet {
+public final class RemoteSet implements Iterable<Remote> {
 
     private final static Logger logger = Logger.getLogger(RemoteSet.class.getName());
 
@@ -596,5 +597,10 @@ public final class RemoteSet {
      */
     public Remote getRemote(String name) {
         return remotes.get(name);
+    }
+
+    @Override
+    public Iterator<Remote> iterator() {
+        return remotes.values().iterator();
     }
 }
