@@ -401,15 +401,17 @@
                     <xs:documentation>Duty cycle of modulation signal, between 0 and 1.</xs:documentation>
                 </xs:annotation>
             </xs:attribute>
-            <xs:attribute ref="T"/>
+            <xs:attributeGroup ref="Tgroup"/>
         </xs:complexType>
     </xs:element>
 
-    <xs:attribute name="T" type="parameterValue" default="0">
-        <xs:annotation>
-            <xs:documentation>Toggle value, the "T" parameter in many protocols.</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
+    <xs:attributeGroup name="Tgroup">
+        <xs:attribute name="T" type="parameterValue" default="0">
+            <xs:annotation>
+                <xs:documentation>Toggle value, the "T" parameter in many protocols.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:attributeGroup>
 
     <xs:complexType name="rawsequence" mixed="true">
         <xs:annotation>
@@ -431,7 +433,7 @@
         <xs:complexType>
             <xs:simpleContent>
                 <xs:extension base="ccfString">
-                    <xs:attribute ref="T"/>
+                    <xs:attributeGroup ref="Tgroup"/>
                 </xs:extension>
             </xs:simpleContent>
         </xs:complexType>
