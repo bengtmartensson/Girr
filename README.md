@@ -242,7 +242,6 @@ Except for the "namespace" namespace (`http://www.w3.org/XML/1998/namespace`), t
     (`http://www.w3.org/2001/XInclude`) and html (`http://www.w3.org/1999/xhtml`) are imported.
     XInclude- and html elements can be used at appropriate places, see the schema.
 
-
 ### Schema
 The grammar of Girr is formally described as an [XML schema](http://harctoolbox.org/Glossary.html#XMLSchema) residing in the file
     [girr_ns.xsd](http://harctoolbox.org/schemas/girr_ns.xsd). It contains internal documentation of
