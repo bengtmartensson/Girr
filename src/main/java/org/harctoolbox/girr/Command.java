@@ -686,6 +686,9 @@ public final class Command {
             case ccf:
                 return ShortPronto.parse(prontoHex[T]);
 
+            case empty:
+                return null;
+
             default:
                 throw new ThisCannotHappenException();
         }
@@ -833,7 +836,10 @@ public final class Command {
 
 
     private void generateDecode(IrSignal irSignal) {
-        //DecodeIR.DecodedSignal[] decodes = DecodeIR.decode(irSignal);
+        if (irSignal == null) {
+            notes.put(ENGLISH, "No signal information.");
+            return;
+        }
         Decoder.SimpleDecodesSet decodes = decoder.decodeIrSignal(irSignal, decoderParameters);
 
         if (decodes.isEmpty())
