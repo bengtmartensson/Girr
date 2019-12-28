@@ -48,7 +48,7 @@ public final class CommandSet {
     private final static Logger logger = Logger.getLogger(CommandSet.class.getName());
 
     private Map<String, String> notes;
-    private String protocol;
+    private String protocolName;
     private final String name;
     private final Map<String, Long> parameters;
     private final Map<String, Command> commands;
@@ -61,7 +61,7 @@ public final class CommandSet {
      */
     CommandSet(Element element) throws GirrException {
         name = element.getAttribute(NAME_ATTRIBUTE_NAME);
-        protocol = null;
+        protocolName = null;
         commands = new LinkedHashMap<>(4);
         parameters = new LinkedHashMap<>(4);
         notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
@@ -76,7 +76,7 @@ public final class CommandSet {
                 continue;
             String newProtocol = el.getAttribute(PROTOCOL_ATTRIBUTE_NAME);
             if (!newProtocol.isEmpty())
-                protocol = newProtocol;
+                protocolName = newProtocol.toLowerCase(Locale.US);
             NodeList paramList = el.getElementsByTagName(PARAMETER_ELEMENT_NAME);
             for (int i = 0; i < paramList.getLength(); i++) {
                 Element e = (Element) paramList.item(i);
@@ -92,7 +92,7 @@ public final class CommandSet {
         for (int i = 0; i < nl.getLength(); i++) {
             Command irCommand;
             try {
-                irCommand = new Command((Element) nl.item(i), protocol, parameters);
+                irCommand = new Command((Element) nl.item(i), protocolName, parameters);
                 commands.put(irCommand.getName(), irCommand);
             } catch (GirrException ex) {
                 // Ignore erroneous commands, continue parsing
@@ -108,14 +108,14 @@ public final class CommandSet {
      * @param name
      * @param notes
      * @param commands
-     * @param protocol
+     * @param protocolName
      * @param parameters
      */
-    CommandSet(String name, Map<String, String> notes, Map<String, Command> commands, String protocol, Map<String, Long> parameters) {
+    CommandSet(String name, Map<String, String> notes, Map<String, Command> commands, String protocolName, Map<String, Long> parameters) {
         this.name = name != null ? name : "commandSet";
         this.notes = notes != null ? notes : new HashMap<>(0);
         this.commands = commands;
-        this.protocol = protocol;
+        this.protocolName = protocolName != null ? protocolName.toLowerCase(Locale.US) : null;
         this.parameters = parameters;
     }
 
@@ -151,7 +151,7 @@ public final class CommandSet {
         });
         if (parameters != null && generateParameters) {
             Element parametersEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
-            parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocol);
+            parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
             element.appendChild(parametersEl);
             parameters.entrySet().stream().map((parameter) -> {
                 Element parameterEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);

@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,7 +70,7 @@ public final class Remote implements Iterable<Command> {
     private MetaData metaData;
     private String comment;
     private Map<String, String> notes;
-    private String protocol;
+    private String protocolName;
     private Map<String, Long> parameters;
     private Map<String, Command> commands;
     private Map<String, Map<String, String>> applicationParameters;
@@ -118,18 +119,18 @@ public final class Remote implements Iterable<Command> {
      * @param notes
      * @param commands
      * @param applicationParameters
-     * @param protocol
+     * @param protocolName
      * @param parameters
      */
     public Remote(MetaData metaData, String comment, Map<String, String> notes,
             Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters,
-            String protocol, Map<String, Long> parameters) {
+            String protocolName, Map<String, Long> parameters) {
         this.metaData = metaData;
         this.comment = comment;
         this.notes = notes;
         this.commands = commands;
         this.applicationParameters = applicationParameters;
-        this.protocol = protocol;
+        this.protocolName = protocolName != null ? protocolName.toLowerCase(Locale.US) : null;
         this.parameters = parameters;
     }
 
@@ -216,7 +217,7 @@ public final class Remote implements Iterable<Command> {
             });
         }
 
-        CommandSet commandSet = new CommandSet(null, null, commands, protocol, parameters);
+        CommandSet commandSet = new CommandSet(null, null, commands, protocolName, parameters);
         element.appendChild(commandSet.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
 
         return element;

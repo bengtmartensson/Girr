@@ -163,7 +163,7 @@ public class CommandNGTest {
     public void testGetProtocolName() throws IrCoreException, IrpException {
         System.out.println("getProtocolName");
         String result = nec1_12_34_56_irSignal.getProtocolName();
-        assertEquals(result, "NEC1");
+        assertEquals(result, "nec1");
     }
 
     /**

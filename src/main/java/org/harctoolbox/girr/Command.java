@@ -249,7 +249,7 @@ public final class Command {
     private MasterType masterType;
     private Map<String, String> notes;
     private String name;
-    private String protocolName;
+    private String protocolName; // should always be lowercase
     private Map<String, Long> parameters;
     private Integer frequency;
     private Double dutyCycle;
@@ -269,7 +269,7 @@ public final class Command {
      */
     public Command(Element element, String inheritProtocol, Map<String, Long> inheritParameters) throws GirrException {
         this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME), element.getAttribute(COMMENT_ATTRIBUTE_NAME));
-        protocolName = inheritProtocol;
+        protocolName = inheritProtocol != null ? inheritProtocol.toLowerCase(Locale.US) : null;
         parameters = new HashMap<>(4);
         parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
@@ -282,7 +282,7 @@ public final class Command {
                 Element params = (Element) paramsNodeList.item(0);
                 String proto = params.getAttribute(PROTOCOL_ELEMENT_NAME);
                 if (!proto.isEmpty())
-                    this.protocolName = proto;
+                    this.protocolName = proto.toLowerCase(Locale.US);
                 nl = params.getElementsByTagName(PARAMETER_ELEMENT_NAME);
                 for (int i = 0; i < nl.getLength(); i++) {
                     Element el = (Element) nl.item(i);
@@ -382,7 +382,7 @@ public final class Command {
     private Command(String name, String comment, String protocolName, Protocol protocol, Map<String, Long> parameters) throws GirrException {
         this(MasterType.parameters, name, comment);
         this.parameters = new HashMap<>(parameters);
-        this.protocolName = protocolName;
+        this.protocolName = protocolName.toLowerCase(Locale.US);
         this.protocol = protocol;
         sanityCheck();
     }
@@ -846,7 +846,7 @@ public final class Command {
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
         else {
             Decoder.Decode firstDecode = decodes.first();
-            protocolName = firstDecode.getName();
+            protocolName = firstDecode.getName().toLowerCase(Locale.US);
             parameters = firstDecode.getMap();
         }
         if (decodes.size() > 1)
@@ -1081,6 +1081,20 @@ public final class Command {
         return element;
     }
 
+    public static class CompareNameCaseSensitive implements Comparator<Command>, Serializable {
+        @Override
+        public int compare(Command o1, Command o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    }
+
+    public static class CompareNameCaseInsensitive implements Comparator<Command>, Serializable {
+        @Override
+        public int compare(Command o1, Command o2) {
+            return o1.getName().compareToIgnoreCase(o2.getName());
+        }
+    }
+
     /**
      * This describes which representation of a Command constitutes the master,
      * from which the other representations are derived.
@@ -1130,19 +1144,5 @@ public final class Command {
          * @return string of formatted signal.
          */
         public String format(IrSignal irSignal, int repeatCount);
-    }
-
-    public static class CompareNameCaseSensitive implements Comparator<Command>, Serializable {
-        @Override
-        public int compare(Command o1, Command o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    }
-
-    public static class CompareNameCaseInsensitive implements Comparator<Command>, Serializable {
-        @Override
-        public int compare(Command o1, Command o2) {
-            return o1.getName().compareToIgnoreCase(o2.getName());
-        }
     }
 }
