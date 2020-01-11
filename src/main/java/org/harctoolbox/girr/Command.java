@@ -64,6 +64,7 @@ import static org.harctoolbox.ircore.XmlUtils.ENGLISH;
 import static org.harctoolbox.ircore.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.DomainViolationException;
+import org.harctoolbox.irp.ElementaryDecode;
 import org.harctoolbox.irp.InvalidNameException;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
@@ -840,12 +841,12 @@ public final class Command {
             notes.put(ENGLISH, "No signal information.");
             return;
         }
-        Decoder.SimpleDecodesSet decodes = decoder.decodeIrSignal(irSignal, decoderParameters);
+        Decoder.AbstractDecodesCollection<? extends ElementaryDecode> decodes = decoder.decodeLoose(irSignal, decoderParameters);
 
         if (decodes.isEmpty())
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
         else {
-            Decoder.Decode firstDecode = decodes.first();
+            ElementaryDecode firstDecode = decodes.first();
             protocolName = firstDecode.getName().toLowerCase(Locale.US);
             parameters = firstDecode.getMap();
         }
