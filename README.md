@@ -280,7 +280,8 @@ the application of XSLT stylesheets on the Girr fat format.
 ## Supporting Java library
 For importing and exporting Girr files to Java programs, a Java library is
 provided. It is documented by its [Javadoc
-documentation](http://harctoolbox.org/javadoc/Girr/index.html). As opposed to the specification  as such, it is licensed under the [Gnu General Public License, version
+documentation](https://bengtmartensson.github.io/Girr/).
+As opposed to the specification  as such, it is licensed under the [Gnu General Public License, version
 3](http://www.gnu.org/licenses/gpl.txt).
 
 Presently, only import of documents having [remotes](http://harctoolbox.org/Girr.html#remotes) as
