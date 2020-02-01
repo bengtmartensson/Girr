@@ -299,18 +299,14 @@ public class CommandNGTest {
 
     /**
      * Test of getProntoHex method, of class Command.
-     * @throws org.harctoolbox.ircore.IrCoreException
-     * @throws org.harctoolbox.irp.IrpException
      * @throws org.harctoolbox.girr.GirrException
      */
     @Test
-    public void testGetProntoHex_error() throws IrCoreException, IrpException, GirrException {
+    public void testGetProntoHex_error() throws GirrException  {
         System.out.println("getProntoHex_error");
         String expResult = NEC1_12_34_56_CCF;
-        Command silly = new Command("name", null, "nonexisting-protocol", nec1Params);
-
         try {
-            silly.getProntoHex();
+            new Command("name", null, "nonexisting-protocol", nec1Params);
             fail();
         } catch (GirrException ex) {
         }

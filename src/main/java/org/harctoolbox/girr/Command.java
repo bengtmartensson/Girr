@@ -376,7 +376,15 @@ public final class Command {
      */
     @SuppressWarnings("unchecked")
     public Command(String name, String comment, String protocolName, Map<String, Long> parameters) throws GirrException {
-        this(name, comment, protocolName, getProtocolOrNull(irpDatabase, protocolName), parameters);
+        this(MasterType.parameters, name, comment);
+        this.parameters = new HashMap<>(parameters);
+        try {
+            this.protocol = irpDatabase.getProtocol(protocolName);
+        } catch (IrpException ex) {
+            throw new GirrException(ex);
+        }
+        this.protocolName = protocolName.toLowerCase(Locale.US);
+        sanityCheck();
     }
 
     @SuppressWarnings("unchecked")
