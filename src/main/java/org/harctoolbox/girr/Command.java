@@ -808,7 +808,7 @@ public final class Command {
     }
 
 
-    private void generateRawProntoHexAllT(Map<String, Long> parameters, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
+    private void generateRawProntoHexAllT(Map<String, Long> parameters, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
         if (numberOfToggleValues() == 1)
             generateRawProntoHex(parameters, generateRaw, generateProntoHex);
         else
@@ -816,14 +816,14 @@ public final class Command {
                 generateRawProntoHexForceT(parameters, T, generateRaw, generateProntoHex);
     }
 
-    private void generateRawProntoHexForceT(Map<String, Long> parameter, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
+    private void generateRawProntoHexForceT(Map<String, Long> parameter, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
         @SuppressWarnings("unchecked")
         Map<String, Long> params = new HashMap<>(parameters);
         params.put(TOGGLE_PARAMETER_NAME, (long) T);
         generateRawProntoHex(params, T, generateRaw, generateProntoHex);
     }
 
-    private void generateRawProntoHex(Map<String, Long> parameter, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
+    private void generateRawProntoHex(Map<String, Long> parameter, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
         if (!checkIfProtocol())
             throw new GirrException("protocol named " + this.protocolName + " not found or erroneous");
 
@@ -835,7 +835,7 @@ public final class Command {
             generateProntoHex(irSignal);
     }
 
-    private void generateRawProntoHex(Map<String, Long> parameters, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException {
+    private void generateRawProntoHex(Map<String, Long> parameters, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
         IrSignal irSignal = protocol.toIrSignal(parameters);
         if (generateRaw)
             generateRaw(irSignal, T);
