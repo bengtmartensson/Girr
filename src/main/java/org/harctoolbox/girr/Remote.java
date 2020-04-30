@@ -429,6 +429,23 @@ public final class Remote implements Iterable<Command> {
             this.remoteName = remoteName;
         }
 
+        private static boolean isVoid(String s) {
+            return s == null || s.isEmpty();
+        }
+
+        /**
+         * Returns true if there is no non-trivial content.
+         * @return
+         */
+        public boolean isEmpty() {
+            return isVoid(name)
+                    && isVoid(displayName)
+                    && isVoid(manufacturer)
+                    && isVoid(model)
+                    && isVoid(deviceClass)
+                    && isVoid(remoteName);
+        }
+
         /**
          * @return the name
          */
