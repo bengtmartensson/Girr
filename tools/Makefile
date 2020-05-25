@@ -64,6 +64,6 @@ tag:
 
 clean:
 	mvn clean
-	rm -rf $(GH_PAGES)
+	rm -rf $(GH_PAGES) pom.xml.versionsBackup
 
 .PHONY: clean $(PROJECT_JAR)-test release
