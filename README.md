@@ -86,7 +86,7 @@ commands, nor does it describe how to control a device that can be commanded by
 the said remote. Names for commands can be "arbitrary", in any language or character set,
 using any printable characters including white space. A well defined semantic of command names is not granted. However, in
 some cases uniqueness in the purely syntactical sense is required, for example
-ensuring that all commands within a particular commandSet have unique names.
+    ensuring that all commands within a particular `commandSet` have unique names.
 
 It can be assumed that all signals consists of an intro-, an repeat-sequence
 (any of which, but not both, may be empty), and an optional ending
@@ -212,7 +212,7 @@ inherited to children `commandSet`s and their contained
 `command`s.
 
 Although a `remote` cannot contain `command`s
-directly — it must contain a commandSet — the use of `commandSet`s is somewhat arbitrary. They can
+directly — it must contain a `commandSet` — the use of `commandSet`s is somewhat arbitrary. They can
 be used e.g. to structure a remote containing a few different protocols, or one
 protocol and a few different device numbers nicely, in particular if hand
 writing the Girr file. However, protocol and their parameters can also be given
@@ -271,7 +271,7 @@ To use, add a line like
 ```
 to the Girr file. (Some programs, like IrScrutinizer, can do this
 automatically.) Note that some browsers, like Firefox, for security reasons
-limits the usage of style sheets to the current directory.
+limits the usage of style sheets.
 
 XSLT style-sheets can however be used for other purposes than the name
 suggests. The export mechanism of IrScrutinizer consists  essentially of
@@ -287,21 +287,22 @@ As opposed to the specification  as such, it is licensed under the [Gnu General 
 Presently, only import of documents having [remotes](http://harctoolbox.org/Girr.html#remotes) as
 root element is supported.
 
-At the time of writing, the library carries the version number 2.0.0.
+At the time of writing, the library carries the version number 2.2.6.
 
 The library requires the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) classes.
 
 ## Integration in Maven projects
 This project can be integrated into other projects using Maven. For this, include the lines
-```
+        ```
         <dependency>
             <groupId>org.harctoolbox</groupId>
             <artifactId>Girr</artifactId>
             <version>1.2.3</version>  <!-- or another supported version -->
         </dependency>
-```
+        ```
+
 in the `pom.xml` of the importing project.
-This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.
+        This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.
 
 ## Sources
 The sources, both the Java library, the schema, and the current document, are

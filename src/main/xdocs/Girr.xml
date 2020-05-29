@@ -23,6 +23,10 @@
 	  <td>2019-07-21</td>
 	  <td>Updated to current version; IrpMaster replaced by IrpTransmogrifier. Say "Pronto Hex" instead of "CCF".</td>
 	</tr>
+        <tr>
+	  <td>2020-05-29</td>
+	  <td>Some minor updates. Added Maven integration (which previously was found in README.md).</td>
+	</tr>
       </table>
 
 <section>
@@ -121,7 +125,7 @@ commands, nor does it describe how to control a device that can be commanded by
 the said remote. Names for commands can be "arbitrary", in any language or character set,
 using any printable characters including white space. A well defined semantic of command names is not granted. However, in
 some cases uniqueness in the purely syntactical sense is required, for example
-ensuring that all commands within a particular commandSet have unique names.</p>
+    ensuring that all commands within a particular <code>commandSet</code> have unique names.</p>
 
 <p>It can be assumed that all signals consists of an intro-, an repeat-sequence
 (any of which, but not both, may be empty), and an optional ending
@@ -244,7 +248,7 @@ inherited to children <code>commandSet</code>s and their contained
 <code>command</code>s.</p>
 
 <p>Although a <code>remote</code> cannot contain <code>command</code>s
-directly &mdash; it must contain a commandSet &mdash; the use of <code>commandSet</code>s is somewhat arbitrary. They can
+directly &mdash; it must contain a <code>commandSet</code> &mdash; the use of <code>commandSet</code>s is somewhat arbitrary. They can
 be used e.g. to structure a remote containing a few different protocols, or one
 protocol and a few different device numbers nicely, in particular if hand
 writing the Girr file. However, protocol and their parameters can also be given
@@ -279,8 +283,7 @@ instance. (Not to be confused with the version of the <a href="#Supporting+Java+
     <title>Imported namespaces</title>
     <p>Except for the "namespace" namespace (<code>http://www.w3.org/XML/1998/namespace</code>), the namespaces XInclude
     (<code>http://www.w3.org/2001/XInclude</code>) and html (<code>http://www.w3.org/1999/xhtml</code>) are imported.
-    XInclude- and html elements can be used at appropriate places, see the schema.
-    </p>
+    XInclude- and html elements can be used at appropriate places, see the schema.</p>
 </section>
 
 <section>
@@ -316,7 +319,7 @@ href="stylesheets/simplehtml.xsl">simplehtml.xsl</a>.</p>
 </source>
 <p>to the Girr file. (Some programs, like IrScrutinizer, can do this
 automatically.) Note that some browsers, like Firefox, for security reasons
-limits the usage of style sheets to the current directory.</p>
+limits the usage of style sheets.</p>
 
 <p>XSLT style-sheets can however be used for other purposes than the name
 suggests. The export mechanism of IrScrutinizer consists  essentially of
@@ -327,17 +330,33 @@ the application of XSLT stylesheets on the Girr fat format.</p>
 <section><title>Supporting Java library</title>
 <p>For importing and exporting Girr files to Java programs, a Java library is
 provided. It is documented by its <a href="https://bengtmartensson.github.io/Girr/">Javadoc
-documentation</a>. As opposed to the specification  as such, it is licensed under the <a
+documentation</a>.
+As opposed to the specification  as such, it is licensed under the <a
 href="http://www.gnu.org/licenses/gpl.txt">Gnu General Public License, version
 3</a>.</p>
 
-<p>Presently, only import of documents having <a href="#remotes">remotes</a> as
+<p>Presently, only import of documents having <a href="#remotes">
+        <code>remotes</code>
+    </a> as
 root element is supported.</p>
 
-<p>At the time of writing, the library carries the version number 2.0.0.</p>
+<p>At the time of writing, the library carries the version number 2.2.6.</p>
 
 <p>The library requires the <a href="IrpTransmogrifier.html">IrpTransmogrifier</a> classes.</p>
 
+</section>
+
+<section>
+    <title>Integration in Maven projects</title>
+    <p>This project can be integrated into other projects using Maven. For this, include the lines
+        <source><![CDATA[        <dependency>
+            <groupId>org.harctoolbox</groupId>
+            <artifactId>Girr</artifactId>
+            <version>1.2.3</version>  <!-- or another supported version -->
+        </dependency>]]>
+        </source>
+in the `pom.xml` of the importing project.
+        This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.</p>
 </section>
 
 <section>
