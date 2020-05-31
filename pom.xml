@@ -144,6 +144,20 @@
                                 </fileMapper>
                             </fileMappers>
                         </transformationSet>
+                        <transformationSet> <!-- This is just for Firefox' refusal to handle file xslt-files. -->
+                            <dir>src/main/schemas</dir>
+                            <outputDir>${basedir}/target</outputDir>
+                            <includes>
+                                <include>girr_ns.xsd</include>
+                                <include>girr_ns-1.1.xsd</include>
+                            </includes>
+                            <stylesheet>src/main/schemas/xsd.xsl</stylesheet>
+                            <fileMappers>
+                                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
+                                    <targetExtension>.html</targetExtension>
+                                </fileMapper>
+                            </fileMappers>
+                        </transformationSet>
                     </transformationSets>
                 </configuration>
 
