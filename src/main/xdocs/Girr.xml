@@ -348,14 +348,14 @@ root element is supported.</p>
 
 <section>
     <title>Integration in Maven projects</title>
-    <p>This project can be integrated into other projects using Maven. For this, include the lines
+    <p>This project can be integrated into other projects using Maven. For this, include the lines</p>
         <source><![CDATA[        <dependency>
             <groupId>org.harctoolbox</groupId>
             <artifactId>Girr</artifactId>
             <version>1.2.3</version>  <!-- or another supported version -->
         </dependency>]]>
         </source>
-in the `pom.xml` of the importing project.
+<p>in the `pom.xml` of the importing project.
         This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.</p>
 </section>
 
