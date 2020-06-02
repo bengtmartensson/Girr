@@ -372,19 +372,35 @@ public final class Command {
      * @param comment
      * @param protocolName
      * @param parameters
+     * @param check If true, throw GirrException if the projectName cannot be made a protocol.
      * @throws org.harctoolbox.girr.GirrException
      */
     @SuppressWarnings("unchecked")
-    public Command(String name, String comment, String protocolName, Map<String, Long> parameters) throws GirrException {
+    public Command(String name, String comment, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
         this(MasterType.parameters, name, comment);
         this.parameters = new HashMap<>(parameters);
         try {
-            this.protocol = irpDatabase.getProtocol(protocolName);
+            protocol = irpDatabase.getProtocol(protocolName);
         } catch (IrpException ex) {
-            throw new GirrException(ex);
+            if (check)
+                throw new GirrException(ex);
+            protocol = null;
         }
         this.protocolName = protocolName.toLowerCase(Locale.US);
         sanityCheck();
+    }
+
+    /**
+     * Construct a Command from protocolName and parameters.
+     *
+     * @param name
+     * @param comment
+     * @param protocolName
+     * @param parameters
+     * @throws org.harctoolbox.girr.GirrException if the projectName cannot be made a protocol.
+     */
+    public Command(String name, String comment, String protocolName, Map<String, Long> parameters) throws GirrException {
+        this(name, comment, protocolName, parameters, true);
     }
 
     @SuppressWarnings("unchecked")
@@ -1054,8 +1070,8 @@ public final class Command {
                     }
                 }
             } catch (IrCoreException | GirrException | IrpException ex) {
-                logger.log(Level.INFO, null, ex);
-                element.appendChild(doc.createComment("Raw signal requested but could not be generated. (" + ex.getMessage() + ".)"));
+                logger.log(Level.INFO, "{0}", ex.getMessage());
+                element.appendChild(doc.createComment("Raw signal requested but could not be generated: " + ex.getMessage() + "."));
             }
         }
         if (generateProntoHex) {
@@ -1071,8 +1087,8 @@ public final class Command {
                     }
                 }
             } catch (IrCoreException | IrpException | GirrException ex) {
-                logger.log(Level.INFO, null, ex);
-                element.appendChild(doc.createComment("Pronto Hex requested but could not be generated. (" + ex.getMessage() + ".)"));
+                logger.log(Level.INFO, "{0}", ex.getMessage());
+                element.appendChild(doc.createComment("Pronto Hex requested but could not be generated: " + ex.getMessage() + "."));
             }
         }
         if (otherFormats != null) {
