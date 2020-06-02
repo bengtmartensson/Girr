@@ -226,17 +226,16 @@ public final class RemoteSet implements Iterable<Remote> {
     }
 
     /**
-     * This constructor sets up a RemoteSet from a given Map of Remotes, so that it can later be used through
-     * the xmlExport or xmlExportDocument to generate an XML export.
+     * This constructor sets up a RemoteSet from a given Map of Remotes.
      * @param creatingUser Comment field for the creating user, if wanted.
      * @param source Comment field describing the origin of the data; e.g. name of human author or creating program.
      * @param creationDate Date of creation, as text string.
      * @param tool Name of creating tool.
      * @param toolVersion Version of creating tool.
-     * @param tool2 Name of secondary tppl, if applicable.
+     * @param tool2 Name of secondary tool, if applicable.
      * @param tool2Version Version of secondary tool.
      * @param notes Textual notes.
-     * @param remotes hMap of remotes.
+     * @param remotes Map of remotes.
      */
     public RemoteSet(String creatingUser,
             String source,
