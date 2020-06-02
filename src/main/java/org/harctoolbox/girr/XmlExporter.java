@@ -42,7 +42,7 @@ public final class XmlExporter {
     /**
      * Namespace URI
      */
-    static final String GIRR_NAMESPACE = "http://www.harctoolbox.org/Girr";
+    public static final String GIRR_NAMESPACE = "http://www.harctoolbox.org/Girr";
 
     /**
      * Homepage URL.
@@ -57,7 +57,7 @@ public final class XmlExporter {
     /**
      * URL for schema file, namespace-less version.
      */
-    public static final String GIRR_NONAMESPACE_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr.xsd";
+    static final String GIRR_NONAMESPACE_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr.xsd";
 
     /**
      * Comment string pointing to Girr docu.
@@ -67,6 +67,7 @@ public final class XmlExporter {
     /**
      * String of the form major.minor identifying the protocol version
      * (not to be confused with the version of an implementation).
+     * Should be the same as the attribute girrVersion in girr_ns.xsd.
      */
     public static final String GIRR_VERSION         = "1.0";
 
