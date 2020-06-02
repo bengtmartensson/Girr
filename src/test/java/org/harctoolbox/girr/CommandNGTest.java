@@ -53,7 +53,7 @@ public class CommandNGTest {
 
     public CommandNGTest() throws IOException, IrCoreException, GirrException, IrpParseException {
         irpDatabase = new IrpDatabase(IRP_PROTOCOLS_PATH);
-        Command.setIrpMaster(IRP_PROTOCOLS_PATH);
+        Command.setIrpDatabase(IRP_PROTOCOLS_PATH);
         //nec1_12_34_56_ccf = new Command("nec1_12_34_56_ccf", "Test ccf", NEC1_12_34_56_CCF);
         nec1Params = new HashMap<>(3);
         nec1Params.put("D", 12L);
@@ -78,14 +78,14 @@ public class CommandNGTest {
     }
 
     /**
-     * Test of setIrpMaster method, of class Command.
+     * Test of setIrpSetDatabase method, of class Command.
      * @throws java.io.IOException
      * @throws org.harctoolbox.irp.IrpParseException
      */
     @Test
-    public void testSetIrpMaster_String() throws IOException, IrpParseException {
-        System.out.println("setIrpMaster");
-        Command.setIrpMaster(IRP_PROTOCOLS_PATH);
+    public void testSetIrpDatabase_String() throws IOException, IrpParseException {
+        System.out.println("setIrpDatabase");
+        Command.setIrpDatabase(IRP_PROTOCOLS_PATH);
     }
 
     /**

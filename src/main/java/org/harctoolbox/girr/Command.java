@@ -93,7 +93,7 @@ import org.w3c.dom.NodeList;
  * </ol>
  *
  * <p>
- * The member functions of class may throw IrpMasterExceptions when they encounter
+ * The member functions of class may throw IrpExceptions when they encounter
  * erroneous data. The other classes in the package may not; they should just
  * ignore individual unparseable commands.
  */
@@ -122,12 +122,12 @@ public final class Command {
     }
 
     /**
-     * Sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format,
+     * Sets an global IrpDatabase instance, which will be used in subsequent transformations from parameter format,
      * and for decodes.
      * @param newIrpDatabase IrpDatabase instance
      * @throws org.harctoolbox.irp.IrpParseException
      */
-    public static void setIrpMaster(IrpDatabase newIrpDatabase) throws IrpParseException {
+    public static void setIrpDatabase(IrpDatabase newIrpDatabase) throws IrpParseException {
         irpDatabase = newIrpDatabase;
         decoder = new Decoder(irpDatabase);
     }
@@ -142,14 +142,14 @@ public final class Command {
     }
 
     /**
-     * Creates and sets an global IrpMaster instance, which will be used in subsequent transformations from parameter format,
+     * Creates and sets an global IrpDatabase instance, which will be used in subsequent transformations from parameter format,
      * and for decodes.
      * @param irpProtocolsIniPath Filename of IrpProtocols.xml
      * @throws java.io.IOException
      * @throws org.harctoolbox.irp.IrpParseException
      */
-    public static void setIrpMaster(String irpProtocolsIniPath) throws IOException, IrpParseException {
-        setIrpMaster(new IrpDatabase(irpProtocolsIniPath));
+    public static void setIrpDatabase(String irpProtocolsIniPath) throws IOException, IrpParseException {
+        setIrpDatabase(new IrpDatabase(irpProtocolsIniPath));
     }
 
     private static String toPrintString(Map<String, Long> map) {
@@ -875,7 +875,6 @@ public final class Command {
 
     /**
      * Tries to generate the raw version of the signal, unless already present.
-     * @throws IrpMasterException
      */
     private void checkForRaw() throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidArgumentException, Pronto.NonProntoFormatException, InvalidNameException {
         if ((intro != null) || (repeat != null) || (ending != null))
@@ -891,7 +890,6 @@ public final class Command {
 
     /**
      * Tries to generate the Pronto Hex version of the signal, unless already present.
-     * @throws IrpMasterException
      */
     private void checkForProntoHex() throws GirrException, IrpInvalidArgumentException, DomainViolationException, NameUnassignedException, OddSequenceLengthException, InvalidNameException {
         if (prontoHex != null)

@@ -96,7 +96,7 @@ public final class RemoteSet implements Iterable<Remote> {
      */
     public static void main(String[] args) {
         try {
-            Command.setIrpMaster("../IrpTransmogrifier/src/main/resources/IrpProtocols.xml");
+            Command.setIrpDatabase("../IrpTransmogrifier/src/main/resources/IrpProtocols.xml");
             RemoteSet remoteSet = parseFileOrDirectory(new File(args[0]));
             remoteSet.print(args.length > 1 ? args[1] : "-");
         }
