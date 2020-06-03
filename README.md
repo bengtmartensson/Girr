@@ -293,14 +293,14 @@ The library requires the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogr
 
 ## Integration in Maven projects
 This project can be integrated into other projects using Maven. For this, include the lines
-        ```
+
+```
         <dependency>
             <groupId>org.harctoolbox</groupId>
             <artifactId>Girr</artifactId>
             <version>1.2.3</version>  <!-- or another supported version -->
         </dependency>
         ```
-
 in the `pom.xml` of the importing project.
         This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.
 
