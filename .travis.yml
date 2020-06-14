@@ -14,7 +14,7 @@ jdk:
 #install:
 #- sudo apt-get install -y --force-yes autoconf dos2unix icoutils xsltproc genisoimage
 script:
-- tools/build-harctoolbox-project.sh IrpTransmogrifier
+- common/scripts/build-harctoolbox-project.sh IrpTransmogrifier
 #- tools/build-harctoolbox-project.sh Girr
 #- tools/build-harctoolbox-project.sh Jirc
 #- tools/build-harctoolbox-project.sh DevSlashLirc
@@ -26,7 +26,7 @@ script:
 #- tools/get-inno.sh
 - mvn install -DskipTests=true -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -B -V
 - ls -l --si target
-- tools/upload.sh target/*-bin.zip target/*.md5 target/*.sha*
+- common/scripts/upload.sh target/*-bin.zip target/*.md5 target/*.sha*
 
 branches:
   except:
