@@ -3,13 +3,13 @@
 # output, for example to the lirc.xml file.
 
 MYDIR := $(dir $(firstword $(MAKEFILE_LIST)))
-TOP := $(realpath $(MYDIR)..)
+TOP := $(realpath $(MYDIR))
 
-include $(MYDIR)/paths.mk
+include $(MYDIR)/common/makefiles/paths.mk
 
 PROJECT_NAME := Girr
 PROJECT_NAME_LOWERCASE := $(shell echo $(PROJECT_NAME) | tr A-Z a-z)
-EXTRACT_VERSION := $(TOP)/tools/extract_project_version.xsl
+EXTRACT_VERSION := $(TOP)/common/xslt/extract_project_version.xsl
 VERSION := $(shell $(XSLTPROC) $(EXTRACT_VERSION) pom.xml)
 PROJECT_JAR := target/$(PROJECT_NAME)-$(VERSION).jar
 PROJECT_BIN := target/$(PROJECT_NAME)-$(VERSION)-bin.zip
