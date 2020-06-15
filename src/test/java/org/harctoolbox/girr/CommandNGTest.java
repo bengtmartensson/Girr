@@ -11,17 +11,18 @@ import java.util.Map;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.ircore.ModulatedIrSequence;
-import org.harctoolbox.ircore.XmlUtils;
 import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
+import org.harctoolbox.xml.XmlUtils;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.xml.sax.SAXException;
 
 public class CommandNGTest {
     private static final String NEC1_12_34_56_CCF = "0000 006C 0022 0002 015B 00AD 0016 0016 0016 0016 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 06A4 015B 0057 0016 0E6C";
@@ -51,7 +52,7 @@ public class CommandNGTest {
     private final IrSignal irSignal;
     private final IrpDatabase irpDatabase;
 
-    public CommandNGTest() throws IOException, IrCoreException, GirrException, IrpParseException {
+    public CommandNGTest() throws IOException, IrCoreException, GirrException, IrpParseException, SAXException {
         irpDatabase = new IrpDatabase(IRP_PROTOCOLS_PATH);
         Command.setIrpDatabase(IRP_PROTOCOLS_PATH);
         //nec1_12_34_56_ccf = new Command("nec1_12_34_56_ccf", "Test ccf", NEC1_12_34_56_CCF);
@@ -81,9 +82,10 @@ public class CommandNGTest {
      * Test of setIrpSetDatabase method, of class Command.
      * @throws java.io.IOException
      * @throws org.harctoolbox.irp.IrpParseException
+     * @throws org.xml.sax.SAXException
      */
     @Test
-    public void testSetIrpDatabase_String() throws IOException, IrpParseException {
+    public void testSetIrpDatabase_String() throws IOException, IrpParseException, SAXException {
         System.out.println("setIrpDatabase");
         Command.setIrpDatabase(IRP_PROTOCOLS_PATH);
     }

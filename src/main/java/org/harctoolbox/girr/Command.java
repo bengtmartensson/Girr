@@ -60,8 +60,6 @@ import org.harctoolbox.ircore.ModulatedIrSequence;
 import org.harctoolbox.ircore.OddSequenceLengthException;
 import org.harctoolbox.ircore.Pronto;
 import org.harctoolbox.ircore.ThisCannotHappenException;
-import static org.harctoolbox.ircore.XmlUtils.ENGLISH;
-import static org.harctoolbox.ircore.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.DomainViolationException;
 import org.harctoolbox.irp.ElementaryDecode;
@@ -73,10 +71,13 @@ import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.irp.NameUnassignedException;
 import org.harctoolbox.irp.Protocol;
 import org.harctoolbox.irp.ShortPronto;
+import static org.harctoolbox.xml.XmlUtils.ENGLISH;
+import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * This class models the command in Girr. A command is essentially an IR signal,
@@ -116,7 +117,7 @@ public final class Command {
             IrpDatabase database = new IrpDatabase((String) null);
             decoder = new Decoder(database);
             irpDatabase = database;
-        } catch (IOException | IrpParseException ex) {
+        } catch (IOException | IrpParseException | SAXException ex) {
             throw new ThisCannotHappenException(ex);
         }
     }
@@ -147,8 +148,9 @@ public final class Command {
      * @param irpProtocolsIniPath Filename of IrpProtocols.xml
      * @throws java.io.IOException
      * @throws org.harctoolbox.irp.IrpParseException
+     * @throws org.xml.sax.SAXException
      */
-    public static void setIrpDatabase(String irpProtocolsIniPath) throws IOException, IrpParseException {
+    public static void setIrpDatabase(String irpProtocolsIniPath) throws IOException, IrpParseException, SAXException {
         setIrpDatabase(new IrpDatabase(irpProtocolsIniPath));
     }
 
