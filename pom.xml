@@ -87,6 +87,11 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <basedir>common/schemas</basedir>
+                    <catalogHandling>strict</catalogHandling>
+                    <catalogs>
+                        <catalog>catalog.xml</catalog>
+                    </catalogs>
                     <transformationSets>
                         <transformationSet>
                             <dir>src/main/xml</dir>
@@ -94,7 +99,7 @@
                             <includes>
                                 <include>Version.xml</include>
                             </includes>
-                            <stylesheet>common/xslt/mkVersion.xsl</stylesheet>
+                            <stylesheet>${project.basedir}/common/xslt/mkVersion.xsl</stylesheet>
                             <parameters>
                                 <parameter>
                                     <name>version</name>
@@ -123,7 +128,7 @@
                             <includes>
                                 <include>${project.name}.xml</include>
                             </includes>
-                            <stylesheet>common/xslt/xdoc2html.xsl</stylesheet>
+                            <stylesheet>${project.basedir}/common/xslt/xdoc2html.xsl</stylesheet>
                             <fileMappers>
                                 <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
                                     <targetExtension>.html</targetExtension>
@@ -151,7 +156,7 @@
                                 <include>girr_ns.xsd</include>
                                 <include>girr_ns-1.1.xsd</include>
                             </includes>
-                            <stylesheet>src/main/schemas/xsd.xsl</stylesheet>
+                            <stylesheet>${project.basedir}/common/xslt/xsd.xsl</stylesheet>
                             <fileMappers>
                                 <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
                                     <targetExtension>.html</targetExtension>
