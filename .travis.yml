@@ -4,6 +4,7 @@ email: false
 language: java
 jdk: oraclejdk8
 install: ./common/scripts/build-harctoolbox-project.sh IrpTransmogrifier
+script: mvn install -DskipTests=true -Dmaven.test.skip=true -Dmaven.javadoc.skip=true -B -V
 after_success: ./common/scripts/upload.sh target/*-bin.zip target/*.md5 target/*.sha*
 
 branches:
