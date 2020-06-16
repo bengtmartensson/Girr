@@ -176,9 +176,7 @@ printable characters including white space, and carries a priori no semantics.</
 
 <p>Consider the following example:</p>
 
-<source>
-<![CDATA[
-<command name="play" displayName="Play |&gt;" comment="" master="parameters">
+<source><![CDATA[<command name="play" displayName="Play |&gt;" comment="" master="parameters">
     <parameters protocol="nec1">
         <parameter name="D" value="0"/>
         <parameter name="F" value="0"/>
@@ -204,9 +202,7 @@ printable characters including white space, and carries a priori no semantics.</
            01 1A 01 1A 03 4E 01 1A 4D A6 11 A0 04 68 01 1A BB CE 22
            01 11 11 11 12 22 22 22 21 11 11 11 12 22 22 22 23 82 45
     </format>
-</command>
-]]>
-</source>
+</command>]]></source>
 <p>(Details on syntax and semantics are given in the next section.)</p>
 
 <p>In the <code>parameters</code> element, parameters and protocol can be
@@ -221,9 +217,7 @@ within the <code>&lt;raw&gt;</code> element can alternatively be
 given in the "fat" format, where each flash (on-period) and each gap
 (off-period) are enclosed in their own element, like in the following
 example:</p>
-<source>
-<![CDATA[
-<command name="play" displayName="Play |&gt;" comment="" master="parameters">
+<source><![CDATA[<command name="play" displayName="Play |&gt;" comment="" master="parameters">
     <parameters protocol="nec1">
         <parameter name="D" value="0"/>
         <parameter name="F" value="0"/>
@@ -235,10 +229,8 @@ example:</p>
            <flash>564</flash>
            <gap>564</gap>
            <flash>564</flash>
-           <gap>564</gap>
-]]>
-</source></section>
-
+           <gap>564</gap>]]></source>
+</section>
 </section>
 
 <section><title>commandSet</title>
@@ -312,11 +304,7 @@ href="transforming-xml-export.html">this document</a> as an introduction); an ex
 href="stylesheets/simplehtml.xsl">simplehtml.xsl</a>.</p>
 
 <p>To use, add a line like</p>
-<source>
-<![CDATA[
-<?xml-stylesheet type="text/xsl" href="simplehtml.xsl"?>
-]]>
-</source>
+<source><![CDATA[<?xml-stylesheet type="text/xsl" href="simplehtml.xsl"?>]]></source>
 <p>to the Girr file. (Some programs, like IrScrutinizer, can do this
 automatically.) Note that some browsers, like Firefox, for security reasons
 limits the usage of style sheets.</p>
@@ -353,8 +341,7 @@ root element is supported.</p>
             <groupId>org.harctoolbox</groupId>
             <artifactId>Girr</artifactId>
             <version>1.2.3</version>  <!-- or another supported version -->
-        </dependency>]]>
-        </source>
+        </dependency>]]></source>
 <p>in the `pom.xml` of the importing project.
         This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.</p>
 </section>
