@@ -140,8 +140,6 @@ printable characters including white space, and carries a priori no semantics.
 Consider the following example:
 
 ```
-
-
 <command name="play" displayName="Play |&gt;" comment="" master="parameters">
     <parameters protocol="nec1">
         <parameter name="D" value="0"/>
@@ -169,7 +167,6 @@ Consider the following example:
            01 11 11 11 12 22 22 22 21 11 11 11 12 22 22 22 23 82 45
     </format>
 </command>
-
 ```
 (Details on syntax and semantics are given in the next section.)
 
@@ -188,8 +185,6 @@ given in the "fat" format, where each flash (on-period) and each gap
 example:
 
 ```
-
-
 <command name="play" displayName="Play |&gt;" comment="" master="parameters">
     <parameters protocol="nec1">
         <parameter name="D" value="0"/>
@@ -203,7 +198,6 @@ example:
            <gap>564</gap>
            <flash>564</flash>
            <gap>564</gap>
-
 ```
 ### commandSet
 `commandSet`s bundles "related" commands together. They may
@@ -264,10 +258,7 @@ outside of the scope of the current document (see [this document](http://harctoo
 To use, add a line like
 
 ```
-
-
 <?xml-stylesheet type="text/xsl" href="simplehtml.xsl"?>
-
 ```
 to the Girr file. (Some programs, like IrScrutinizer, can do this
 automatically.) Note that some browsers, like Firefox, for security reasons
@@ -300,7 +291,7 @@ This project can be integrated into other projects using Maven. For this, includ
             <artifactId>Girr</artifactId>
             <version>1.2.3</version>  <!-- or another supported version -->
         </dependency>
-        ```
+```
 in the `pom.xml` of the importing project.
         This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.
 
