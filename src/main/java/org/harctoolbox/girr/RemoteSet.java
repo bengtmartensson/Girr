@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import javax.xml.validation.Schema;
 import static org.harctoolbox.girr.XmlExporter.ADMINDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlExporter.CREATINGUSER_ATTRIBUTE_NAME;
@@ -60,15 +59,16 @@ import static org.harctoolbox.girr.XmlExporter.TOOLVERSIION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.irp.IrpException;
+import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.xml.XmlUtils;
 import static org.harctoolbox.xml.XmlUtils.DEFAULT_CHARSETNAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_URI;
 import static org.harctoolbox.xml.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
-import static org.harctoolbox.xml.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
+import static org.harctoolbox.xml.XmlUtils.XINCLUDE_NAMESPACE_ATTRIBUTE_NAME;
+import static org.harctoolbox.xml.XmlUtils.XINCLUDE_NAMESPACE_URI;
 import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
-import org.harctoolbox.irp.IrpException;
-import org.harctoolbox.irp.IrpParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -405,11 +405,10 @@ public final class RemoteSet implements Iterable<Remote> {
     public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
             boolean generateRaw, boolean generateCcf, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
-        if (createSchemaLocation) {
-            element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
-            element.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
+        element.setAttribute(XINCLUDE_NAMESPACE_ATTRIBUTE_NAME, XINCLUDE_NAMESPACE_URI);
+        if (createSchemaLocation)
             element.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + SPACE + GIRR_SCHEMA_LOCATION_URI);
-        }
         element.setAttribute(GIRR_VERSION_ATTRIBUTE_NAME, GIRR_VERSION);
 
         if (title != null)
@@ -432,7 +431,7 @@ public final class RemoteSet implements Iterable<Remote> {
             creationEl.setAttribute(TOOL2_ATTRIBUTE_NAME, tool2);
         if (tool2Version != null)
             creationEl.setAttribute(TOOL2VERSION_ATTRIBUTE_NAME, tool2Version);
-        if (creationEl.hasChildNodes())
+        if (creationEl.hasChildNodes() || creationEl.hasAttributes())
             adminDataEl.appendChild(creationEl);
 
         if (notes != null) {
@@ -446,7 +445,7 @@ public final class RemoteSet implements Iterable<Remote> {
             });
         }
 
-        if (adminDataEl.hasChildNodes())
+        if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
             element.appendChild(adminDataEl);
 
         remotes.values().forEach((remote) -> {
@@ -476,7 +475,7 @@ public final class RemoteSet implements Iterable<Remote> {
     }
 
     public void print(OutputStream ostr) {
-        Document doc = toDocument("untitled", "xsl", null/*"xsimplehtml.xsl"*/, false, true, true, true, true);
+        Document doc = toDocument("untitled", null, null, false, true, true, true, true);
         XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
     }
 
