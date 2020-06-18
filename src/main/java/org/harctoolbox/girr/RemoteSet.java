@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -476,7 +477,10 @@ public final class RemoteSet implements Iterable<Remote> {
 
     public void print(OutputStream ostr) {
         Document doc = toDocument("untitled", null, null, false, true, true, true, true);
-        XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
+        try {
+            XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
+        } catch (UnsupportedEncodingException ex) {
+        }
     }
 
     public void print(String file) throws IOException {
