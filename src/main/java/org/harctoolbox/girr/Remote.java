@@ -203,17 +203,19 @@ public final class Remote implements Iterable<Command> {
 
         if (applicationParameters != null) {
             applicationParameters.entrySet().forEach((kvp) -> {
-                Element appEl = doc.createElementNS(GIRR_NAMESPACE, APPLICATIONDATA_ELEMENT_NAME);
-                appEl.setAttribute(APPLICATION_ATTRIBUTE_NAME, kvp.getKey());
-                element.appendChild(appEl);
-                kvp.getValue().entrySet().stream().map((param) -> {
-                    Element paramEl = doc.createElementNS(GIRR_NAMESPACE, APPPARAMETER_ELEMENT_NAME);
-                    paramEl.setAttribute(NAME_ATTRIBUTE_NAME, param.getKey());
-                    paramEl.setAttribute(VALUE_ATTRIBUTE_NAME, param.getValue());
-                    return paramEl;
-                }).forEachOrdered((paramEl) -> {
-                    appEl.appendChild(paramEl);
-                });
+                if (kvp.getValue() != null) {
+                    Element appEl = doc.createElementNS(GIRR_NAMESPACE, APPLICATIONDATA_ELEMENT_NAME);
+                    appEl.setAttribute(APPLICATION_ATTRIBUTE_NAME, kvp.getKey());
+                    element.appendChild(appEl);
+                    kvp.getValue().entrySet().stream().map((param) -> {
+                        Element paramEl = doc.createElementNS(GIRR_NAMESPACE, APPPARAMETER_ELEMENT_NAME);
+                        paramEl.setAttribute(NAME_ATTRIBUTE_NAME, param.getKey());
+                        paramEl.setAttribute(VALUE_ATTRIBUTE_NAME, param.getValue());
+                        return paramEl;
+                    }).forEachOrdered((paramEl) -> {
+                        appEl.appendChild(paramEl);
+                    });
+                }
             });
         }
 
