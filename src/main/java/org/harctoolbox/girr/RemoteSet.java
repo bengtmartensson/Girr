@@ -60,6 +60,7 @@ import static org.harctoolbox.girr.XmlExporter.TOOLVERSIION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.xml.XmlUtils;
@@ -145,6 +146,7 @@ public final class RemoteSet implements Iterable<Remote> {
     private String tool2Version;
     private Map<String, String> notes;
     private Map<String, Remote> remotes;
+    private IrpDatabase irpDatabase = new IrpDatabase();
 
     public RemoteSet(Path path) {
         this(System.getProperty("user.name"), path.toString(), parseFiles(path));
@@ -197,10 +199,21 @@ public final class RemoteSet implements Iterable<Remote> {
             }
         } else
             notes = new HashMap<>(0);
+
         nl = root.getElementsByTagName(REMOTE_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Remote remote = new Remote((Element) nl.item(i));
             remotes.put(remote.getName(), remote);
+        }
+
+        nl = root.getElementsByTagName(IrpDatabase.IRP_NAMESPACE_PREFIX + ":" + IrpDatabase.PROTOCOLS_NAME);
+        if (nl.getLength() > 0) {
+            try {
+                Element protocolsElement = (Element) nl.item(0);
+                irpDatabase = new IrpDatabase(protocolsElement);
+            } catch (IrpParseException ex) {
+                logger.log(Level.WARNING, ex.getLocalizedMessage());
+            }
         }
     }
 
@@ -613,5 +626,9 @@ public final class RemoteSet implements Iterable<Remote> {
     public Remote.MetaData getFirstMetaData() {
         Remote remote = iterator().next();
         return remote != null ? remote.getMetaData() : new Remote.MetaData();
+    }
+
+    public IrpDatabase getIrpDatabase() {
+        return irpDatabase;
     }
 }
