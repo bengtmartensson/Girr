@@ -21,6 +21,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <project.nameLowercase>girr</project.nameLowercase>
+        <project.manualName>${project.artifactId}-manual</project.manualName>
     </properties>
 
     <developers>
@@ -95,7 +97,7 @@
                     <transformationSets>
                         <transformationSet>
                             <dir>src/main/xml</dir>
-                            <outputDir>${project.build.directory}/generated-sources/xml/org/harctoolbox/girr</outputDir>
+                            <outputDir>${project.build.directory}/generated-sources/xml/org/harctoolbox/${project.nameLowercase}</outputDir>
                             <includes>
                                 <include>Version.xml</include>
                             </includes>
@@ -126,7 +128,7 @@
                                 ${project.build.directory}
                             </outputDir>
                             <includes>
-                                <include>${project.name}.xml</include>
+                                <include>${project.manualName}.xml</include>
                             </includes>
                             <stylesheet>${project.basedir}/common/xslt/xdoc2html.xsl</stylesheet>
                             <fileMappers>
@@ -139,12 +141,12 @@
                             <dir>src/main/xdocs</dir>
                             <outputDir>${basedir}</outputDir>
                             <includes>
-                                <include>${project.name}.xml</include>
+                                <include>${project.manualName}.xml</include>
                             </includes>
                             <stylesheet>${basedir}/common/xslt/xdoc2md.xsl</stylesheet>
                             <fileMappers>
                                 <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
-                                    <pattern>${project.name}.xml</pattern>
+                                    <pattern>${project.manualName}.xml</pattern>
                                     <replacement>README.md</replacement>
                                 </fileMapper>
                             </fileMappers>
@@ -153,8 +155,8 @@
                             <dir>src/main/schemas</dir>
                             <outputDir>${basedir}/target</outputDir>
                             <includes>
-                                <include>girr_ns.xsd</include>
-                                <include>girr_ns-1.1.xsd</include>
+                                <include>${project.nameLowercase}_ns.xsd</include>
+                                <include>${project.nameLowercase}_ns-1.1.xsd</include>
                             </includes>
                             <stylesheet>${project.basedir}/common/xslt/xsd.xsl</stylesheet>
                             <fileMappers>
@@ -177,10 +179,6 @@
 
             <plugin>
                 <!-- Copy resources  in src/main/config to target dir. -->
-                <!-- Problem: there will be both a ${project.artifactId}.xml (manual) and a
-                     girr.xml (mime description) in the target dir, making
-                     case insensitive file systems loose.
-                     It does not bite, so right now I do not care. -->
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.1.0</version>
                 <executions>
@@ -196,7 +194,7 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <include>girr.xml</include>
+                                        <include>${project.nameLowercase}.xml</include>
                                     </includes>
                                 </resource>
                                 <resource>
@@ -214,7 +212,7 @@
                                 <resource>
                                     <directory>src/main/xdocs</directory>
                                     <includes>
-                                        <include>${project.artifactId}.xml</include>
+                                        <include>${project.manualName}.xml</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -269,8 +267,8 @@
                 <configuration>
                     <resourcesDirectory>target</resourcesDirectory> <!-- Pretty awful, use while only one resourcesDirectory permitted -->
                     <includes>
-                        <include>girr.xml</include>
-                        <include>${project.artifactId}.xml</include>
+                        <include>${project.nameLowercase}.xml</include>
+                        <include>${project.manualName}.xml</include>
                         <include>*.xsd</include>
                     </includes>
                 </configuration>
