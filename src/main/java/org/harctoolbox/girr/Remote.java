@@ -384,6 +384,11 @@ public final class Remote implements Iterable<Command> {
      * This class bundles different data for a remote together.
      */
     public static final class MetaData {
+
+        private static boolean isVoid(String s) {
+            return s == null || s.isEmpty();
+        }
+
         private String name;
         private String displayName;
         private String manufacturer;
@@ -429,10 +434,6 @@ public final class Remote implements Iterable<Command> {
             this.model = model;
             this.deviceClass = deviceClass;
             this.remoteName = remoteName;
-        }
-
-        private static boolean isVoid(String s) {
-            return s == null || s.isEmpty();
         }
 
         /**
