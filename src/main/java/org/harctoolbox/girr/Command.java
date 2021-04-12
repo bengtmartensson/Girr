@@ -18,9 +18,7 @@
 package org.harctoolbox.girr;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -98,7 +96,7 @@ import org.xml.sax.SAXException;
  * erroneous data. The other classes in the package may not; they should just
  * ignore individual unparseable commands.
  */
-public final class Command {
+public final class Command implements Named {
 
     private final static Logger logger = Logger.getLogger(Command.class.getName());
 
@@ -238,14 +236,6 @@ public final class Command {
             seq = seq.append(c.toIrSignal().toModulatedIrSequence(1));
         }
         return new ModulatedIrSequence(seq, frequency, dutyCycle);
-    }
-
-    private static Protocol getProtocolOrNull(IrpDatabase irpDatabase, String protocolName) {
-        try {
-            return irpDatabase.getProtocol(protocolName);
-        } catch (IrpException ex) {
-            return null;
-        }
     }
 
     private Protocol protocol;
@@ -489,6 +479,7 @@ public final class Command {
     /**
      * @return the name
      */
+    @Override
     public String getName() {
         return name;
     }
@@ -1104,20 +1095,6 @@ public final class Command {
             });
         }
         return element;
-    }
-
-    public static class CompareNameCaseSensitive implements Comparator<Command>, Serializable {
-        @Override
-        public int compare(Command o1, Command o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    }
-
-    public static class CompareNameCaseInsensitive implements Comparator<Command>, Serializable {
-        @Override
-        public int compare(Command o1, Command o2) {
-            return o1.getName().compareToIgnoreCase(o2.getName());
-        }
     }
 
     /**
