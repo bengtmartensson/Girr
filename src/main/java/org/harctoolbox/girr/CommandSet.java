@@ -16,8 +16,13 @@
  */
 package org.harctoolbox.girr;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -41,9 +46,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * A CommandSet is a set of Command's with the same protocol, but different parameter values.
+ * A CommandSet is a set of Commands with unique names.
+ * Typically, they share the same protocol, but different parameter values.
  */
-public final class CommandSet {
+public final class CommandSet implements Named, Iterable<Command> {
 
     private final static Logger logger = Logger.getLogger(CommandSet.class.getName());
 
@@ -59,7 +65,7 @@ public final class CommandSet {
      * @param element
      * @throws GirrException
      */
-    CommandSet(Element element) throws GirrException {
+    public CommandSet(Element element) throws GirrException {
         name = element.getAttribute(NAME_ATTRIBUTE_NAME);
         protocolName = null;
         commands = new LinkedHashMap<>(4);
@@ -111,7 +117,7 @@ public final class CommandSet {
      * @param protocolName
      * @param parameters
      */
-    CommandSet(String name, Map<String, String> notes, Map<String, Command> commands, String protocolName, Map<String, Long> parameters) {
+    public CommandSet(String name, Map<String, String> notes, Map<String, Command> commands, String protocolName, Map<String, Long> parameters) {
         this.name = name != null ? name : "commandSet";
         this.notes = notes != null ? notes : new HashMap<>(0);
         this.commands = commands;
@@ -120,12 +126,50 @@ public final class CommandSet {
     }
 
     /**
-     * Returns the Commands in the CommandSet.
-     * @return
+     * Constructs a CommandSet from a single Command.
+     * @param command
      */
-    @SuppressWarnings("ReturnOfCollectionOrArrayField")
+    public CommandSet(Command command) {
+        this(command.getName(), null, Named.toMap(command), null, null);
+    }
+
+    /**
+     * Returns the Commands in the CommandSet.
+     * @return unmodifiable Map.
+     */
     public Map<String, Command> getCommands() {
-        return commands;
+        return Collections.unmodifiableMap(commands);
+    }
+
+    public Command getCommand(String commandName) {
+        return commands.get(commandName);
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    public int size() {
+        return commands.size();
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    @Override
+    public Iterator<Command> iterator() {
+        return commands.values().iterator();
+    }
+
+    public void sort(Comparator<? super Named> comparator) {
+        List<Command> list = new ArrayList<>(commands.values());
+        Collections.sort(list, comparator);
+        commands.clear();
+        list.forEach((cmd) -> {
+            commands.put(cmd.getName(), cmd);
+        });
     }
 
     /**
