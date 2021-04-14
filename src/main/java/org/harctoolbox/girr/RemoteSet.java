@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import javax.xml.validation.Schema;
+import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import static org.harctoolbox.girr.XmlExporter.ADMINDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlExporter.CREATINGUSER_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.CREATIONDATA_ELEMENT_NAME;
@@ -59,7 +59,9 @@ import static org.harctoolbox.girr.XmlExporter.TOOL2_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOLVERSIION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
+import org.harctoolbox.ircore.IrCoreUtils;
 import org.harctoolbox.ircore.IrSignal;
+import org.harctoolbox.ircore.ThisCannotHappenException;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
@@ -68,8 +70,7 @@ import static org.harctoolbox.xml.XmlUtils.DEFAULT_CHARSETNAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_URI;
 import static org.harctoolbox.xml.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
-import static org.harctoolbox.xml.XmlUtils.XINCLUDE_NAMESPACE_ATTRIBUTE_NAME;
-import static org.harctoolbox.xml.XmlUtils.XINCLUDE_NAMESPACE_URI;
+import static org.harctoolbox.xml.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -77,7 +78,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * This class models a collection of Remotes, indexed by their names.
+ * This class contains a map of Remotes, indexed by their names.
  */
 public final class RemoteSet implements Iterable<Remote> {
 
@@ -225,7 +226,7 @@ public final class RemoteSet implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public RemoteSet(File file) throws GirrException, IOException, SAXException {
-        this(XmlUtils.openXmlFile(file, (Schema) null, false, false));
+        this(XmlUtils.openXmlFile(file));
     }
 
     /**
@@ -240,7 +241,8 @@ public final class RemoteSet implements Iterable<Remote> {
     }
 
     /**
-     * This constructor sets up a RemoteSet from a given Map of Remotes.
+     * This constructor sets up a RemoteSet from a given Map of Remotes, so that it can later be used through
+     * the xmlExport or xmlExportDocument to generate an XML export.
      * @param creatingUser Comment field for the creating user, if wanted.
      * @param source Comment field describing the origin of the data; e.g. name of human author or creating program.
      * @param creationDate Date of creation, as text string.
@@ -384,12 +386,13 @@ public final class RemoteSet implements Iterable<Remote> {
         this(creatingUser, source, new Remote(irSignal, name, comment, deviceName));
     }
 
-    public void sort(Comparator<Remote> comparator) {
+    public void sort(Comparator<? super Named> comparator) {
         List<Remote> list = new ArrayList<>(remotes.values());
         Collections.sort(list, comparator);
         remotes.clear();
-        list.forEach((cmd) -> {
-            remotes.put(cmd.getName(), cmd);
+        list.forEach((Remote remote) -> {
+            remote.sort(comparator);
+            remotes.put(remote.getName(), remote);
         });
     }
 
@@ -419,10 +422,11 @@ public final class RemoteSet implements Iterable<Remote> {
     public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
             boolean generateRaw, boolean generateCcf, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
-        element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
-        element.setAttribute(XINCLUDE_NAMESPACE_ATTRIBUTE_NAME, XINCLUDE_NAMESPACE_URI);
-        if (createSchemaLocation)
+        if (createSchemaLocation) {
+            element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
+            element.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
             element.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + SPACE + GIRR_SCHEMA_LOCATION_URI);
+        }
         element.setAttribute(GIRR_VERSION_ATTRIBUTE_NAME, GIRR_VERSION);
 
         if (title != null)
@@ -462,9 +466,9 @@ public final class RemoteSet implements Iterable<Remote> {
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
             element.appendChild(adminDataEl);
 
-        remotes.values().forEach((remote) -> {
+        for (Remote remote : this)
             element.appendChild(remote.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
-        });
+
         return element;
     }
 
@@ -488,21 +492,26 @@ public final class RemoteSet implements Iterable<Remote> {
         return XmlExporter.createDocument(root, stylesheetType, stylesheetUrl, createSchemaLocation);
     }
 
+    /**
+     * Convenience function that generates a DOM and dumps it onto the argument.
+     * @param ostr
+     */
     public void print(OutputStream ostr) {
         Document doc = toDocument("untitled", null, null, false, true, true, true, true);
         try {
             XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
         } catch (UnsupportedEncodingException ex) {
+            throw new ThisCannotHappenException(ex);
         }
     }
 
+    /**
+     * Convenience function that generates a DOM and dumps it onto the argument.
+     * @param file
+     * @throws java.io.IOException
+     */
     public void print(String file) throws IOException {
-        if (file.endsWith("-"))
-            print(System.out);
-        else
-            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-                print(fileOutputStream);
-            }
+        print(IrCoreUtils.getPrintStream(file, DEFAULT_CHARSETNAME));
     }
 
     /**
@@ -511,21 +520,23 @@ public final class RemoteSet implements Iterable<Remote> {
      * @param repeatCount
      */
     public void addFormat(Command.CommandTextFormat format, int repeatCount) {
-        remotes.values().forEach((remote) -> {
+        for (Remote remote : this)
             remote.addFormat(format, repeatCount);
-        });
     }
 
     /**
+     * @deprecated
      * Generates a list of the commands in all contained remotes.
      * It may contain non-unique names.
+     * Deprecated, while meaningless: You do not want to know all commands of
+     * a RemoteSet, you want to know the commands of the individual Remotes.
      * @return ArrayList of the commands.
      */
-    public ArrayList<Command> getAllCommands() {
-        ArrayList<Command> allCommands = new ArrayList<>(32);
-        remotes.values().forEach((remote) -> {
+    public List<Command> getAllCommands() {
+        List<Command> allCommands = new ArrayList<>(32);
+        for (Remote remote : this)
             allCommands.addAll(remote.getCommands().values());
-        });
+
         return allCommands;
     }
 
@@ -536,10 +547,9 @@ public final class RemoteSet implements Iterable<Remote> {
      * @throws org.harctoolbox.ircore.IrCoreException
      */
     public void checkForParameters() throws IrpException, IrCoreException {
-        for (Remote remote : remotes.values())
+        for (Remote remote : this)
             remote.checkForParameters();
     }
-
 
     /**
      * @return the creatingUser

@@ -17,13 +17,14 @@ this program. If not, see http://www.gnu.org/licenses/.
 
 package org.harctoolbox.girr;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -55,24 +56,16 @@ import org.w3c.dom.NodeList;
  * This class describes a remote in Girr.
  * A Remote is essentially an abstraction of a hand-held "clicker" for controlling one device.
  * It has a name for identification, and a number of comment-like text fields. Most importantly,
- * it has a dictionary of Commands, indexed by their names.
+ * it has a dictionary of CommandSets, indexed by their names.
  */
-public final class Remote implements Iterable<Command> {
+public final class Remote implements Named, Iterable<CommandSet> {
 
     private final static Logger logger = Logger.getLogger(Remote.class.getName());
-
-    private static Map<String, Command> commandToMap(Command command) {
-        Map<String, Command> result = new HashMap<>(1);
-        result.put(command.getName(), command);
-        return result;
-    }
 
     private MetaData metaData;
     private String comment;
     private Map<String, String> notes;
-    private String protocolName;
-    private Map<String, Long> parameters;
-    private Map<String, Command> commands;
+    private Map<String, CommandSet> commandSets;
     private Map<String, Map<String, String>> applicationParameters;
 
     /**
@@ -88,7 +81,7 @@ public final class Remote implements Iterable<Command> {
                 element.getAttribute(MODEL_ATTRIBUTE_NAME),
                 element.getAttribute(DEVICECLASS_ATTRIBUTE_NAME),
                 element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
-        commands = new LinkedHashMap<>(32);
+        commandSets = new LinkedHashMap<>(4);
         applicationParameters = new LinkedHashMap<>(4);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
         notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
@@ -107,7 +100,7 @@ public final class Remote implements Iterable<Command> {
         nl = element.getElementsByTagName(COMMANDSET_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             CommandSet commandSet = new CommandSet((Element) nl.item(i));
-            commands.putAll(commandSet.getCommands());
+            commandSets.put(commandSet.getName(), commandSet);
         }
     }
 
@@ -117,32 +110,32 @@ public final class Remote implements Iterable<Command> {
      * @param metaData
      * @param comment
      * @param notes
-     * @param commands
+     * @param commandSetsCollection
      * @param applicationParameters
-     * @param protocolName
-     * @param parameters
      */
+    // The silly type of the commandSetsCollection is to be avoid name clashes with another constructor.
+    // Sorry for that.
     public Remote(MetaData metaData, String comment, Map<String, String> notes,
-            Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters,
-            String protocolName, Map<String, Long> parameters) {
+            Collection<CommandSet> commandSetsCollection, Map<String, Map<String, String>> applicationParameters) {
         this.metaData = metaData;
         this.comment = comment;
         this.notes = notes;
-        this.commands = commands;
+        this.commandSets = new LinkedHashMap<>(4);
+        for (CommandSet cmdSet : commandSetsCollection)
+            commandSets.put(cmdSet.getName(), cmdSet);
         this.applicationParameters = applicationParameters;
-        this.protocolName = protocolName != null ? protocolName.toLowerCase(Locale.US) : null;
-        this.parameters = parameters;
     }
 
-    /**
-     * Convenience version of the general constructor, with default values.
-     *
-     * @param metaData
-     * @param comment
-     * @param notes
-     * @param commands
-     * @param applicationParameters
-     */
+    public Remote(MetaData metaData, String comment, Map<String, String> notes,
+            CommandSet commandSet, Map<String, Map<String, String>> applicationParameters) {
+        this(metaData, comment, notes, Named.toList(commandSet), applicationParameters);
+    }
+
+    public Remote(MetaData metaData, String comment, Map<String, String> notes,
+            Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters, String protocolName, Map<String, Long> parameters) {
+        this(metaData, comment, notes, new CommandSet("commandSet", null, commands, protocolName, parameters), applicationParameters);
+    }
+
     public Remote(MetaData metaData, String comment, Map<String, String> notes,
             Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters) {
         this(metaData, comment, notes, commands, applicationParameters, null, null);
@@ -158,12 +151,11 @@ public final class Remote implements Iterable<Command> {
      */
     public Remote(IrSignal irSignal, String name, String comment, String deviceName) {
         this(new MetaData(deviceName),
-                null, // comment,
-                null, // notes,
-                commandToMap(new Command(name, comment, irSignal)),
-                null);
+                null, // comment
+                null, // notes
+                new CommandSet(new Command(name, comment, irSignal)),
+                null /* applicationParameters */);
     }
-
 
     /**
      * XML export function.
@@ -219,18 +211,19 @@ public final class Remote implements Iterable<Command> {
             });
         }
 
-        CommandSet commandSet = new CommandSet(null, null, commands, protocolName, parameters);
-        element.appendChild(commandSet.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
+        for (CommandSet commandSet : this)
+            element.appendChild(commandSet.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
 
         return element;
     }
 
-    public void sort(Comparator<Command> comparator) {
-        ArrayList<Command> list = new ArrayList<>(commands.values());
+    public void sort(Comparator<? super Named> comparator) {
+        List<CommandSet> list = new ArrayList<>(commandSets.values());
         Collections.sort(list, comparator);
-        commands.clear();
-        list.forEach((cmd) -> {
-            commands.put(cmd.getName(), cmd);
+        commandSets.clear();
+        list.forEach((CommandSet commandSet) -> {
+            commandSet.sort(comparator);
+            commandSets.put(commandSet.getName(), commandSet);
         });
     }
 
@@ -241,13 +234,15 @@ public final class Remote implements Iterable<Command> {
      * @param repeatCount
      */
     public void addFormat(Command.CommandTextFormat format, int repeatCount) {
-        commands.values().forEach((command) -> {
-            try {
-                command.addFormat(format, repeatCount);
-            } catch (IrCoreException | IrpException ex) {
-                logger.log(Level.WARNING, null, ex);
+        for (CommandSet commandSet : this) {
+            for (Command command : commandSet) {
+                try {
+                    command.addFormat(format, repeatCount);
+                } catch (IrCoreException | IrpException ex) {
+                    logger.log(Level.WARNING, null, ex);
+                }
             }
-        });
+        }
     }
 
     /**
@@ -258,21 +253,44 @@ public final class Remote implements Iterable<Command> {
      * @throws org.harctoolbox.ircore.IrCoreException
      */
     public boolean hasThisProtocol(String protocolName) throws IrpException, IrCoreException {
-        for (Command command : commands.values()) {
-            String prtcl = command.getProtocolName();
-            if (prtcl == null || !prtcl.equalsIgnoreCase(protocolName))
-                return false;
+        String protName = protocolName.toLowerCase(Locale.US);
+        for (CommandSet commandSet : this) {
+            for (Command command : commandSet) {
+                String prtcl = command.getProtocolName();
+                if (prtcl == null || !prtcl.equals(protName))
+                    return false;
+            }
         }
         return true;
     }
 
     /**
-     * Return the Command with the selected name.
+     * Return List of Commands with the selected name, possibly more than one.
      * @param commandName
-     * @return
+     * @return List of Commands, possibly empty.
+     */
+    public List<Command> getAllCommands(String commandName) {
+        List<Command> list = new ArrayList<>(4);
+        for (CommandSet commandSet : this) {
+            Command cmd = commandSet.getCommand(commandName);
+            list.add(cmd);
+        }
+        return list;
+    }
+
+    /**
+     * Returns a Command with the given name, or null if not found.
+     * If the given name is found in several ComandSets, the first found is returned.
+     * @param commandName
+     * @return Command, or null.
      */
     public Command getCommand(String commandName) {
-        return commands.get(commandName);
+        for (CommandSet commandSet : this) {
+            Command cmd = commandSet.getCommand(commandName);
+            if (cmd != null)
+                return cmd;
+        }
+        return null;
     }
 
     /**
@@ -287,6 +305,7 @@ public final class Remote implements Iterable<Command> {
      *
      * @return Name of the Remote.
      */
+    @Override
     public String getName() {
         return metaData.name;
     }
@@ -310,20 +329,46 @@ public final class Remote implements Iterable<Command> {
         return comment;
     }
 
+    public int numberAllCommands() {
+        int sum = 0;
+        for (CommandSet cmdSet : this)
+            sum += cmdSet.size();
+        return sum;
+    }
+
+    public int numberCommands() {
+        return getCommands().size();
+    }
+
     /**
+     * Returns all commands contained.
+     * If a command name is present in several CommandSets,
+     * only one is returned; which one is undefined.
      * @return the commands
      */
-    @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public Map<String, Command> getCommands() {
-        return commands;
+        Map<String, Command> allCommands = new LinkedHashMap<>(numberCommands());
+        for (CommandSet cmdSet : this)
+            allCommands.putAll(cmdSet.getCommands());
+        return allCommands;
+    }
+
+    /**
+     * Returns a list of all commands, possibly with duplicate names.
+     * @return
+     */
+    public List<Command> getAllCommands() {
+        List<Command> list = new ArrayList<>(numberCommands());
+        for (CommandSet commandSet : this)
+            list.addAll(commandSet.getCommands().values());
+        return list;
     }
 
     /**
      * @return the applicationParameters
      */
-    @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public Map<String, Map<String, String>> getApplicationParameters() {
-        return applicationParameters;
+        return Collections.unmodifiableMap(applicationParameters);
     }
 
     /**
@@ -371,17 +416,18 @@ public final class Remote implements Iterable<Command> {
     }
 
     public void checkForParameters() throws IrpException, IrCoreException {
-        for (Command command : commands.values())
-            command.checkForParameters();
+        for (CommandSet commandSet : this)
+            for (Command command : commandSet)
+                command.checkForParameters();
     }
 
     @Override
-    public Iterator<Command> iterator() {
-        return commands.values().iterator();
+    public Iterator<CommandSet> iterator() {
+        return commandSets.values().iterator();
     }
 
     /**
-     * This class bundles different data for a remote together.
+     * This class bundles different meta data for a remote together.
      */
     public static final class MetaData {
 
@@ -489,20 +535,6 @@ public final class Remote implements Iterable<Command> {
          */
         public String getRemoteName() {
             return remoteName;
-        }
-    }
-
-    public static class CompareNameCaseSensitive implements Comparator<Remote>, Serializable {
-        @Override
-        public int compare(Remote o1, Remote o2) {
-            return o1.getName().compareTo(o2.getName());
-        }
-    }
-
-    public static class CompareNameCaseInsensitive implements Comparator<Remote>, Serializable {
-        @Override
-        public int compare(Remote o1, Remote o2) {
-            return o1.getName().compareToIgnoreCase(o2.getName());
         }
     }
 }
