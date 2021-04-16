@@ -16,10 +16,10 @@ this program. If not, see http://www.gnu.org/licenses/.
  */
 package org.harctoolbox.girr;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +29,7 @@ import java.util.Map;
 public interface Named {
 
     public static <T extends Named> Map<String, T> toMap(T thing) {
-        Map<String, T> map = new HashMap<>(1);
+        Map<String, T> map = new LinkedHashMap<>(1);
         map.put(thing.getName(), thing);
         return map;
     }
@@ -40,16 +40,28 @@ public interface Named {
         return list;
     }
 
+    public static <T extends Named> void populateMap(Map<String, T> map, Collection<T> collection) {
+        map.clear();
+        for (T thing : collection)
+            map.put(thing.getName(), thing);
+    }
+
+    public static <T extends Named> Map<String, T> toMap(Collection<T> collection) {
+        Map<String, T> map = new LinkedHashMap<>(collection.size());
+        populateMap(map, collection);
+        return map;
+    }
+
     public String getName();
 
-    public static class CompareNameCaseSensitive implements Comparator<Named>, Serializable {
+    public static class CompareNameCaseSensitive implements Comparator<Named> {
         @Override
         public int compare(Named o1, Named o2) {
             return o1.getName().compareTo(o2.getName());
         }
     }
 
-    public static class CompareNameCaseInsensitive implements Comparator<Named>, Serializable {
+    public static class CompareNameCaseInsensitive implements Comparator<Named> {
         @Override
         public int compare(Named o1, Named o2) {
             return o1.getName().compareToIgnoreCase(o2.getName());

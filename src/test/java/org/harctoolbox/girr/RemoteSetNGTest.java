@@ -2,7 +2,11 @@ package org.harctoolbox.girr;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpDatabase;
+import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.NamedProtocol;
 import org.harctoolbox.xml.XmlUtils;
 import static org.testng.Assert.*;
@@ -74,5 +78,185 @@ public class RemoteSetNGTest {
         Document document = remoteSet.toDocument(title, stylesheetType, stylesheetUrl, fatRaw, createSchemaLocation, generateRaw, generateCcf, generateParameters);
         XmlUtils.printDOM(file, document);
         System.out.println("RemoteSet was written to the file " + file.getCanonicalPath() + ", please examine manually");
+    }
+
+    /**
+     * Test of isEmpty method, of class RemoteSet.
+     */
+    @Test
+    public void testIsEmpty() {
+        System.out.println("isEmpty");
+        RemoteSet instance = new RemoteSet();
+        boolean result = instance.isEmpty();
+        assertTrue(result);
+        assertFalse(remoteSet.isEmpty());
+    }
+
+    /**
+     * Test of getAllCommands method, of class RemoteSet.
+     */
+    @Test
+    public void testGetAllCommands() {
+        System.out.println("getAllCommands");
+        @SuppressWarnings("deprecation")
+        List<Command> result = remoteSet.getAllCommands();
+        assertEquals(result.size(), 82);
+    }
+
+    /**
+     * Test of checkForParameters method, of class RemoteSet.
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     */
+    @Test
+    public void testCheckForParameters() throws IrpException, IrCoreException {
+        System.out.println("checkForParameters");
+        remoteSet.checkForParameters();
+    }
+
+    /**
+     * Test of getCreatingUser method, of class RemoteSet.
+     */
+    @Test
+    public void testGetCreatingUser() {
+        System.out.println("getCreatingUser");
+        String expResult = "Barf";
+        String result = remoteSet.getCreatingUser();
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getSource method, of class RemoteSet.
+     */
+    @Test
+    public void testGetSource() {
+        System.out.println("getSource");
+        String expResult = "Whatever";
+        String result = remoteSet.getSource();
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getCreationDate method, of class RemoteSet.
+     */
+    @Test
+    public void testGetCreationDate() {
+        System.out.println("getCreationDate");
+        String expResult = "35-septober-2999";
+        String result = remoteSet.getCreationDate();
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getTool method, of class RemoteSet.
+     */
+    @Test
+    public void testGetTool() {
+        System.out.println("getTool");
+        String expResult = "hand written";
+        String result = remoteSet.getTool();
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getToolVersion method, of class RemoteSet.
+     */
+    @Test
+    public void testGetToolVersion() {
+        System.out.println("getToolVersion");
+        String expResult = "0.0.0";
+        String result = remoteSet.getToolVersion();
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getTool2 method, of class RemoteSet.
+     */
+    @Test
+    public void testGetTool2() {
+        System.out.println("getTool2");
+        String expResult = "nuthin";
+        String result = remoteSet.getTool2();
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getTool2Version method, of class RemoteSet.
+     */
+    @Test
+    public void testGetTool2Version() {
+        System.out.println("getTool2Version");
+        String expResult = "who cares?";
+        String result = remoteSet.getTool2Version();
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getNotes method, of class RemoteSet.
+     */
+    @Test
+    public void testGetNotes() {
+        System.out.println("getNotes");
+        String lang = "en";
+        String expResult = "Lorem Ipsum. Or not.";
+        String result = remoteSet.getNotes(lang);
+        assertEquals(result, expResult);
+    }
+
+    /**
+     * Test of getRemotes method, of class RemoteSet.
+     */
+    @Test
+    public void testGetRemotes() {
+        System.out.println("getRemotes");
+        int expResult = 1;
+        Collection<Remote> result = remoteSet.getRemotes();
+        assertEquals(result.size(), expResult);
+    }
+
+    /**
+     * Test of getRemote method, of class RemoteSet.
+     */
+    @Test
+    public void testGetRemote() {
+        System.out.println("getRemote");
+        String name = "philips_37pfl9603";
+        String expResult = "Full HD";
+        Remote result = remoteSet.getRemote(name);
+        assertEquals(result.getComment(), expResult);
+    }
+
+    /**
+     * Test of getFirstRemote method, of class RemoteSet.
+     */
+    @Test
+    public void testGetFirstRemote() {
+        System.out.println("getFirstRemote");
+        String expResult = "tv";
+        Remote result = remoteSet.getFirstRemote();
+        assertEquals(result.getDeviceClass(), expResult);
+    }
+
+    /**
+     * Test of getFirstMetaData method, of class RemoteSet.
+     */
+    @Test
+    public void testGetFirstMetaData() {
+        System.out.println("getFirstMetaData");
+        String expResult = "Philips 37PFL9603";
+        Remote.MetaData result = remoteSet.getFirstMetaData();
+        assertEquals(result.getDisplayName(), expResult);
+    }
+
+    /**
+     * Test of getIrpDatabase method, of class RemoteSet.
+     */
+    @Test
+    public void testGetIrpDatabase() {
+        System.out.println("getIrpDatabase");
+        IrpDatabase expResult = new IrpDatabase();
+        IrpDatabase result = remoteSet.getIrpDatabase();
+        assertEquals(result.size(), 0);
+        assertEquals(result, expResult);
     }
 }

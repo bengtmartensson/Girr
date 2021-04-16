@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2013, 2015, 2018 Bengt Martensson.
+ Copyright (C) 2013, 2015, 2018, 2021 Bengt Martensson.
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 package org.harctoolbox.girr;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,15 +29,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static org.harctoolbox.girr.XmlExporter.COMMANDSET_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.COMMAND_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
-import static org.harctoolbox.girr.XmlExporter.NAME_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.PARAMETERS_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.PARAMETER_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.PROTOCOL_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.VALUE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMANDSET_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlStatic.NAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.PARAMETERS_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.PARAMETER_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.PROTOCOL_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.VALUE_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrCoreUtils;
 import org.harctoolbox.irp.IrpException;
@@ -44,12 +46,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * A CommandSet is a set of Commands with unique names.
  * Typically, they share the same protocol, but different parameter values.
  */
-public final class CommandSet implements Named, Iterable<Command> {
+public final class CommandSet extends XmlExporter implements Named, Iterable<Command> {
 
     private final static Logger logger = Logger.getLogger(CommandSet.class.getName());
 
@@ -58,6 +61,37 @@ public final class CommandSet implements Named, Iterable<Command> {
     private final String name;
     private final Map<String, Long> parameters;
     private final Map<String, Command> commands;
+
+    /**
+     * This constructor is used to read a Girr file into a CommandSet.
+     * @param file
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public CommandSet(String file) throws GirrException, IOException, SAXException {
+        this(getElement(file));
+    }
+
+    /**
+     * This constructor is used to read a Reader into a CommandSet.
+     * @param reader
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public CommandSet(Reader reader) throws IOException, SAXException, GirrException {
+        this(getElement(reader));
+    }
+
+    /**
+     * This constructor is used to import a Document.
+     * @param doc W3C Document
+     * @throws org.harctoolbox.girr.GirrException
+     */
+    public CommandSet(Document doc) throws GirrException {
+          this(getElement(doc));
+    }
 
     /**
      * Imports a CommandSet from an Element.
@@ -70,7 +104,7 @@ public final class CommandSet implements Named, Iterable<Command> {
         protocolName = null;
         commands = new LinkedHashMap<>(4);
         parameters = new LinkedHashMap<>(4);
-        notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
+        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
         // Cannot use getElementsByTagName("parameters") because it will find
         // the parameters of the child commands, which is not what we want.
         NodeList nl = element.getChildNodes();
@@ -166,10 +200,15 @@ public final class CommandSet implements Named, Iterable<Command> {
     public void sort(Comparator<? super Named> comparator) {
         List<Command> list = new ArrayList<>(commands.values());
         Collections.sort(list, comparator);
-        commands.clear();
-        list.forEach((cmd) -> {
-            commands.put(cmd.getName(), cmd);
-        });
+        Named.populateMap(commands, list);
+    }
+
+    public void sort() {
+        sort(new Named.CompareNameCaseSensitive());
+    }
+
+    public void sortIgnoringCase() {
+        sort(new Named.CompareNameCaseInsensitive());
     }
 
     /**
@@ -182,8 +221,9 @@ public final class CommandSet implements Named, Iterable<Command> {
      * @param generateParameters
      * @return newly constructed element, belonging to the doc Document.
      */
-    public Element toElement(Document doc, boolean fatRaw, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
-        Element element = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
+    @Override
+    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+        Element element = doc.createElementNS(GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         notes.entrySet().stream().map((note) -> {
             Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
@@ -194,11 +234,11 @@ public final class CommandSet implements Named, Iterable<Command> {
             element.appendChild(notesEl);
         });
         if (parameters != null && generateParameters) {
-            Element parametersEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
+            Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
             parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
             element.appendChild(parametersEl);
             parameters.entrySet().stream().map((parameter) -> {
-                Element parameterEl = doc.createElementNS(XmlExporter.GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
                 parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameter.getKey());
                 parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, parameter.getValue().toString());
                 return parameterEl;
@@ -208,7 +248,7 @@ public final class CommandSet implements Named, Iterable<Command> {
         }
         if (commands != null) {
             commands.values().forEach((command) -> {
-                element.appendChild(command.toElement(doc, null, fatRaw,
+                element.appendChild(command.toElement(doc, null, fatRaw, false,
                         generateRaw, generateCcf, generateParameters));
             });
         }

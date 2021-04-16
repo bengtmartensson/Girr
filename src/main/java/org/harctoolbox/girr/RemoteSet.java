@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013, 2015, 2018 Bengt Martensson.
+Copyright (C) 2013, 2015, 2018, 2021 Bengt Martensson.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,11 +18,8 @@ this program. If not, see http://www.gnu.org/licenses/.
 package org.harctoolbox.girr;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -40,33 +37,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
-import static org.harctoolbox.girr.XmlExporter.ADMINDATA_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.CREATINGUSER_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.CREATIONDATA_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.CREATIONDATE_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
-import static org.harctoolbox.girr.XmlExporter.GIRR_SCHEMA_LOCATION_URI;
-import static org.harctoolbox.girr.XmlExporter.GIRR_VERSION;
-import static org.harctoolbox.girr.XmlExporter.GIRR_VERSION_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.REMOTES_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.REMOTE_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.SOURCE_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.SPACE;
-import static org.harctoolbox.girr.XmlExporter.TITLE_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.TOOL2VERSION_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.TOOL2_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.TOOLVERSIION_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.TOOL_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.CREATINGUSER_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.CREATIONDATA_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.CREATIONDATE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlStatic.GIRR_SCHEMA_LOCATION_URI;
+import static org.harctoolbox.girr.XmlStatic.GIRR_VERSION;
+import static org.harctoolbox.girr.XmlStatic.GIRR_VERSION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.REMOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.REMOTE_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.SOURCE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.SPACE;
+import static org.harctoolbox.girr.XmlStatic.TITLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.TOOL2VERSION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.TOOL2_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.TOOLVERSIION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.TOOL_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
-import org.harctoolbox.ircore.IrCoreUtils;
 import org.harctoolbox.ircore.IrSignal;
-import org.harctoolbox.ircore.ThisCannotHappenException;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
-import org.harctoolbox.xml.XmlUtils;
-import static org.harctoolbox.xml.XmlUtils.DEFAULT_CHARSETNAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_URI;
 import static org.harctoolbox.xml.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
@@ -80,7 +73,7 @@ import org.xml.sax.SAXException;
 /**
  * This class contains a map of Remotes, indexed by their names.
  */
-public final class RemoteSet implements Iterable<Remote> {
+public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     private final static Logger logger = Logger.getLogger(RemoteSet.class.getName());
 
@@ -176,17 +169,26 @@ public final class RemoteSet implements Iterable<Remote> {
 
     /**
      * This constructor is used to import a Document.
+     *
      * @param doc W3C Document
      * @throws org.harctoolbox.girr.GirrException
      */
     public RemoteSet(Document doc) throws GirrException {
-        remotes = new LinkedHashMap<>(4);
+        this(doc.getDocumentElement());
+    }
 
-        Element root = doc.getDocumentElement();
+    /**
+     * This constructor is used to import an Element.
+     *
+     * @param root W3C Element
+     * @throws org.harctoolbox.girr.GirrException
+     */
+    public RemoteSet(Element root) throws GirrException {
+        remotes = new LinkedHashMap<>(4);
         NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
         if (nl.getLength() > 0) {
             Element adminData = (Element) nl.item(0);
-            notes = XmlExporter.parseElementsByLanguage(adminData.getElementsByTagName(NOTES_ELEMENT_NAME));
+            notes = XmlStatic.parseElementsByLanguage(adminData.getElementsByTagName(NOTES_ELEMENT_NAME));
             NodeList nodeList = adminData.getElementsByTagName(CREATIONDATA_ELEMENT_NAME);
             if (nodeList.getLength() > 0) {
                 Element creationdata = (Element) nodeList.item(0);
@@ -226,7 +228,18 @@ public final class RemoteSet implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public RemoteSet(File file) throws GirrException, IOException, SAXException {
-        this(XmlUtils.openXmlFile(file));
+        this(getElement(file));
+    }
+
+    /**
+     * This constructor is used to read a Girr file into a RemoteSet.
+     * @param file
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public RemoteSet(String file) throws GirrException, IOException, SAXException {
+        this(getElement(file));
     }
 
     /**
@@ -237,7 +250,7 @@ public final class RemoteSet implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public RemoteSet(Reader reader) throws IOException, SAXException, GirrException {
-        this(XmlUtils.openXmlReader(reader, null, true, true));
+        this(getElement(reader));
     }
 
     /**
@@ -419,6 +432,7 @@ public final class RemoteSet implements Iterable<Remote> {
      * @param generateParameters
      * @return Element describing the RemoteSet
      */
+    @Override
     public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
             boolean generateRaw, boolean generateCcf, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
@@ -467,51 +481,9 @@ public final class RemoteSet implements Iterable<Remote> {
             element.appendChild(adminDataEl);
 
         for (Remote remote : this)
-            element.appendChild(remote.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
+            element.appendChild(remote.toElement(doc, null, fatRaw, false, generateRaw, generateCcf, generateParameters));
 
         return element;
-    }
-
-    /**
-     * Generates an XML Document from a RemoteSet.
-     * @param title Textual title of document.
-     * @param stylesheetType Type of stylesheet, normally "css" or "xsl".
-     * @param fatRaw For the raw form, generate elements for each flash and gap, otherwise a long PCDATA text string of durations will be generated.
-     * @param stylesheetUrl URL of stylesheet to be linked in a processing instruction.
-     * @param createSchemaLocation if schema location attributes (for validation) should be included.
-     * @param generateRaw If true, the raw form will be generated.
-     * @param generateCcf If true, the CCF ("Pronto hex") form will be generated.
-     * @param generateParameters If true, the protocol/parameter description will be generated.
-     * @return XmlExporter
-     */
-    public Document toDocument(String title, String stylesheetType, String stylesheetUrl,
-            boolean fatRaw, boolean createSchemaLocation,
-            boolean generateRaw, boolean generateCcf, boolean generateParameters) {
-        Element root = toElement(XmlUtils.newDocument(true), title, fatRaw, createSchemaLocation,
-            generateRaw, generateCcf, generateParameters);
-        return XmlExporter.createDocument(root, stylesheetType, stylesheetUrl, createSchemaLocation);
-    }
-
-    /**
-     * Convenience function that generates a DOM and dumps it onto the argument.
-     * @param ostr
-     */
-    public void print(OutputStream ostr) {
-        Document doc = toDocument("untitled", null, null, false, true, true, true, true);
-        try {
-            XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
-        } catch (UnsupportedEncodingException ex) {
-            throw new ThisCannotHappenException(ex);
-        }
-    }
-
-    /**
-     * Convenience function that generates a DOM and dumps it onto the argument.
-     * @param file
-     * @throws java.io.IOException
-     */
-    public void print(String file) throws IOException {
-        print(IrCoreUtils.getPrintStream(file, DEFAULT_CHARSETNAME));
     }
 
     /**
@@ -624,6 +596,10 @@ public final class RemoteSet implements Iterable<Remote> {
         return remotes.get(name);
     }
 
+    public Remote getFirstRemote() {
+        return iterator().next();
+    }
+
     @Override
     public Iterator<Remote> iterator() {
         return remotes.values().iterator();
@@ -634,7 +610,7 @@ public final class RemoteSet implements Iterable<Remote> {
      * @return metaData of first Remote.
      */
     public Remote.MetaData getFirstMetaData() {
-        Remote remote = iterator().next();
+        Remote remote = getFirstRemote();
         return remote != null ? remote.getMetaData() : new Remote.MetaData();
     }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2013, 2014, 2015, 2018 Bengt Martensson.
+ Copyright (C) 2013, 2014, 2015, 2018, 2021 Bengt Martensson.
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -17,38 +17,40 @@
 
 package org.harctoolbox.girr;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static org.harctoolbox.girr.XmlExporter.COMMAND_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.COMMENT_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.DUTYCYCLE_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.ENDING_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.FLASH_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.FORMAT_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.FREQUENCY_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.F_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.GAP_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
-import static org.harctoolbox.girr.XmlExporter.INTRO_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.MASTER_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.NAME_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.PARAMETERS_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.PARAMETER_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.PRONTO_HEX_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.PROTOCOL_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.PROTOCOL_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.RAW_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.REPEAT_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.SPACE;
-import static org.harctoolbox.girr.XmlExporter.TITLE_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.TOGGLE_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.VALUE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMENT_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.DUTYCYCLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.ENDING_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.FLASH_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.FORMAT_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.FREQUENCY_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.F_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.GAP_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlStatic.INTRO_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.MASTER_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.NAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.PARAMETERS_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.PARAMETER_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.PRONTO_HEX_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.PROTOCOL_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.PROTOCOL_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.RAW_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.REPEAT_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.SPACE;
+import static org.harctoolbox.girr.XmlStatic.TITLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.TOGGLE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.VALUE_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.InvalidArgumentException;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrCoreUtils;
@@ -96,7 +98,7 @@ import org.xml.sax.SAXException;
  * erroneous data. The other classes in the package may not; they should just
  * ignore individual unparseable commands.
  */
-public final class Command implements Named {
+public final class Command extends XmlExporter implements Named {
 
     private final static Logger logger = Logger.getLogger(Command.class.getName());
 
@@ -264,9 +266,10 @@ public final class Command implements Named {
         this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME), element.getAttribute(COMMENT_ATTRIBUTE_NAME));
         protocolName = inheritProtocol != null ? inheritProtocol.toLowerCase(Locale.US) : null;
         parameters = new HashMap<>(4);
-        parameters.putAll(inheritParameters);
+        if (inheritParameters != null)
+            parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
-        notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
+        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
 
         try {
             NodeList nl;
@@ -343,6 +346,32 @@ public final class Command implements Named {
             throw new GirrException(ex);
         }
         sanityCheck();
+    }
+
+    public Command(Element element) throws GirrException {
+        this(element, null, null);
+    }
+
+    /**
+     * This constructor is used to read a Girr file into a Command.
+     * @param file
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public Command(File file) throws GirrException, IOException, SAXException {
+        this(getElement(file));
+    }
+
+    /**
+     * This constructor is used to read a Reader into a Command.
+     * @param reader
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public Command(Reader reader) throws IOException, SAXException, GirrException {
+        this(getElement(reader));
     }
 
     /**
@@ -993,8 +1022,8 @@ public final class Command implements Named {
      * @param generateParameters
      * @return XML Element with tag name "command".
      */
-    public Element toElement(Document doc, String title, boolean fatRaw,
-            boolean generateRaw, boolean generateProntoHex, boolean generateParameters) {
+    @Override
+    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateProntoHex, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
         if (title != null)
             element.setAttribute(TITLE_ATTRIBUTE_NAME, title);

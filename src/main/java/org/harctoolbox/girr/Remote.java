@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2013, 2015, 2018 Bengt Martensson.
+Copyright (C) 2013, 2015, 2018, 2021 Bengt Martensson.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@ this program. If not, see http://www.gnu.org/licenses/.
 
 package org.harctoolbox.girr;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,30 +29,33 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static org.harctoolbox.girr.XmlExporter.APPLICATIONDATA_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.APPLICATION_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.APPPARAMETER_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.COMMANDSET_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.COMMENT_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.DEVICECLASS_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.DISPLAYNAME_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.GIRR_NAMESPACE;
-import static org.harctoolbox.girr.XmlExporter.MANUFACTURER_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.MODEL_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.NAME_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.NOTES_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.REMOTENAME_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlExporter.REMOTE_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlExporter.VALUE_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.APPLICATIONDATA_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.APPLICATION_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.APPPARAMETER_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMANDSET_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMENT_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.DEVICECLASS_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.DISPLAYNAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
+import static org.harctoolbox.girr.XmlStatic.MANUFACTURER_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.MODEL_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.NAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.NOTES_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.REMOTENAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.REMOTE_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.VALUE_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.irp.IrpException;
+import org.harctoolbox.xml.XmlUtils;
 import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * This class describes a remote in Girr.
@@ -58,7 +63,7 @@ import org.w3c.dom.NodeList;
  * It has a name for identification, and a number of comment-like text fields. Most importantly,
  * it has a dictionary of CommandSets, indexed by their names.
  */
-public final class Remote implements Named, Iterable<CommandSet> {
+public final class Remote extends XmlExporter implements Named, Iterable<CommandSet> {
 
     private final static Logger logger = Logger.getLogger(Remote.class.getName());
 
@@ -67,6 +72,37 @@ public final class Remote implements Named, Iterable<CommandSet> {
     private Map<String, String> notes;
     private Map<String, CommandSet> commandSets;
     private Map<String, Map<String, String>> applicationParameters;
+
+    /**
+     * This constructor is used to read a Girr file into a Remote.
+     * @param file
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public Remote(String file) throws GirrException, IOException, SAXException {
+        this(XmlUtils.openXmlThing(file));
+    }
+
+    /**
+     * This constructor is used to read a Reader into a Remote.
+     * @param reader
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public Remote(Reader reader) throws IOException, SAXException, GirrException {
+        this(XmlUtils.openXmlReader(reader, null, true, true));
+    }
+
+    /**
+     * This constructor is used to import a Document.
+     * @param doc W3C Document
+     * @throws org.harctoolbox.girr.GirrException
+     */
+    public Remote(Document doc) throws GirrException {
+          this(doc.getDocumentElement());
+    }
 
     /**
      * XML import function.
@@ -81,10 +117,9 @@ public final class Remote implements Named, Iterable<CommandSet> {
                 element.getAttribute(MODEL_ATTRIBUTE_NAME),
                 element.getAttribute(DEVICECLASS_ATTRIBUTE_NAME),
                 element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
-        commandSets = new LinkedHashMap<>(4);
         applicationParameters = new LinkedHashMap<>(4);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
-        notes = XmlExporter.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
+        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
         NodeList nl = element.getElementsByTagName(APPLICATIONDATA_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Element el = (Element) nl.item(i);
@@ -98,6 +133,7 @@ public final class Remote implements Named, Iterable<CommandSet> {
         }
 
         nl = element.getElementsByTagName(COMMANDSET_ELEMENT_NAME);
+        commandSets = new LinkedHashMap<>(nl.getLength());
         for (int i = 0; i < nl.getLength(); i++) {
             CommandSet commandSet = new CommandSet((Element) nl.item(i));
             commandSets.put(commandSet.getName(), commandSet);
@@ -161,13 +197,16 @@ public final class Remote implements Named, Iterable<CommandSet> {
      * XML export function.
      *
      * @param doc
+     * @param title
      * @param fatRaw
+     * @param createSchemaLocation
      * @param generateRaw
      * @param generateCcf
      * @param generateParameters
      * @return XML Element of gid "remote",
      */
-    public Element toElement(Document doc, boolean fatRaw, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+    @Override
+    public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
         element.setAttribute(NAME_ATTRIBUTE_NAME, metaData.name);
         if (metaData.displayName != null && !metaData.displayName.isEmpty())
@@ -212,7 +251,7 @@ public final class Remote implements Named, Iterable<CommandSet> {
         }
 
         for (CommandSet commandSet : this)
-            element.appendChild(commandSet.toElement(doc, fatRaw, generateRaw, generateCcf, generateParameters));
+            element.appendChild(commandSet.toElement(doc, null, fatRaw, false, generateRaw, generateCcf, generateParameters));
 
         return element;
     }
@@ -220,11 +259,45 @@ public final class Remote implements Named, Iterable<CommandSet> {
     public void sort(Comparator<? super Named> comparator) {
         List<CommandSet> list = new ArrayList<>(commandSets.values());
         Collections.sort(list, comparator);
-        commandSets.clear();
-        list.forEach((CommandSet commandSet) -> {
+        Named.populateMap(commandSets, list);
+    }
+
+    public void sortCommands(Comparator<? super Named> comparator) {
+        for (CommandSet commandSet : this)
             commandSet.sort(comparator);
-            commandSets.put(commandSet.getName(), commandSet);
-        });
+    }
+
+    public void sortCommands() {
+        sortCommands(new Named.CompareNameCaseSensitive());
+    }
+
+    public void sortCommandsIgnoringCase() {
+        sort(new Named.CompareNameCaseInsensitive());
+    }
+
+    public void sort() {
+        sort(new Named.CompareNameCaseSensitive());
+    }
+
+    public void sortIgnoringCase() {
+        sort(new Named.CompareNameCaseInsensitive());
+    }
+
+    public void normalize() {
+        if (commandSets.size() < 2)
+            return;
+
+        Map<String, Command> commands = new LinkedHashMap<>(numberAllCommands());
+        StringJoiner stringJoiner = new StringJoiner(", ", "Merge of CommandSets ", ".");
+        for (CommandSet cmdSet : this) {
+            commands.putAll(cmdSet.getCommands());
+            stringJoiner.add(cmdSet.getName());
+        }
+        Map<String, String> notesCmdSet = new HashMap<>(1);
+        notesCmdSet.put(XmlUtils.ENGLISH, stringJoiner.toString());
+        CommandSet commandSet = new CommandSet("MergedCommandSet", notesCmdSet, commands, null, null);
+        commandSets.clear();
+        commandSets.put(commandSet.getName(), commandSet);
     }
 
     /**
@@ -265,6 +338,25 @@ public final class Remote implements Named, Iterable<CommandSet> {
     }
 
     /**
+     * Returns true if and only if at least one contained commands has the protocol in the argument.
+     * @param protocolName
+     * @return
+     * @throws org.harctoolbox.irp.IrpException
+     * @throws org.harctoolbox.ircore.IrCoreException
+     */
+    public boolean containsThisProtocol(String protocolName) throws IrpException, IrCoreException {
+        String protName = protocolName.toLowerCase(Locale.US);
+        for (CommandSet commandSet : this) {
+            for (Command command : commandSet) {
+                String prtcl = command.getProtocolName();
+                if (prtcl != null && prtcl.equals(protName))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Return List of Commands with the selected name, possibly more than one.
      * @param commandName
      * @return List of Commands, possibly empty.
@@ -273,7 +365,8 @@ public final class Remote implements Named, Iterable<CommandSet> {
         List<Command> list = new ArrayList<>(4);
         for (CommandSet commandSet : this) {
             Command cmd = commandSet.getCommand(commandName);
-            list.add(cmd);
+            if (cmd != null)
+                list.add(cmd);
         }
         return list;
     }
@@ -347,7 +440,7 @@ public final class Remote implements Named, Iterable<CommandSet> {
      * @return the commands
      */
     public Map<String, Command> getCommands() {
-        Map<String, Command> allCommands = new LinkedHashMap<>(numberCommands());
+        Map<String, Command> allCommands = new LinkedHashMap<>(numberAllCommands());
         for (CommandSet cmdSet : this)
             allCommands.putAll(cmdSet.getCommands());
         return allCommands;
@@ -424,6 +517,10 @@ public final class Remote implements Named, Iterable<CommandSet> {
     @Override
     public Iterator<CommandSet> iterator() {
         return commandSets.values().iterator();
+    }
+
+    public Map<String, CommandSet> getCommandSets() {
+        return Collections.unmodifiableMap(commandSets);
     }
 
     /**

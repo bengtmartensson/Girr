@@ -1,5 +1,6 @@
 package org.harctoolbox.girr;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -496,5 +497,20 @@ public class CommandNGTest {
         xmp1Command = new Command("xyz", "covfefe", XMP);
         protocolName = xmp1Command.getProtocolName();
         assertTrue(protocolName.toLowerCase(Locale.US).startsWith("xmp"));
+    }
+
+    /**
+     * Test of toElement method, of class Command.
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    @Test
+    public void testToElement() throws GirrException, IOException, SAXException {
+        System.out.println("toElement");
+        String filename = "command.girr";
+        Command cmd = new Command(new File("src/test/girr/topping-command.girr"));
+        cmd.print(filename);
+        System.out.println("Wrote " + filename + ", please check manually");
     }
 }
