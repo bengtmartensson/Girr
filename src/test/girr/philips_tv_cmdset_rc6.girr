@@ -2,9 +2,11 @@
 <?xml-stylesheet type="text/xsl" href="simplehtml.xsl"?>
 <!--This file is in the Girr (General IR Remote) format, see http://www.harctoolbox.org/Girr.html-->
 <commandSet name="rc6"
-            xsi:schemaLocation="http://www.harctoolbox.org/Girr  http://www.harctoolbox.org/schemas/girr_ns.xsd"
+        title="A very stable genious"
+          girrVersion="1.2"
             xmlns="http://www.harctoolbox.org/Girr"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.harctoolbox.org/Girr  ../../main/schemas/girr_ns-1.2.xsd">
     <parameters protocol="rc6">
         <parameter name="D" value="0"/>
     </parameters>

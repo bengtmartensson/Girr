@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<remotes girrVersion="1.0" title="IrScrutinizer parametric export"
-         xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns.xsd"
+<remotes girrVersion="1.2" title="IrScrutinizer parametric export"
+         xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1.2.xsd"
          xmlns="http://www.harctoolbox.org/Girr"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

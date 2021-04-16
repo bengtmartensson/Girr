@@ -41,7 +41,7 @@ public abstract class XmlStatic {
      * (not to be confused with the version of an implementation).
      * Should be the same as the attribute girrVersion in girr_ns.xsd.
      */
-    public static final String GIRR_VERSION         = "1.1";
+    public static final String GIRR_VERSION         = "1.2";
 
     /**
      * Namespace URI
