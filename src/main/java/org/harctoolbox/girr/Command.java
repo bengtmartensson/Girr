@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMENT_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.DISPLAYNAME_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.DUTYCYCLE_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.ENDING_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.FLASH_ELEMENT_NAME;
@@ -244,6 +245,7 @@ public final class Command extends XmlExporter implements Named {
     private MasterType masterType;
     private Map<String, String> notes;
     private String name;
+    private String displayName;
     private String protocolName; // should always be lowercase
     private Map<String, Long> parameters;
     private Integer frequency;
@@ -269,6 +271,7 @@ public final class Command extends XmlExporter implements Named {
         if (inheritParameters != null)
             parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
+        displayName = element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME);
         notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
 
         try {
@@ -697,6 +700,14 @@ public final class Command extends XmlExporter implements Named {
         return otherFormats != null ? otherFormats.get(name) : null;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String dispName) {
+        displayName = dispName;
+    }
+
     /**
      * Returns the IrSignal of the Command.
      * @return IrSignal
@@ -1041,6 +1052,8 @@ public final class Command extends XmlExporter implements Named {
             element.setAttribute(MASTER_ATTRIBUTE_NAME, actualMasterType.name());
         if (comment != null && !comment.isEmpty())
             element.setAttribute(COMMENT_ATTRIBUTE_NAME, comment);
+        if (displayName != null && !displayName.isEmpty())
+            element.setAttribute(DISPLAYNAME_ATTRIBUTE_NAME, this.displayName);
 
         notes.entrySet().stream().map((note) -> {
             Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
