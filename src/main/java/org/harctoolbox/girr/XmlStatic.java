@@ -41,7 +41,7 @@ public abstract class XmlStatic {
      * (not to be confused with the version of an implementation).
      * Should be the same as the attribute girrVersion in girr_ns.xsd.
      */
-    public static final String GIRR_VERSION         = "1.2";
+    public static final String GIRR_VERSION         = "1.3";
 
     /**
      * Namespace URI
@@ -56,7 +56,7 @@ public abstract class XmlStatic {
     /**
      * URL for schema file supporting name spaces.
      */
-    public static final String GIRR_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr_ns-"  + GIRR_VERSION + ".xsd";
+    public static final String GIRR_SCHEMA_LOCATION_URI = "file:///home/bengt/harctoolbox/Girr/src/main/schemas/girr_ns-"  + GIRR_VERSION + ".xsd";
 
     /**
      * URL for schema file, namespace-less version.
@@ -115,6 +115,7 @@ public abstract class XmlStatic {
     static final String ADMINDATA_ELEMENT_NAME      = "adminData";
     static final String CREATIONDATA_ELEMENT_NAME   = "creationData";
     static final String REMOTES_ELEMENT_NAME        = "remotes";
+    static final String DISPLAYNAME_ELEMENT_NAME    = "displayName";
 
     static final String SPACE = " ";
 

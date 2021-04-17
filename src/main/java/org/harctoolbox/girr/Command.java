@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMENT_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.DISPLAYNAME_ATTRIBUTE_NAME;
+import static org.harctoolbox.girr.XmlStatic.DISPLAYNAME_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.DUTYCYCLE_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.ENDING_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.FLASH_ELEMENT_NAME;
@@ -245,7 +246,7 @@ public final class Command extends XmlExporter implements Named {
     private MasterType masterType;
     private Map<String, String> notes;
     private String name;
-    private String displayName;
+    private Map<String, String> displayName = new HashMap<>(1);
     private String protocolName; // should always be lowercase
     private Map<String, Long> parameters;
     private Integer frequency;
@@ -271,7 +272,11 @@ public final class Command extends XmlExporter implements Named {
         if (inheritParameters != null)
             parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
-        displayName = element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME);
+        String displayNameAttribute = element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME);
+        displayName = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(DISPLAYNAME_ELEMENT_NAME));
+        if (! displayNameAttribute.isEmpty() && ! displayName.containsKey(ENGLISH))
+            displayName.put(ENGLISH, displayNameAttribute);
+
         notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
 
         try {
@@ -700,12 +705,20 @@ public final class Command extends XmlExporter implements Named {
         return otherFormats != null ? otherFormats.get(name) : null;
     }
 
+    public String getDisplayName(String lang) {
+        return displayName.get(lang);
+    }
+
     public String getDisplayName() {
-        return displayName;
+        return getDisplayName(ENGLISH);
+    }
+
+    public void setDisplayName(String lang, String dispName) {
+        displayName.put(lang, dispName);
     }
 
     public void setDisplayName(String dispName) {
-        displayName = dispName;
+        setDisplayName(ENGLISH, dispName);
     }
 
     /**
@@ -1052,8 +1065,13 @@ public final class Command extends XmlExporter implements Named {
             element.setAttribute(MASTER_ATTRIBUTE_NAME, actualMasterType.name());
         if (comment != null && !comment.isEmpty())
             element.setAttribute(COMMENT_ATTRIBUTE_NAME, comment);
-        if (displayName != null && !displayName.isEmpty())
-            element.setAttribute(DISPLAYNAME_ATTRIBUTE_NAME, this.displayName);
+
+        for (Map.Entry<String, String> kvp : displayName.entrySet()) {
+            Element dispName = doc.createElementNS(GIRR_NAMESPACE, DISPLAYNAME_ELEMENT_NAME);
+            dispName.setAttribute(XML_LANG_ATTRIBUTE_NAME, kvp.getKey());
+            dispName.setTextContent(kvp.getValue());
+            element.appendChild(dispName);
+        }
 
         notes.entrySet().stream().map((note) -> {
             Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
