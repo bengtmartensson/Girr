@@ -421,6 +421,8 @@ public final class Command extends XmlExporter implements Named {
      */
     public Command(String name, String comment, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
         this(MasterType.parameters, name, comment);
+        if (protocolName == null)
+            throw new GirrException("No protocol name");
         this.parameters = new HashMap<>(parameters);
         try {
             protocol = irpDatabase.getProtocol(protocolName);
