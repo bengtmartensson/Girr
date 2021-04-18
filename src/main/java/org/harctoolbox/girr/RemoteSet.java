@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
+import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.CREATINGUSER_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.CREATIONDATA_ELEMENT_NAME;
@@ -184,7 +185,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.harctoolbox.girr.GirrException
      */
     public RemoteSet(Element root) throws GirrException {
-        remotes = new LinkedHashMap<>(4);
+        remotes = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
         if (nl.getLength() > 0) {
             Element adminData = (Element) nl.item(0);

@@ -117,6 +117,7 @@ public abstract class XmlStatic {
     static final String REMOTES_ELEMENT_NAME        = "remotes";
 
     static final String SPACE = " ";
+    static final String EQUALS = "=";
 
     /**
      * Makes a Document from an Element.

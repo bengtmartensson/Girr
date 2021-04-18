@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.APPLICATIONDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.APPLICATION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.APPPARAMETER_ELEMENT_NAME;
@@ -117,7 +118,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
                 element.getAttribute(MODEL_ATTRIBUTE_NAME),
                 element.getAttribute(DEVICECLASS_ATTRIBUTE_NAME),
                 element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
-        applicationParameters = new LinkedHashMap<>(4);
+        applicationParameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
         notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
         NodeList nl = element.getElementsByTagName(APPLICATIONDATA_ELEMENT_NAME);
@@ -156,7 +157,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         this.metaData = metaData;
         this.comment = comment;
         this.notes = notes;
-        this.commandSets = new LinkedHashMap<>(4);
+        this.commandSets = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         for (CommandSet cmdSet : commandSetsCollection)
             commandSets.put(cmdSet.getName(), cmdSet);
         this.applicationParameters = applicationParameters;
@@ -362,7 +363,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * @return List of Commands, possibly empty.
      */
     public List<Command> getAllCommands(String commandName) {
-        List<Command> list = new ArrayList<>(4);
+        List<Command> list = new ArrayList<>(INITIAL_HASHMAP_CAPACITY);
         for (CommandSet commandSet : this) {
             Command cmd = commandSet.getCommand(commandName);
             if (cmd != null)

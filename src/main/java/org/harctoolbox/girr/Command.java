@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +32,7 @@ import static org.harctoolbox.girr.XmlStatic.COMMENT_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.DISPLAYNAME_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.DUTYCYCLE_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.ENDING_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.EQUALS;
 import static org.harctoolbox.girr.XmlStatic.FLASH_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.FORMAT_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.FREQUENCY_ATTRIBUTE_NAME;
@@ -103,6 +105,9 @@ public final class Command extends XmlExporter implements Named {
 
     private final static Logger logger = Logger.getLogger(Command.class.getName());
 
+    static final int INITIAL_HASHMAP_CAPACITY = 4;
+    private static final int INITIAL_STRINGBUILDER_CAPACITY = 64;
+
     /** Name of the parameter containing the toggle in the IRP protocol. */
     private static final String TOGGLE_PARAMETER_NAME = "T";
             static final String F_PARAMETER_NAME      = "F";
@@ -173,9 +178,9 @@ public final class Command extends XmlExporter implements Named {
     private static String toPrintString(Map<String, Long> map) {
         if (map == null || map.isEmpty())
             return "";
-        StringBuilder str = new StringBuilder(64);
+        StringBuilder str = new StringBuilder(INITIAL_STRINGBUILDER_CAPACITY);
         map.entrySet().forEach((kvp) -> {
-            str.append(kvp.getKey()).append("=").append(Long.toString(kvp.getValue())).append(SPACE);
+            str.append(kvp.getKey()).append(EQUALS).append(Long.toString(kvp.getValue())).append(SPACE);
         });
         return str.substring(0, str.length() - 1);
     }
@@ -211,7 +216,7 @@ public final class Command extends XmlExporter implements Named {
 
     private static String parseSequence(Element element) {
         if (element.getElementsByTagName(FLASH_ELEMENT_NAME).getLength() > 0) {
-            StringBuilder str = new StringBuilder(64);
+            StringBuilder str = new StringBuilder(INITIAL_STRINGBUILDER_CAPACITY);
             NodeList nl = element.getChildNodes();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() != Node.ELEMENT_NODE)
@@ -282,7 +287,7 @@ public final class Command extends XmlExporter implements Named {
     public Command(Element element, String inheritProtocol, Map<String, Long> inheritParameters) throws GirrException {
         this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME), element.getAttribute(COMMENT_ATTRIBUTE_NAME));
         protocolName = inheritProtocol != null ? inheritProtocol.toLowerCase(Locale.US) : null;
-        parameters = new HashMap<>(4);
+        parameters = new HashMap<>(INITIAL_HASHMAP_CAPACITY);
         if (inheritParameters != null)
             parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
@@ -414,7 +419,6 @@ public final class Command extends XmlExporter implements Named {
      * @param check If true, throw GirrException if the projectName cannot be made a protocol.
      * @throws org.harctoolbox.girr.GirrException
      */
-    @SuppressWarnings("unchecked")
     public Command(String name, String comment, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
         this(MasterType.parameters, name, comment);
         this.parameters = new HashMap<>(parameters);
@@ -442,7 +446,6 @@ public final class Command extends XmlExporter implements Named {
         this(name, comment, protocolName, parameters, true);
     }
 
-    @SuppressWarnings("unchecked")
     private Command(String name, String comment, String protocolName, Protocol protocol, Map<String, Long> parameters) throws GirrException {
         this(MasterType.parameters, name, comment);
         this.parameters = new HashMap<>(parameters);
@@ -547,10 +550,9 @@ public final class Command extends XmlExporter implements Named {
      * @throws org.harctoolbox.irp.IrpException
      * @throws org.harctoolbox.ircore.IrCoreException
      */
-    @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public Map<String, Long> getParameters() throws IrpException, IrCoreException {
         checkForParameters();
-        return parameters;
+        return Collections.unmodifiableMap(parameters);
     }
 
     /**
@@ -881,7 +883,6 @@ public final class Command extends XmlExporter implements Named {
     }
 
     private void generateRawProntoHexForceT(Map<String, Long> parameter, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
-        @SuppressWarnings("unchecked")
         Map<String, Long> params = new HashMap<>(parameters);
         params.put(TOGGLE_PARAMETER_NAME, (long) T);
         generateRawProntoHex(params, T, generateRaw, generateProntoHex);

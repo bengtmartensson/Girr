@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.harctoolbox.girr.Command.F_PARAMETER_NAME;
+import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.COMMANDSET_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
@@ -103,8 +104,8 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
     public CommandSet(Element element) throws GirrException {
         name = element.getAttribute(NAME_ATTRIBUTE_NAME);
         protocolName = null;
-        commands = new LinkedHashMap<>(4);
-        parameters = new LinkedHashMap<>(4);
+        commands = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
+        parameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
         // Cannot use getElementsByTagName("parameters") because it will find
         // the parameters of the child commands, which is not what we want.
@@ -153,11 +154,11 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
      * @param parameters
      */
     public CommandSet(String name, Map<String, String> notes, Map<String, Command> commands, String protocolName, Map<String, Long> parameters) {
-        this.name = name != null ? name : "commandSet";
+        this.name = name != null ? name : COMMANDSET_ELEMENT_NAME;
         this.notes = notes != null ? notes : new HashMap<>(0);
         this.commands = commands;
         this.protocolName = protocolName != null ? protocolName.toLowerCase(Locale.US) : null;
-        this.parameters = parameters != null ? parameters : new HashMap<>(4);
+        this.parameters = parameters != null ? parameters : new HashMap<>(INITIAL_HASHMAP_CAPACITY);
     }
 
     /**
