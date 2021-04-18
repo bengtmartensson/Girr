@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.harctoolbox.girr.Command.F_PARAMETER_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMANDSET_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
@@ -156,7 +157,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         this.notes = notes != null ? notes : new HashMap<>(0);
         this.commands = commands;
         this.protocolName = protocolName != null ? protocolName.toLowerCase(Locale.US) : null;
-        this.parameters = parameters;
+        this.parameters = parameters != null ? parameters : new HashMap<>(4);
     }
 
     /**
@@ -211,6 +212,27 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         sort(new Named.CompareNameCaseInsensitive());
     }
 
+    public void generateInheritanceParameters() {
+        Command firstCommand = this.iterator().next();
+        if (firstCommand != null) {
+            try {
+                protocolName = firstCommand.getProtocolName();
+                for (Map.Entry<String, Long> kvp : firstCommand.getParameters().entrySet()) {
+                    String parameterName = kvp.getKey();
+                    if (!parameterName.equals(F_PARAMETER_NAME))
+                        parameters.put(parameterName, kvp.getValue());
+                }
+            } catch (IrpException | IrCoreException ex) {
+                logger.log(Level.WARNING, "Cannot generate inheritance parameters");
+            }
+        }
+    }
+
+    public void deleteInheritanceParameters() {
+        protocolName = null;
+        parameters.clear();
+    }
+
     /**
      * Exports the CommandSet to a Document.
      *
@@ -223,6 +245,8 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
      */
     @Override
     Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+        if (Command.isUseInheritanceForXml())
+            generateInheritanceParameters();
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         notes.entrySet().stream().map((note) -> {
@@ -233,7 +257,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         }).forEachOrdered((notesEl) -> {
             element.appendChild(notesEl);
         });
-        if (parameters != null && generateParameters) {
+        if (parameters != null && ! parameters.isEmpty() && generateParameters) {
             Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
             parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
             element.appendChild(parametersEl);
@@ -249,7 +273,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         if (commands != null) {
             commands.values().forEach((command) -> {
                 element.appendChild(command.toElement(doc, null, fatRaw, false,
-                        generateRaw, generateCcf, generateParameters));
+                        generateRaw, generateCcf, generateParameters, protocolName, parameters));
             });
         }
         return element;

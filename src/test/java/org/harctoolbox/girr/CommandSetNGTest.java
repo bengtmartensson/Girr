@@ -26,6 +26,7 @@ public class CommandSetNGTest {
     private final CommandSet commandSet;
 
     public CommandSetNGTest() throws GirrException, IOException, SAXException {
+        Command.setUseInheritanceForXml(true);
         commandSet = new CommandSet("src/test/girr/philips_tv_cmdset_rc6.girr");
     }
 
@@ -127,6 +128,22 @@ public class CommandSetNGTest {
         System.out.println("print");
         String filename = "commandset.girr";
         commandSet.print(filename);
+        System.out.println("File " + filename + " written, please examine manually");
+    }
+
+    /**
+     * Test of toElement method, of class CommandSet.
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    @Test
+    public void testPrintSony() throws GirrException, IOException, SAXException {
+        System.out.println("printSony");
+        Remote remote = new Remote("src/test/girr/sony_tv.girr");
+        CommandSet cmdSet = remote.iterator().next();
+        String filename = "commandset_sony.girr";
+        cmdSet.print(filename);
         System.out.println("File " + filename + " written, please examine manually");
     }
 

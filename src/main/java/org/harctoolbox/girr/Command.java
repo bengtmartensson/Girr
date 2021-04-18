@@ -105,13 +105,15 @@ public final class Command extends XmlExporter implements Named {
 
     /** Name of the parameter containing the toggle in the IRP protocol. */
     private static final String TOGGLE_PARAMETER_NAME = "T";
-    private static final String F_PARAMETER_NAME      = "F";
+            static final String F_PARAMETER_NAME      = "F";
     private static final String D_PARAMETER_NAME      = "D";
     private static final String S_PARAMETER_NAME      = "S";
 
     private static IrpDatabase irpDatabase = null;
     private static Decoder decoder = null;
     private static Decoder.DecoderParameters decoderParameters = new Decoder.DecoderParameters();
+
+    private static boolean useInheritanceForXml = true;
 
     static {
         try {
@@ -121,6 +123,19 @@ public final class Command extends XmlExporter implements Named {
         } catch (IOException | IrpParseException | SAXException ex) {
             throw new ThisCannotHappenException(ex);
         }
+    }
+
+    /**
+     * if set to true, tries to use protocol/parameter inheritance when generating
+     * XML code for Commands.
+     * @param val
+     */
+    public static void setUseInheritanceForXml(boolean val) {
+        useInheritanceForXml = val;
+    }
+
+    public static boolean isUseInheritanceForXml() {
+        return useInheritanceForXml;
     }
 
     /**
@@ -1035,6 +1050,22 @@ public final class Command extends XmlExporter implements Named {
      */
     @Override
     Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateProntoHex, boolean generateParameters) {
+        return toElement(doc, title, fatRaw, createSchemaLocation, generateRaw, generateProntoHex, generateParameters, null, null);
+    }
+
+    /**
+     * XMLExport of the Command.
+     *
+     * @param doc
+     * @param title
+     * @param fatRaw
+     * @param generateRaw
+     * @param generateProntoHex
+     * @param generateParameters
+     * @return XML Element with tag name "command".
+     */
+    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
+            boolean generateRaw, boolean generateProntoHex, boolean generateParameters, String inheritedProtocolName, Map<String, Long> inheritedParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
         if (title != null)
             element.setAttribute(TITLE_ATTRIBUTE_NAME, title);
@@ -1068,18 +1099,24 @@ public final class Command extends XmlExporter implements Named {
             try {
                 checkForParameters();
                 if (parameters != null) {
-                    Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
-                    if (protocolName != null)
-                        parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
-                    element.appendChild(parametersEl);
-                    parameters.entrySet().stream().map((parameter) -> {
-                        Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
-                        parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameter.getKey());
-                        parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, parameter.getValue().toString());
-                        return parameterEl;
-                    }).forEachOrdered((parameterEl) -> {
-                        parametersEl.appendChild(parameterEl);
-                    });
+                    if (canReduce(inheritedProtocolName, inheritedParameters)) {
+                        Long parameterF = parameters.get(F_PARAMETER_NAME);
+                        if (parameterF != null)
+                            element.setAttribute(F_ATTRIBUTE_NAME, parameterF.toString());
+                    } else {
+                        Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
+                        if (protocolName != null)
+                            parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
+                        element.appendChild(parametersEl);
+                        parameters.entrySet().stream().map((parameter) -> {
+                            Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                            parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameter.getKey());
+                            parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, parameter.getValue().toString());
+                            return parameterEl;
+                        }).forEachOrdered((parameterEl) -> {
+                            parametersEl.appendChild(parameterEl);
+                        });
+                    }
                 }
             } catch (IrCoreException | IrpException ex) {
                 logger.log(Level.INFO, null, ex);
@@ -1137,6 +1174,20 @@ public final class Command extends XmlExporter implements Named {
             });
         }
         return element;
+    }
+
+    private boolean canReduce(String inheritedProtocolName, Map<String, Long> inheritedParameters) {
+        if (! useInheritanceForXml || ! protocolName.equals(inheritedProtocolName))
+            return false;
+
+        for (Map.Entry<String, Long> kvp : parameters.entrySet()) {
+            String parameterName = kvp.getKey();
+            if (parameterName.equals(F_PARAMETER_NAME))
+                continue;
+            if (! inheritedParameters.get(parameterName).equals(kvp.getValue()))
+                return false;
+        }
+        return true;
     }
 
     /**
