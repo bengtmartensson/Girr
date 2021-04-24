@@ -105,16 +105,20 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * @throws org.harctoolbox.girr.GirrException
      */
     public Remote(Document doc) throws GirrException {
-          this(doc.getDocumentElement());
+          this(doc.getDocumentElement(), null);
     }
 
     /**
      * XML import function.
      *
-     * @param element Element to read from.
+     * @param element Element to read from. Must be "remote".
+     * @param source
      * @throws org.harctoolbox.girr.GirrException
      */
-    public Remote(Element element) throws GirrException {
+    public Remote(Element element, String source) throws GirrException {
+        if (!element.getTagName().equals(REMOTE_ELEMENT_NAME))
+            throw new GirrException("Element name is not " + REMOTE_ELEMENT_NAME);
+
         metaData = new MetaData(element.getAttribute(NAME_ATTRIBUTE_NAME),
                 element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME),
                 element.getAttribute(MANUFACTURER_ATTRIBUTE_NAME),
@@ -123,6 +127,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
                 element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
         NodeList nl = element.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
         adminData = nl.getLength() > 0 ? new AdminData((Element) nl.item(0)) : new AdminData();
+        adminData.setSourceIfEmpty(source);
         applicationParameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
         notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
@@ -159,6 +164,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     // Sorry for that.
     public Remote(MetaData metaData, String comment, Map<String, String> notes,
             Collection<CommandSet> commandSetsCollection, Map<String, Map<String, String>> applicationParameters) {
+        this.adminData = new AdminData();
         this.metaData = metaData;
         this.comment = comment;
         this.notes = notes;
@@ -197,6 +203,10 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
                 null, // notes
                 new CommandSet(new Command(name, comment, irSignal)),
                 null /* applicationParameters */);
+    }
+
+    public Remote(CommandSet commandSet) {
+        this(new MetaData("unnamed"), null, null, commandSet, null);
     }
 
     /**

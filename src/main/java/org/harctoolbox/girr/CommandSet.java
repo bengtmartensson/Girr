@@ -98,10 +98,13 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
     /**
      * Imports a CommandSet from an Element.
      *
-     * @param element
+     * @param element of type "commandSet"
      * @throws GirrException
      */
     public CommandSet(Element element) throws GirrException {
+        if (!element.getTagName().equals(COMMANDSET_ELEMENT_NAME))
+            throw new GirrException("Element is not of type " + COMMANDSET_ELEMENT_NAME);
+
         name = element.getAttribute(NAME_ATTRIBUTE_NAME);
         protocolName = null;
         commands = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);

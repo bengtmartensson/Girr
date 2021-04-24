@@ -279,13 +279,16 @@ public final class Command extends XmlExporter implements Named {
 
     /**
      * This constructor is for importing from the Element as first argument.
-     * @param element
+     * @param element of type "command".
      * @param inheritProtocol
      * @param inheritParameters
      * @throws org.harctoolbox.girr.GirrException
      */
     public Command(Element element, String inheritProtocol, Map<String, Long> inheritParameters) throws GirrException {
         this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME), element.getAttribute(COMMENT_ATTRIBUTE_NAME));
+        if (!element.getTagName().equals(COMMAND_ELEMENT_NAME))
+            throw new GirrException("Element is not of type " + COMMAND_ELEMENT_NAME);
+
         protocolName = inheritProtocol != null ? inheritProtocol.toLowerCase(Locale.US) : null;
         parameters = new HashMap<>(INITIAL_HASHMAP_CAPACITY);
         if (inheritParameters != null)

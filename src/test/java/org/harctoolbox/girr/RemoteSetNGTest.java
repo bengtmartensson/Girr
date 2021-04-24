@@ -2,6 +2,7 @@ package org.harctoolbox.girr;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import org.harctoolbox.ircore.IrCoreException;
@@ -268,5 +269,46 @@ public class RemoteSetNGTest {
             fail();
         } catch (GirrException ex) {
         }
+    }
+
+    /**
+     * Test of parse method, of class RemoteSet.
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    @Test
+    public void testParse() throws GirrException, IOException, SAXException {
+        System.out.println("parse");
+        // Root element: remotes
+        RemoteSet rs = RemoteSet.parse("src/test/girr/philips_37pfl9603_all.girr");
+        assertEquals(rs.getCreatingUser(), "Barf");
+
+        // Root element: remote
+        rs = RemoteSet.parse("src/test/girr/sony_tv.girr");
+        assertEquals(rs.getCreatingUser(), "bengt");
+
+        // Root element: commandSet
+        rs = RemoteSet.parse("src/test/girr/philips_tv_cmdset_rc6.girr");
+        assertEquals(rs.getCreatingUser(), "bengt");
+
+        // Root element: command
+        rs = RemoteSet.parse("src/test/girr/topping-command.girr");
+        assertEquals(rs.getFirstRemote().getCommands().size(), 1);
+    }
+
+    /**
+     * Test of parseFiles method, of class RemoteSet.
+     * @throws java.io.IOException
+     */
+    @Test
+    public void testParseFiles() throws IOException {
+        System.out.println("parseFiles");
+        Path path = new File("src/test/girr").toPath();
+        Collection<RemoteSet> result = RemoteSet.parseFiles(path);
+        assertEquals(result.size(), 6);
+        RemoteSet rs = new RemoteSet(path.toString(), result);
+        assertEquals(rs.size(), 6);
+        rs.print("fatremoteset.girr");
     }
 }

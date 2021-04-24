@@ -37,6 +37,8 @@ import java.util.stream.Stream;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMANDSET_ELEMENT_NAME;
+import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
 import static org.harctoolbox.girr.XmlStatic.GIRR_SCHEMA_LOCATION_URI;
 import static org.harctoolbox.girr.XmlStatic.GIRR_VERSION;
@@ -83,10 +85,9 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     public static Collection<RemoteSet> parseFiles(Path path) {
         Collection<RemoteSet> coll = new ArrayList<>(10);
-        System.out.println(path.toString());
-        if (Files.isRegularFile(path) && !(path.toString().endsWith(".jpg") || path.toString().endsWith(".jpeg"))) {
+        if (Files.isRegularFile(path) && ! ignoreByExtension(path)) {
             try {
-                RemoteSet remoteSet = new RemoteSet(path.toFile());
+                RemoteSet remoteSet = RemoteSet.parse(path.toFile());
                 coll.add(remoteSet);
             }
             catch (GirrException | IOException | SAXException ex) {
@@ -108,7 +109,41 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     }
 
     public static RemoteSet parseFileOrDirectory(File file) throws GirrException, IOException, SAXException {
-        return file.isFile() ? new RemoteSet(file) : new RemoteSet(file.toPath());
+        return file.isFile() ? parse(file) : new RemoteSet(file.toPath());
+    }
+
+    public static RemoteSet parse(String thing) throws IOException, SAXException, GirrException {
+        return parse(getElement(thing), thing);
+    }
+
+    public static RemoteSet parse(File file) throws IOException, SAXException, GirrException {
+        return parse(getElement(file), file.toString());
+    }
+
+    public static RemoteSet parse(Element element, String source) throws GirrException {
+        switch (element.getTagName()) {
+            case REMOTES_ELEMENT_NAME:
+                return new RemoteSet(element, source);
+            case REMOTE_ELEMENT_NAME:
+                Remote remote = new Remote(element, source);
+                return new RemoteSet(remote);
+            case COMMANDSET_ELEMENT_NAME:
+                CommandSet commandSet = new CommandSet(element);
+                return new RemoteSet(commandSet, source);
+            case COMMAND_ELEMENT_NAME:
+                Command command = new Command(element);
+                return new RemoteSet(command, source);
+            default:
+                throw new GirrException("Unsupported root element type");
+        }
+    }
+
+    private static boolean ignoreByExtension(Path path) {
+        int index = path.toString().lastIndexOf('.');
+        if (index == -1)
+            return false;
+        String extension = path.toString().substring(index + 1);
+        return extension.equals("jpg") || extension.equals("jpeg") || extension.equals("pdf");
     }
 
     private AdminData adminData;
@@ -116,7 +151,11 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     private IrpDatabase irpDatabase = new IrpDatabase();
 
     public RemoteSet(Path path) {
-        this(System.getProperty("user.name"), path.toString(), parseFiles(path));
+        this(null, path);
+    }
+
+    public RemoteSet(String creatingUser, Path path) {
+        this(creatingUser, path.toString(), parseFiles(path));
     }
 
     public RemoteSet(String creatingUser, String source, Collection<RemoteSet> remoteSets) {
@@ -140,6 +179,10 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         });
     }
 
+    public RemoteSet(String source, Collection<RemoteSet> remoteSets) {
+        this(null, source, remoteSets);
+    }
+
     /**
      * This constructor is used to import a Document.
      *
@@ -147,25 +190,27 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.harctoolbox.girr.GirrException
      */
     public RemoteSet(Document doc) throws GirrException {
-        this(doc.getDocumentElement());
+        this(doc.getDocumentElement(), null);
     }
 
     /**
      * This constructor is used to import an Element.
      *
-     * @param root W3C Element of type remotes
+     * @param root W3C Element of type "remotes".
+     * @param source
      * @throws org.harctoolbox.girr.GirrException
      */
-    public RemoteSet(Element root) throws GirrException {
+    public RemoteSet(Element root, String source) throws GirrException {
         if (!root.getTagName().equals(REMOTES_ELEMENT_NAME))
             throw new GirrException("Root element not of type \"" + REMOTES_ELEMENT_NAME + "\".");
 
         NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
         adminData = nl.getLength() > 0 ? new AdminData((Element) nl.item(0)) : new AdminData();
+        adminData.setSourceIfEmpty(source);
         remotes = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         nl = root.getElementsByTagName(REMOTE_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
-            Remote remote = new Remote((Element) nl.item(i));
+            Remote remote = new Remote((Element) nl.item(i), source);
             remotes.put(remote.getName(), remote);
         }
 
@@ -188,7 +233,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public RemoteSet(File file) throws GirrException, IOException, SAXException {
-        this(getElement(file));
+        this(getElement(file), file.toString());
     }
 
     /**
@@ -199,7 +244,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public RemoteSet(String file) throws GirrException, IOException, SAXException {
-        this(getElement(file));
+        this(getElement(file), file);
     }
 
     /**
@@ -210,7 +255,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public RemoteSet(Reader reader) throws IOException, SAXException, GirrException {
-        this(getElement(reader));
+        this(getElement(reader), null);
     }
 
     /**
@@ -347,6 +392,19 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     public RemoteSet(String source, String creatingUser, IrSignal irSignal, String name,
             String comment, String deviceName) {
         this(creatingUser, source, new Remote(irSignal, name, comment, deviceName));
+    }
+
+    public RemoteSet(Remote remote) {
+        this(remote.getAdminData(), Named.toMap(remote));
+    }
+
+    private RemoteSet(CommandSet commandSet, String source) {
+        this(new Remote(commandSet));
+        adminData.setSourceIfEmpty(source);
+    }
+
+    private RemoteSet(Command command, String source) {
+        this(new CommandSet(command), source);
     }
 
     public void sort(Comparator<? super Named> comparator) {
@@ -540,5 +598,9 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     public IrpDatabase getIrpDatabase() {
         return irpDatabase;
+    }
+
+    public int size() {
+        return remotes.size();
     }
 }

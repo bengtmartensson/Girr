@@ -47,7 +47,7 @@ final class AdminData {
     public static final String dateFormatString = "yyyy-MM-dd_HH:mm:ss";
 
     private final String creatingUser;
-    private final String source;
+    private       String source;
     private final String creationDate;
     private final String tool;
     private final String toolVersion;
@@ -56,18 +56,11 @@ final class AdminData {
     private final Map<String, String> notes;
 
     AdminData() {
-        notes = new HashMap<>(INITIAL_HASHMAP_CAPACITY);
-        creatingUser = null;
-        source = null;
-        creationDate = (new SimpleDateFormat(dateFormatString)).format(new Date());
-        tool = null;
-        toolVersion = null;
-        tool2 = null;
-        tool2Version = null;
+        this(null, null, null, null, null, null, null, null);
     }
 
     AdminData(String creatingUser, String source, String creationDate, String tool, String toolVersion, String tool2, String tool2Version, Map<String, String> notes) {
-        this.creatingUser = creatingUser;
+        this.creatingUser = creatingUser != null ? creatingUser : System.getProperty("user.name");
         this.source = source;
         this.creationDate = creationDate != null ? creationDate : (new SimpleDateFormat(dateFormatString)).format(new Date());
         this.tool = tool;
@@ -157,6 +150,11 @@ final class AdminData {
      */
     public String getSource() {
         return source;
+    }
+
+    public void setSourceIfEmpty(String source) {
+        if (this.source == null || this.source.isEmpty())
+            this.source = source;
     }
 
     /**
