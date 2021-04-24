@@ -33,6 +33,7 @@ import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
+import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.APPLICATIONDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.APPLICATION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.APPPARAMETER_ELEMENT_NAME;
@@ -52,6 +53,7 @@ import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.xml.XmlUtils;
+import static org.harctoolbox.xml.XmlUtils.ENGLISH;
 import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -69,6 +71,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     private final static Logger logger = Logger.getLogger(Remote.class.getName());
 
     private MetaData metaData;
+    private AdminData adminData;
     private String comment;
     private Map<String, String> notes;
     private Map<String, CommandSet> commandSets;
@@ -118,10 +121,12 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
                 element.getAttribute(MODEL_ATTRIBUTE_NAME),
                 element.getAttribute(DEVICECLASS_ATTRIBUTE_NAME),
                 element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
+        NodeList nl = element.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
+        adminData = nl.getLength() > 0 ? new AdminData((Element) nl.item(0)) : new AdminData();
         applicationParameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
         notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
-        NodeList nl = element.getElementsByTagName(APPLICATIONDATA_ELEMENT_NAME);
+        nl = element.getElementsByTagName(APPLICATIONDATA_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Element el = (Element) nl.item(i);
             NodeList nodeList = el.getElementsByTagName(APPPARAMETER_ELEMENT_NAME);
@@ -209,6 +214,9 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     @Override
     public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
+        Element adminDataEl = adminData.toElement(doc);
+        if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
+            element.appendChild(adminDataEl);
         element.setAttribute(NAME_ATTRIBUTE_NAME, metaData.name);
         if (metaData.displayName != null && !metaData.displayName.isEmpty())
             element.setAttribute(DISPLAYNAME_ATTRIBUTE_NAME, metaData.displayName);
@@ -491,6 +499,24 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      */
     public String getRemoteName() {
         return metaData.remoteName;
+    }
+
+    AdminData getAdminData() {
+        return adminData;
+    }
+
+    /**
+     * @return the notes
+     */
+    Map<String, String> getAllNotes() {
+        return Collections.unmodifiableMap(notes);
+    }
+
+    /**
+     * @return the notes
+     */
+    public String getNotes() {
+        return notes.get(ENGLISH);
     }
 
     /**

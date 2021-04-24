@@ -22,12 +22,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -39,23 +37,14 @@ import java.util.stream.Stream;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlStatic.CREATINGUSER_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlStatic.CREATIONDATA_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlStatic.CREATIONDATE_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
 import static org.harctoolbox.girr.XmlStatic.GIRR_SCHEMA_LOCATION_URI;
 import static org.harctoolbox.girr.XmlStatic.GIRR_VERSION;
 import static org.harctoolbox.girr.XmlStatic.GIRR_VERSION_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlStatic.NOTES_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.REMOTES_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.REMOTE_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlStatic.SOURCE_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.SPACE;
 import static org.harctoolbox.girr.XmlStatic.TITLE_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlStatic.TOOL2VERSION_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlStatic.TOOL2_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlStatic.TOOLVERSIION_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlStatic.TOOL_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.irp.IrpDatabase;
@@ -65,7 +54,6 @@ import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_URI;
 import static org.harctoolbox.xml.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
-import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -77,15 +65,6 @@ import org.xml.sax.SAXException;
 public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     private final static Logger logger = Logger.getLogger(RemoteSet.class.getName());
-
-    private static String dateFormatString = "yyyy-MM-dd_HH:mm:ss";
-
-    /**
-     * @param aDateFormatString the dateFormatString to set, default "yyyy-MM-dd_HH:mm:ss";
-     */
-    public static void setDateFormatString(String aDateFormatString) {
-        dateFormatString = aDateFormatString;
-    }
 
     /**
      * For testing only, not deployment.
@@ -132,14 +111,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         return file.isFile() ? new RemoteSet(file) : new RemoteSet(file.toPath());
     }
 
-    private String creatingUser;
-    private String source;
-    private String creationDate;
-    private String tool;
-    private String toolVersion;
-    private String tool2;
-    private String tool2Version;
-    private Map<String, String> notes;
+    private AdminData adminData;
     private Map<String, Remote> remotes;
     private IrpDatabase irpDatabase = new IrpDatabase();
 
@@ -148,7 +120,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     }
 
     public RemoteSet(String creatingUser, String source, Collection<RemoteSet> remoteSets) {
-        this(creatingUser, source, (new SimpleDateFormat(dateFormatString)).format(new Date()),
+        this(creatingUser, source, null,
                 Version.appName,
                 Version.versionString,
                 null, null);
@@ -181,29 +153,16 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     /**
      * This constructor is used to import an Element.
      *
-     * @param root W3C Element
+     * @param root W3C Element of type remotes
      * @throws org.harctoolbox.girr.GirrException
      */
     public RemoteSet(Element root) throws GirrException {
-        remotes = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
-        NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
-        if (nl.getLength() > 0) {
-            Element adminData = (Element) nl.item(0);
-            notes = XmlStatic.parseElementsByLanguage(adminData.getElementsByTagName(NOTES_ELEMENT_NAME));
-            NodeList nodeList = adminData.getElementsByTagName(CREATIONDATA_ELEMENT_NAME);
-            if (nodeList.getLength() > 0) {
-                Element creationdata = (Element) nodeList.item(0);
-                creatingUser = creationdata.getAttribute(CREATINGUSER_ATTRIBUTE_NAME);
-                source = creationdata.getAttribute(SOURCE_ATTRIBUTE_NAME);
-                creationDate = creationdata.getAttribute(CREATIONDATE_ATTRIBUTE_NAME);
-                tool = creationdata.getAttribute(TOOL_ATTRIBUTE_NAME);
-                toolVersion = creationdata.getAttribute(TOOLVERSIION_ATTRIBUTE_NAME);
-                tool2 = creationdata.getAttribute(TOOL2_ATTRIBUTE_NAME);
-                tool2Version = creationdata.getAttribute(TOOL2VERSION_ATTRIBUTE_NAME);
-            }
-        } else
-            notes = new HashMap<>(0);
+        if (!root.getTagName().equals(REMOTES_ELEMENT_NAME))
+            throw new GirrException("Root element not of type \"" + REMOTES_ELEMENT_NAME + "\".");
 
+        NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
+        adminData = nl.getLength() > 0 ? new AdminData((Element) nl.item(0)) : new AdminData();
+        remotes = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         nl = root.getElementsByTagName(REMOTE_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Remote remote = new Remote((Element) nl.item(i));
@@ -276,9 +235,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             String tool2Version,
             Map<String, String> notes,
             Map<String, Remote> remotes) {
-        this(creatingUser, source, creationDate, tool, toolVersion, tool2, tool2Version);
-        this.notes = notes;
-        this.remotes = remotes;
+        this(new AdminData(creatingUser, source, creationDate, tool, toolVersion, tool2, tool2Version, notes), remotes);
     }
 
     /**
@@ -298,22 +255,20 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             String toolVersion,
             String tool2,
             String tool2Version) {
-        this.creatingUser = creatingUser;
-        this.source = source;
-        this.creationDate = creationDate != null ? creationDate : (new SimpleDateFormat(dateFormatString)).format(new Date());
-        this.tool = tool;
-        this.toolVersion = toolVersion;
-        this.tool2 = tool2;
-        this.tool2Version = tool2Version;
-        this.notes = new HashMap<>(0);
+        adminData = new AdminData(creatingUser, source, null, tool, toolVersion, tool2, tool2Version, null);
         this.remotes = new LinkedHashMap<>(1);
+    }
+
+    RemoteSet(AdminData adminData, Map<String, Remote> remotes) {
+        this.adminData = adminData;
+        this.remotes = remotes != null ? remotes : new LinkedHashMap<>(1);
     }
 
     /**
      * This constructor sets up a RemoteSet with no Remotes.
      */
     public RemoteSet() {
-        this(null, null, null, null, null, null, null);
+        this(new AdminData(), null);
     }
 
     /**
@@ -338,14 +293,8 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             String tool2Version,
             Map<String, String> notes,
             Remote remote) {
-        this(creatingUser,
-                source,
-                creationDate,
-                tool,
-                toolVersion,
-                tool2,
-                tool2Version);
-        this.notes = notes;
+        this(new AdminData(creatingUser, source, creationDate, tool, toolVersion, tool2, tool2Version, notes),
+                null);
         remotes.put(remote.getName(), remote);
     }
 
@@ -447,37 +396,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         if (title != null)
             element.setAttribute(TITLE_ATTRIBUTE_NAME, title);
 
-        Element adminDataEl = doc.createElementNS(GIRR_NAMESPACE, ADMINDATA_ELEMENT_NAME);
-        Element creationEl = doc.createElementNS(GIRR_NAMESPACE, CREATIONDATA_ELEMENT_NAME);
-
-        if (creatingUser != null)
-            creationEl.setAttribute(CREATINGUSER_ATTRIBUTE_NAME, creatingUser);
-        if (source != null)
-            creationEl.setAttribute(SOURCE_ATTRIBUTE_NAME, source);
-        if (creationDate != null)
-            creationEl.setAttribute(CREATIONDATE_ATTRIBUTE_NAME, creationDate);
-        if (tool != null)
-            creationEl.setAttribute(TOOL_ATTRIBUTE_NAME, tool);
-        if (toolVersion != null)
-            creationEl.setAttribute(TOOLVERSIION_ATTRIBUTE_NAME, toolVersion);
-        if (tool2 != null)
-            creationEl.setAttribute(TOOL2_ATTRIBUTE_NAME, tool2);
-        if (tool2Version != null)
-            creationEl.setAttribute(TOOL2VERSION_ATTRIBUTE_NAME, tool2Version);
-        if (creationEl.hasChildNodes() || creationEl.hasAttributes())
-            adminDataEl.appendChild(creationEl);
-
-        if (notes != null) {
-            notes.entrySet().stream().map((note) -> {
-                Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
-                notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
-                notesEl.setTextContent(note.getValue());
-                return notesEl;
-            }).forEachOrdered((notesEl) -> {
-                adminDataEl.appendChild(notesEl);
-            });
-        }
-
+        Element adminDataEl = adminData.toElement(doc);
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
             element.appendChild(adminDataEl);
 
@@ -524,53 +443,57 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             remote.checkForParameters();
     }
 
+    AdminData getAdminData() {
+        return adminData;
+    }
+
     /**
      * @return the creatingUser
      */
     public String getCreatingUser() {
-        return creatingUser;
+        return adminData.getCreatingUser();
     }
 
     /**
      * @return the source
      */
     public String getSource() {
-        return source;
+        return adminData.getSource();
     }
 
     /**
      * @return the creationDate
      */
     public String getCreationDate() {
-        return creationDate;
+        return adminData.getCreationDate();
     }
 
     /**
      * @return the tool
      */
     public String getTool() {
-        return tool;
+        return adminData.getTool();
     }
 
     /**
      * @return the toolVersion
      */
     public String getToolVersion() {
-        return toolVersion;
+        return adminData.getToolVersion();
     }
 
     /**
      * @return the tool2
      */
     public String getTool2() {
-        return tool2;
+        return adminData.getTool2();
     }
 
     /**
      * @return the tool2Version
      */
     public String getTool2Version() {
-        return tool2Version;
+        return adminData.getTool2Version();
     }
 
     /**
@@ -578,7 +501,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @return the notes
      */
     public String getNotes(String lang) {
-        return notes.get(lang);
+        return adminData.getNotes(lang);
     }
 
     /**

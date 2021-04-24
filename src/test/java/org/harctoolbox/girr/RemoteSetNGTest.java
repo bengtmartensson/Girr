@@ -259,4 +259,14 @@ public class RemoteSetNGTest {
         assertEquals(result.size(), 0);
         assertEquals(result, expResult);
     }
+
+    @Test
+    public void testRemoteSetOnCommand() throws IOException, SAXException {
+        System.out.println("remoteOnCommand");
+        try {
+            new RemoteSet("src/test/girr/topping-command.girr");
+            fail();
+        } catch (GirrException ex) {
+        }
+    }
 }
