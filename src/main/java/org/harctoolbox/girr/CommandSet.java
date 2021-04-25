@@ -248,7 +248,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
      * @return newly constructed element, belonging to the doc Document.
      */
     @Override
-    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         if (Command.isUseInheritanceForXml())
             generateInheritanceParameters();
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
@@ -261,7 +261,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         }).forEachOrdered((notesEl) -> {
             element.appendChild(notesEl);
         });
-        if (parameters != null && ! parameters.isEmpty() && generateParameters) {
+        if (shouldDoParameters(generateParameters)) {
             Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
             parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
             element.appendChild(parametersEl);
@@ -277,10 +277,20 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         if (commands != null) {
             commands.values().forEach((command) -> {
                 element.appendChild(command.toElement(doc, null, fatRaw, false,
-                        generateRaw, generateCcf, generateParameters, protocolName, parameters));
+                        generateParameters, generateCcf, generateRaw, protocolName, parameters));
             });
         }
         return element;
+    }
+
+    private boolean shouldDoParameters(boolean generateParameters) {
+        return parameters != null && ! parameters.isEmpty()
+                && (generateParameters || firstCommandMasterParameters());
+    }
+
+    private boolean firstCommandMasterParameters() {
+        Command command = commands.values().iterator().next();
+        return command != null && command.getMasterType() == Command.MasterType.parameters;
     }
 
     /**
@@ -297,5 +307,10 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
                 logger.log(Level.WARNING, null, ex);
             }
         });
+    }
+
+    public void strip() {
+        for (Command command : this)
+            command.strip();
     }
 }

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpDatabase;
@@ -17,6 +19,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
@@ -306,9 +309,24 @@ public class RemoteSetNGTest {
         System.out.println("parseFiles");
         Path path = new File("src/test/girr").toPath();
         Collection<RemoteSet> result = RemoteSet.parseFiles(path);
-        assertEquals(result.size(), 6);
-        RemoteSet rs = new RemoteSet(path.toString(), result);
-        assertEquals(rs.size(), 6);
-        rs.print("fatremoteset.girr");
+        assertEquals(result.size(), 7);
+        RemoteSet rs = new RemoteSet("Imhotep", path.toString(), result);
+        assertEquals(rs.size(), 7);
+        rs.strip();
+        rs.print("fatremoteset.girr", false, false, false);
+    }
+
+    /**
+     * Test of strip method, of class RemoteSet.
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    @Test
+    public void testStrip() throws GirrException, IOException, SAXException {
+        System.out.println("strip");
+        RemoteSet instance = new RemoteSet("src/test/girr/marco.girr");
+        instance.strip();
+        instance.print("stripped.girr", false, false, false);
     }
 }

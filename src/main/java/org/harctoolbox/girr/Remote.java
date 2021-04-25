@@ -222,7 +222,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * @return XML Element of gid "remote",
      */
     @Override
-    public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+    public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
         Element adminDataEl = adminData.toElement(doc);
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
@@ -270,7 +270,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         }
 
         for (CommandSet commandSet : this)
-            element.appendChild(commandSet.toElement(doc, null, fatRaw, false, generateRaw, generateCcf, generateParameters));
+            element.appendChild(commandSet.toElement(doc, null, fatRaw, false, generateParameters, generateCcf, generateRaw));
 
         return element;
     }
@@ -558,6 +558,11 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     public Map<String, CommandSet> getCommandSets() {
         return Collections.unmodifiableMap(commandSets);
+    }
+
+    public void strip() {
+        for (CommandSet commandSet : this)
+            commandSet.strip();
     }
 
     /**

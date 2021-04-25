@@ -163,9 +163,10 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
                 Version.appName,
                 Version.versionString,
                 null, null);
-        remoteSets.stream().map((remoteSet) -> remoteSet.getRemotes()).forEach((Collection<Remote> coll) -> {
-            coll.forEach((Remote remote) -> {
-                String originalName = remote.getName();
+        for (RemoteSet remoteSet : remoteSets) {
+            irpDatabase.patch(remoteSet.getIrpDatabase());
+            for (Remote remote : remoteSet) {
+                                String originalName = remote.getName();
                 String name = originalName;
                 int i = 0;
                 while (remotes.containsKey(name)) {
@@ -175,8 +176,8 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
                     remote.setComment("Name changed from \"" + originalName + "\" to \"" + name + "\".");
                 }
                 remotes.put(name, remote);
-            });
-        });
+            }
+        }
     }
 
     public RemoteSet(String source, Collection<RemoteSet> remoteSets) {
@@ -442,7 +443,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      */
     @Override
     public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
-            boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+            boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
         if (createSchemaLocation) {
             element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
@@ -458,8 +459,11 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
             element.appendChild(adminDataEl);
 
+        if (!irpDatabase.isEmpty())
+            element.appendChild(irpDatabase.toElement(doc));
+
         for (Remote remote : this)
-            element.appendChild(remote.toElement(doc, null, fatRaw, false, generateRaw, generateCcf, generateParameters));
+            element.appendChild(remote.toElement(doc, null, fatRaw, false, generateParameters , generateCcf, generateRaw));
 
         return element;
     }
@@ -602,5 +606,10 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     public int size() {
         return remotes.size();
+    }
+
+    public void strip() {
+        for (Remote remote : this)
+            remote.strip();
     }
 }

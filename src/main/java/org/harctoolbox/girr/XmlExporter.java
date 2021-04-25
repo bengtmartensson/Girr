@@ -60,9 +60,12 @@ public abstract class XmlExporter {
     /**
      * Convenience function that generates a DOM and dumps it onto the argument.
      * @param ostr
+     * @param generateProtocol
+     * @param generateProntoHex
+     * @param generateRaw
      */
-    public final void print(OutputStream ostr) {
-        Document doc = toDocument("untitled", null, null, false, true, true, true, true);
+    public final void print(OutputStream ostr, boolean generateProtocol, boolean generateProntoHex, boolean generateRaw) {
+        Document doc = toDocument("untitled", null, null, false, true, generateProtocol, generateProntoHex, generateRaw);
         try {
             XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
         } catch (UnsupportedEncodingException ex) {
@@ -74,10 +77,23 @@ public abstract class XmlExporter {
      * Convenience function that generates a DOM and dumps it onto the argument.
      *
      * @param file
+     * @param generateProtocol
+     * @param generateProntoHex
+     * @param generateRaw
+     * @throws java.io.IOException
+     */
+    public final void print(String file, boolean generateProtocol, boolean generateProntoHex, boolean generateRaw) throws IOException {
+        print(IrCoreUtils.getPrintStream(file, DEFAULT_CHARSETNAME), generateProtocol, generateProntoHex, generateRaw);
+    }
+
+    /**
+     * Convenience function that generates a DOM and dumps it onto the argument.
+     *
+     * @param file
      * @throws java.io.IOException
      */
     public final void print(String file) throws IOException {
-        print(IrCoreUtils.getPrintStream(file, DEFAULT_CHARSETNAME));
+        print(file, true, true, true);
     }
 
     /**
@@ -100,12 +116,12 @@ public abstract class XmlExporter {
      */
     public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
             boolean fatRaw, boolean createSchemaLocation,
-            boolean generateRaw, boolean generateCcf, boolean generateParameters) {
+            boolean generateParameters, boolean generateCcf, boolean generateRaw)  {
         Element root = toElement(XmlUtils.newDocument(true), title, fatRaw, createSchemaLocation,
-                generateRaw, generateCcf, generateParameters);
+                generateParameters, generateCcf, generateRaw);
         return XmlStatic.createDocument(root, stylesheetType, stylesheetUrl, createSchemaLocation);
     }
 
     abstract Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
-            boolean generateRaw, boolean generateCcf, boolean generateParameters);
+            boolean generateParameters, boolean generateCcf, boolean generateRaw);
 }

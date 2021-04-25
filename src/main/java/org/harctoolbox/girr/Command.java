@@ -974,6 +974,21 @@ public final class Command extends XmlExporter implements Named {
         }
     }
 
+    private void checkFor(MasterType type) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidArgumentException, Pronto.NonProntoFormatException, InvalidNameException, IrpException, IrCoreException {
+        switch (type) {
+            case parameters:
+                checkForParameters();
+                break;
+            case ccf:
+                checkForProntoHex();
+                break;
+            case raw:
+                checkForRaw();
+                break;
+            default:
+        }
+    }
+
     /**
      * Returns the number of possible values of the toggle variable.
      * Must be at least 1.
@@ -1055,8 +1070,8 @@ public final class Command extends XmlExporter implements Named {
      * @return XML Element with tag name "command".
      */
     @Override
-    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateRaw, boolean generateProntoHex, boolean generateParameters) {
-        return toElement(doc, title, fatRaw, createSchemaLocation, generateRaw, generateProntoHex, generateParameters, null, null);
+    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
+        return toElement(doc, title, fatRaw, createSchemaLocation, generateParameters, generateProntoHex, generateRaw, null, null);
     }
 
     /**
@@ -1071,7 +1086,7 @@ public final class Command extends XmlExporter implements Named {
      * @return XML Element with tag name "command".
      */
     Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
-            boolean generateRaw, boolean generateProntoHex, boolean generateParameters, String inheritedProtocolName, Map<String, Long> inheritedParameters) {
+            boolean generateParameters, boolean generateProntoHex, boolean generateRaw, String inheritedProtocolName, Map<String, Long> inheritedParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
         if (title != null)
             element.setAttribute(TITLE_ATTRIBUTE_NAME, title);
@@ -1083,7 +1098,7 @@ public final class Command extends XmlExporter implements Named {
             actualMasterType = generateRaw ? MasterType.raw
                     : generateParameters ? MasterType.parameters
                     : generateProntoHex ? MasterType.ccf
-                    : null;
+                    : masterType;
         }
         if (actualMasterType != null)
             element.setAttribute(MASTER_ATTRIBUTE_NAME, actualMasterType.name());
@@ -1101,7 +1116,7 @@ public final class Command extends XmlExporter implements Named {
             element.appendChild(notesEl);
         });
 
-        if (generateParameters) {
+        if (generateParameters || actualMasterType == MasterType.parameters) {
             try {
                 checkForParameters();
                 if (parameters != null) {
@@ -1129,7 +1144,7 @@ public final class Command extends XmlExporter implements Named {
                 element.appendChild(doc.createComment("Parameters requested but could not be generated."));
             }
         }
-        if (generateRaw) {
+        if (generateRaw || actualMasterType == MasterType.raw) {
             try {
                 checkForRaw();
                 if (intro != null || repeat != null || ending != null) {
@@ -1152,7 +1167,7 @@ public final class Command extends XmlExporter implements Named {
                 element.appendChild(doc.createComment("Raw signal requested but could not be generated: " + ex.getMessage() + "."));
             }
         }
-        if (generateProntoHex) {
+        if (generateProntoHex || actualMasterType == MasterType.ccf) {
             try {
                 checkForProntoHex();
                 if (prontoHex != null) {
@@ -1194,6 +1209,36 @@ public final class Command extends XmlExporter implements Named {
                 return false;
         }
         return true;
+    }
+
+    public void strip(MasterType type) throws IrpException, GirrException, IrCoreException {
+        if (type != masterType)
+            checkFor(type);
+
+        if (type != MasterType.parameters) {
+            this.parameters = null;
+            this.protocol = null;
+            this.protocolName = null;
+        }
+        if (type != MasterType.ccf) {
+            this.prontoHex = null;
+        }
+        if (type != MasterType.raw) {
+            intro = null;
+            repeat = null ;
+            ending = null;
+            frequency = null;
+            dutyCycle = null;
+        }
+        otherFormats = null;
+    }
+
+    public void strip() {
+        try {
+            strip(masterType);
+        } catch (IrpException | GirrException | IrCoreException ex) {
+            logger.log(Level.WARNING, ex.getLocalizedMessage());
+        }
     }
 
     /**
