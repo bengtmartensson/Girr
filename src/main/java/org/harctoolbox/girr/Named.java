@@ -16,6 +16,7 @@ this program. If not, see http://www.gnu.org/licenses/.
  */
 package org.harctoolbox.girr;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -26,7 +27,7 @@ import java.util.Map;
 /**
  * This interface describes something that has a name, using the usual semantics.
  */
-public interface Named {
+public interface Named extends Serializable {
 
     public static <T extends Named> Map<String, T> toMap(T thing) {
         Map<String, T> map = new LinkedHashMap<>(1);
@@ -54,14 +55,14 @@ public interface Named {
 
     public String getName();
 
-    public static class CompareNameCaseSensitive implements Comparator<Named> {
+    public static class CompareNameCaseSensitive implements Comparator<Named>, Serializable {
         @Override
         public int compare(Named o1, Named o2) {
             return o1.getName().compareTo(o2.getName());
         }
     }
 
-    public static class CompareNameCaseInsensitive implements Comparator<Named> {
+    public static class CompareNameCaseInsensitive implements Comparator<Named>, Serializable {
         @Override
         public int compare(Named o1, Named o2) {
             return o1.getName().compareToIgnoreCase(o2.getName());

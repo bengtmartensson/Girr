@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--This file is in the Girr (General IR Remote) format, see http://www.harctoolbox.org/Girr.html-->
-<remotes xmlns="http://www.harctoolbox.org/Girr" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" girrVersion="1.0" title="RemoteMaster Girr Export" xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns.xsd">
+<remotes xmlns="http://www.harctoolbox.org/Girr"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         girrVersion="1.2" title="RemoteMaster Girr Export"
+         xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1,2.xsd">
     <adminData>
         <creationData creatingUser="bengt" creationDate="Sun Apr 25 10:37:17 CEST 2021" source="/home/bengt/harctoolbox/support/120240VAC60HZ/Remote ID 1 (Default).rmdu" tool="RemoteMaster" toolVersion="2.12.15"/>
     </adminData>
-    <remote deviceClass="Tuner" name="Integra/Onkyo TUN-3.7/T-4555 Multi Platform Radio Tuner  Remote ID 1 (Default)">
-        <notes xml:lang="en">Integra/Onkyo TUN-3.7/T-4555 Multi Platform Radio Tuner
-Remote ID 1 (Default), 2 and 3.</notes>
+    <remote deviceClass="Tuner" name="onkyo_t-4555" displayName="Integra/Onkyo TUN-3.7/T-4555 Multi Platform Radio Tuner  Remote ID 1, 2, 3." manufacturer="Onkyo" model="Integra T-4555" remoteName="RC-671T">
+        <notes xml:lang="en">See <a href="http://www.hifi-remote.com/forums/viewtopic.php?t=102764">this thread</a>.</notes>
         <applicationData application="jp1">
             <appParameter name="SetupCode" value="2000"/>
             <appParameter name="Remote.name" value="Nevo C2"/>

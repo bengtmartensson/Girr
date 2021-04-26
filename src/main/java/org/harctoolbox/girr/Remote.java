@@ -19,6 +19,7 @@ package org.harctoolbox.girr;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -568,7 +569,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     /**
      * This class bundles different meta data for a remote together.
      */
-    public static final class MetaData {
+    public static final class MetaData implements Serializable {
 
         private static boolean isVoid(String s) {
             return s == null || s.isEmpty();

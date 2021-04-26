@@ -17,6 +17,7 @@ this program. If not, see http://www.gnu.org/licenses/.
 
 package org.harctoolbox.girr;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -43,7 +44,7 @@ import org.w3c.dom.NodeList;
 /**
  * This class combines a number of administrative data.
  */
-final class AdminData {
+final class AdminData implements Serializable {
     public static final String dateFormatString = "yyyy-MM-dd_HH:mm:ss";
 
     private final String creatingUser;

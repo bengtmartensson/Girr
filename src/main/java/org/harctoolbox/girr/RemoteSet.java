@@ -18,7 +18,13 @@ this program. If not, see http://www.gnu.org/licenses/.
 package org.harctoolbox.girr;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -144,6 +150,21 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             return false;
         String extension = path.toString().substring(index + 1);
         return extension.equals("jpg") || extension.equals("jpeg") || extension.equals("pdf");
+    }
+
+
+    public static RemoteSet pmud(InputStream inputStream) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+            return (RemoteSet) objectInputStream.readObject();
+        }
+    }
+
+    public static RemoteSet pmud(File file) throws IOException, ClassNotFoundException {
+        return pmud(new FileInputStream(file));
+    }
+
+    public static RemoteSet pmud(String thing) throws IOException, ClassNotFoundException {
+        return pmud(new File(thing));
     }
 
     private AdminData adminData;
@@ -611,5 +632,15 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     public void strip() {
         for (Remote remote : this)
             remote.strip();
+    }
+
+    public void dump(OutputStream outputStream) throws IOException {
+        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            objectOutputStream.writeObject(this);
+        }
+    }
+
+    public void dump(File file) throws IOException {
+        dump(new FileOutputStream(file));
     }
 }

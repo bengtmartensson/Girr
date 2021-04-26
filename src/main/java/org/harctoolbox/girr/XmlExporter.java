@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.logging.Logger;
 import org.harctoolbox.ircore.IrCoreUtils;
@@ -34,7 +35,7 @@ import org.xml.sax.SAXException;
 /**
  * Abstract base class for Girr classes exporting XML.
  */
-public abstract class XmlExporter {
+public abstract class XmlExporter implements Serializable {
 
     private final static Logger logger = Logger.getLogger(XmlExporter.class.getName());
 

@@ -2,6 +2,7 @@ package org.harctoolbox.girr;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Comparator;
@@ -328,5 +329,22 @@ public class RemoteSetNGTest {
         RemoteSet instance = new RemoteSet("src/test/girr/marco.girr");
         instance.strip();
         instance.print("stripped.girr", false, false, false);
+    }
+
+    /**
+     * Test of dump method, of class RemoteSet.
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     * @throws java.lang.ClassNotFoundException
+     */
+    @Test
+    public void testDump_File() throws GirrException, IOException, SAXException, ClassNotFoundException {
+        System.out.println("dump");
+        File file = new File("dump.bin");
+        RemoteSet instance = new RemoteSet("src/test/girr/marco.girr");
+        instance.dump(file);
+        RemoteSet readInstance = RemoteSet.pmud("dump.bin");
+        assertEquals(readInstance.getAdminData().getCreatingUser(), "bengt");
     }
 }
