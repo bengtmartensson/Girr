@@ -2,6 +2,7 @@
 <?xml-stylesheet type="text/xsl" href="simplehtml.xsl"?>
 <!--This file is in the Girr (General IR Remote) format, see http://www.harctoolbox.org/Girr.html-->
 <remote comment="Export from IrScrutinizer" name="Sony Generic TV"
+    manufacturer="Sony" deviceClass="TV"
     girrVersion="1.0" title="IrScrutinizer parametric export"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns.xsd"

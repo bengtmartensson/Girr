@@ -12,7 +12,7 @@
             </irp:irp>
         </irp:protocol>
     </irp:protocols>
-    <remote name="remote">
+    <remote name="ac_remote" deviceClass="ac" manufacturer="manufacturer" >
         <commandSet name="commandSet">
             <command master="raw" name="cool-on">
                 <parameters protocol="p_48a3bbc1">

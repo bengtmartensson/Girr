@@ -73,8 +73,8 @@ public abstract class XmlStatic {
     static final String TOGGLE_ATTRIBUTE_NAME       = "T";
     static final String F_ATTRIBUTE_NAME            = "F";
     static final String VALUE_ATTRIBUTE_NAME        = "value";
-    static final String NAME_ATTRIBUTE_NAME         = "name";
-    static final String COMMENT_ATTRIBUTE_NAME      = "comment";
+    public static final String NAME_ATTRIBUTE_NAME  = "name";
+    public static final String COMMENT_ATTRIBUTE_NAME = "comment";
     static final String MASTER_ATTRIBUTE_NAME       = "master";
     static final String FREQUENCY_ATTRIBUTE_NAME    = "frequency";
     static final String DUTYCYCLE_ATTRIBUTE_NAME    = "dutyCycle";
@@ -83,7 +83,7 @@ public abstract class XmlStatic {
     static final String DISPLAYNAME_ATTRIBUTE_NAME  = "displayName";
     static final String MANUFACTURER_ATTRIBUTE_NAME = "manufacturer";
     static final String APPLICATION_ATTRIBUTE_NAME  = "application";
-    static final String MODEL_ATTRIBUTE_NAME        = "model";
+    public static final String MODEL_ATTRIBUTE_NAME = "model";
     static final String DEVICECLASS_ATTRIBUTE_NAME  = "deviceClass";
     static final String REMOTENAME_ATTRIBUTE_NAME   = "remoteName";
     static final String CREATINGUSER_ATTRIBUTE_NAME = "creatingUser";
@@ -111,13 +111,13 @@ public abstract class XmlStatic {
     static final String COMMANDSET_ELEMENT_NAME     = "commandSet";
     static final String APPLICATIONDATA_ELEMENT_NAME = "applicationData" ;
     static final String APPPARAMETER_ELEMENT_NAME   = "appParameter";
-    static final String REMOTE_ELEMENT_NAME         = "remote";
+    public static final String REMOTE_ELEMENT_NAME  = "remote";
     static final String ADMINDATA_ELEMENT_NAME      = "adminData";
     static final String CREATIONDATA_ELEMENT_NAME   = "creationData";
-    static final String REMOTES_ELEMENT_NAME        = "remotes";
+    public static final String REMOTES_ELEMENT_NAME = "remotes";
 
-    static final String SPACE = " ";
-    static final String EQUALS = "=";
+    static final String SPACE                       = " ";
+    static final String EQUALS                      = "=";
 
     /**
      * Makes a Document from an Element.
