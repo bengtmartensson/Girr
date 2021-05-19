@@ -111,8 +111,10 @@ public final class Command extends XmlExporter implements Named {
     /** Name of the parameter containing the toggle in the IRP protocol. */
     private static final String TOGGLE_PARAMETER_NAME = "T";
             static final String F_PARAMETER_NAME      = "F";
-    private static final String D_PARAMETER_NAME      = "D";
-    private static final String S_PARAMETER_NAME      = "S";
+    public  static final String D_PARAMETER_NAME      = "D";
+    public  static final String S_PARAMETER_NAME      = "S";
+
+    private static final String DUMMY_COMMAND_NAME    = "dummy-command";
 
     private static IrpDatabase irpDatabase = null;
     private static Decoder decoder = null;
@@ -259,6 +261,19 @@ public final class Command extends XmlExporter implements Named {
             seq = seq.append(c.toIrSignal().toModulatedIrSequence(1));
         }
         return new ModulatedIrSequence(seq, frequency, dutyCycle);
+    }
+
+    public static boolean isKnownProtocol(String protocolName) {
+        return (protocolName != null) && ! protocolName.isEmpty() && irpDatabase.isKnownExpandAlias(protocolName);
+    }
+
+    private static Map<String, Long> mkMap(Long device, Long subdevice) {
+        Map<String, Long>params = new HashMap<>(2);
+        if (device != null)
+            params.put(D_PARAMETER_NAME, device);
+        if (subdevice != null)
+            params.put(S_PARAMETER_NAME, subdevice);
+        return params;
     }
 
     private Protocol protocol;
@@ -434,7 +449,7 @@ public final class Command extends XmlExporter implements Named {
                 throw new GirrException(ex);
             protocol = null;
         }
-        this.protocolName = protocolName.toLowerCase(Locale.US);
+        this.protocolName = protocolName;
         sanityCheck();
     }
 
@@ -496,6 +511,16 @@ public final class Command extends XmlExporter implements Named {
         this(MasterType.empty, name, null);
     }
 
+    public Command(String protocolName, Long device, Long subdevice) {
+        this(MasterType.empty, DUMMY_COMMAND_NAME, null);
+        this.parameters = mkMap(device, subdevice);
+        this.protocolName = protocolName;
+    }
+
+
+    public Command() {
+        this(DUMMY_COMMAND_NAME);
+    }
 
     /**
      * @return duty cycle, a number between 0 and 1.
@@ -557,7 +582,7 @@ public final class Command extends XmlExporter implements Named {
      */
     public Map<String, Long> getParameters() throws IrpException, IrCoreException {
         checkForParameters();
-        return Collections.unmodifiableMap(parameters);
+        return parameters != null ? Collections.unmodifiableMap(parameters) : null;
     }
 
     /**
@@ -854,7 +879,7 @@ public final class Command extends XmlExporter implements Named {
 
     private void sanityCheck() throws GirrException {
         boolean protocolOk = protocolName != null && !protocolName.isEmpty();
-        boolean parametersOk = parameters != null && !parameters.isEmpty();
+        boolean parametersOk = parameters != null /*&& !parameters.isEmpty()*/;
         boolean rawOk = (intro != null && intro[0] != null && !intro[0].isEmpty())
                 || (repeat != null && repeat[0] != null && !repeat[0].isEmpty());
         boolean prontoHexOk = prontoHex != null && prontoHex[0] != null && !prontoHex[0].isEmpty();
@@ -925,7 +950,7 @@ public final class Command extends XmlExporter implements Named {
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
         else {
             ElementaryDecode firstDecode = decodes.first();
-            protocolName = firstDecode.getName().toLowerCase(Locale.US);
+            protocolName = firstDecode.getName();
             parameters = firstDecode.getMap();
         }
         if (decodes.size() > 1)

@@ -172,6 +172,10 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         this(command.getName(), null, Named.toMap(command), null, null);
     }
 
+    public CommandSet() {
+        this(new Command());
+    }
+
     /**
      * Returns the Commands in the CommandSet.
      * @return unmodifiable Map.
@@ -218,8 +222,9 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
 
     public void generateInheritanceParameters() {
         Command firstCommand = this.iterator().next();
-        if (firstCommand != null) {
+        if (firstCommand != null && firstCommand.getMasterType() == Command.MasterType.parameters) {
             try {
+                firstCommand.checkForParameters();
                 protocolName = firstCommand.getProtocolName();
                 for (Map.Entry<String, Long> kvp : firstCommand.getParameters().entrySet()) {
                     String parameterName = kvp.getKey();

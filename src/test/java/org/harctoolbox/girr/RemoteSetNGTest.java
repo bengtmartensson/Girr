@@ -2,11 +2,8 @@ package org.harctoolbox.girr;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpDatabase;
@@ -20,7 +17,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
@@ -310,9 +306,9 @@ public class RemoteSetNGTest {
         System.out.println("parseFiles");
         Path path = new File("src/test/girr").toPath();
         Collection<RemoteSet> result = RemoteSet.parseFiles(path);
-        assertEquals(result.size(), 7);
+        assertEquals(result.size(), 8);
         RemoteSet rs = new RemoteSet("Imhotep", path.toString(), result);
-        assertEquals(rs.size(), 7);
+        assertEquals(rs.size(), 8);
         rs.strip();
         rs.print("fatremoteset.girr", false, false, false);
     }

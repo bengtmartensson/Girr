@@ -641,6 +641,8 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     }
 
     public void dump(File file) throws IOException {
-        dump(new FileOutputStream(file));
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+            dump(fileOutputStream);
+        }
     }
 }

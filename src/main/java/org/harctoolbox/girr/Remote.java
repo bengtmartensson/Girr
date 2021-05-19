@@ -156,6 +156,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * Construct a Remote from its arguments, general case.
      *
      * @param metaData
+     * @param source
      * @param comment
      * @param notes
      * @param commandSetsCollection
@@ -163,16 +164,22 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      */
     // The silly type of the commandSetsCollection is to be avoid name clashes with another constructor.
     // Sorry for that.
-    public Remote(MetaData metaData, String comment, Map<String, String> notes,
+    public Remote(MetaData metaData, String source, String comment, Map<String, String> notes,
             Collection<CommandSet> commandSetsCollection, Map<String, Map<String, String>> applicationParameters) {
-        this.adminData = new AdminData();
+        this.adminData = new AdminData(source);
         this.metaData = metaData;
         this.comment = comment;
         this.notes = notes;
         this.commandSets = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
-        for (CommandSet cmdSet : commandSetsCollection)
-            commandSets.put(cmdSet.getName(), cmdSet);
+        if (commandSetsCollection != null)
+            for (CommandSet cmdSet : commandSetsCollection)
+                commandSets.put(cmdSet.getName(), cmdSet);
         this.applicationParameters = applicationParameters;
+    }
+
+    public Remote(MetaData metaData, String comment, Map<String, String> notes,
+            Collection<CommandSet> commandSetsCollection, Map<String, Map<String, String>> applicationParameters) {
+        this(metaData, null, comment, notes, commandSetsCollection, applicationParameters);
     }
 
     public Remote(MetaData metaData, String comment, Map<String, String> notes,
@@ -183,6 +190,11 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     public Remote(MetaData metaData, String comment, Map<String, String> notes,
             Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters, String protocolName, Map<String, Long> parameters) {
         this(metaData, comment, notes, new CommandSet("commandSet", null, commands, protocolName, parameters), applicationParameters);
+    }
+
+    public Remote(MetaData metaData, String source, String comment, Map<String, String> notes,
+            Map<String, Command> commands, Map<String, Map<String, String>> applicationParameters, String protocolName, Map<String, Long> parameters) {
+        this(metaData, source, comment, notes, Named.toList(new CommandSet("commandSet", null, commands, protocolName, parameters)), applicationParameters);
     }
 
     public Remote(MetaData metaData, String comment, Map<String, String> notes,

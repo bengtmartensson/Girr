@@ -57,7 +57,11 @@ final class AdminData implements Serializable {
     private final Map<String, String> notes;
 
     AdminData() {
-        this(null, null, null, null, null, null, null, null);
+        this((String) null);
+    }
+
+    AdminData(String source) {
+        this(null, source, null, null, null, null, null, null);
     }
 
     AdminData(String creatingUser, String source, String creationDate, String tool, String toolVersion, String tool2, String tool2Version, Map<String, String> notes) {
