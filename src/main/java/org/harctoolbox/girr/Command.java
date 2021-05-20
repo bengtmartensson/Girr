@@ -23,6 +23,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -441,7 +442,7 @@ public final class Command extends XmlExporter implements Named {
         this(MasterType.parameters, name, comment);
         if (protocolName == null)
             throw new GirrException("No protocol name");
-        this.parameters = new HashMap<>(parameters);
+        this.parameters = new LinkedHashMap<>(parameters);
         try {
             protocol = irpDatabase.getProtocol(protocolName);
         } catch (IrpException ex) {
@@ -468,7 +469,7 @@ public final class Command extends XmlExporter implements Named {
 
     private Command(String name, String comment, String protocolName, Protocol protocol, Map<String, Long> parameters) throws GirrException {
         this(MasterType.parameters, name, comment);
-        this.parameters = new HashMap<>(parameters);
+        this.parameters = new LinkedHashMap<>(parameters);
         this.protocolName = protocolName.toLowerCase(Locale.US);
         this.protocol = protocol;
         sanityCheck();

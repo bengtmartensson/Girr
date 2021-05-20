@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import org.harctoolbox.ircore.IrCoreException;
@@ -57,14 +58,14 @@ public class CommandNGTest {
         irpDatabase = new IrpDatabase(IRP_PROTOCOLS_PATH);
         Command.setIrpDatabase(IRP_PROTOCOLS_PATH);
         //nec1_12_34_56_ccf = new Command("nec1_12_34_56_ccf", "Test ccf", NEC1_12_34_56_CCF);
-        nec1Params = new HashMap<>(3);
+        nec1Params = new LinkedHashMap<>(5); // Use LinkedHashMap to get reproducible and well defined test results
         nec1Params.put("D", 12L);
         nec1Params.put("S", 34L);
         nec1Params.put("F", 56L);
         nec1_12_34_56_param = new Command("nec1_12_34_56_param", "Parametrized signal", "nec1", nec1Params);
         irSignal = new IrSignal(NEC1_12_34_56_INTRO, NEC1_REPEAT, null, 38321.0, 0.42);
         nec1_12_34_56_irSignal = new Command("nec1_12_34_56_irSignal", "Command from IrSignal", irSignal);
-        rc5Params = new HashMap<>(2);
+        rc5Params = new LinkedHashMap<>(3); // Use LinkedHashMap to get reproducible and well defined test results
         rc5Params.put("D", 12L);
         rc5Params.put("F", 34L);
         rc5_12_34 = new Command("rc5_12_34", "An RC5 signal", "rc5", rc5Params);
@@ -411,7 +412,7 @@ public class CommandNGTest {
     @Test
     public void testPrettyValueString() {
         System.out.println("prettyValueString");
-        String expResult = "nec1, S=34 D=12 F=56";
+        String expResult = "nec1, D=12 S=34 F=56";
         String result = nec1_12_34_56_param.prettyValueString();
         assertEquals(result, expResult);
     }
@@ -425,7 +426,7 @@ public class CommandNGTest {
     @Test
     public void testToPrintString() throws IrpException, IrCoreException, GirrException {
         System.out.println("toPrintString");
-        String expResult = "nec1_12_34_56_param: nec1, S=34 D=12 F=56";
+        String expResult = "nec1_12_34_56_param: nec1, D=12 S=34 F=56";
         String result = nec1_12_34_56_param.toPrintString();
         assertEquals(result, expResult);
     }
@@ -436,7 +437,7 @@ public class CommandNGTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        String expResult = "nec1_12_34_56_param: nec1, S=34 D=12 F=56";
+        String expResult = "nec1_12_34_56_param: nec1, D=12 S=34 F=56";
         String result = nec1_12_34_56_param.toString();
         assertEquals(result, expResult);
     }
