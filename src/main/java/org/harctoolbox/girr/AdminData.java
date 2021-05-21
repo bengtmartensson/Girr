@@ -45,7 +45,7 @@ import org.w3c.dom.NodeList;
  * This class combines a number of administrative data.
  */
 final class AdminData implements Serializable {
-    public static final String dateFormatString = "yyyy-MM-dd_HH:mm:ss";
+    public static final String DATE_FORMATSTRING = "yyyy-MM-dd_HH:mm:ss";
 
     private final String creatingUser;
     private       String source;
@@ -67,7 +67,7 @@ final class AdminData implements Serializable {
     AdminData(String creatingUser, String source, String creationDate, String tool, String toolVersion, String tool2, String tool2Version, Map<String, String> notes) {
         this.creatingUser = creatingUser != null ? creatingUser : System.getProperty("user.name");
         this.source = source;
-        this.creationDate = creationDate != null ? creationDate : (new SimpleDateFormat(dateFormatString)).format(new Date());
+        this.creationDate = creationDate != null ? creationDate : (new SimpleDateFormat(DATE_FORMATSTRING)).format(new Date());
         this.tool = tool;
         this.toolVersion = toolVersion;
         this.tool2 = tool2;
@@ -93,7 +93,7 @@ final class AdminData implements Serializable {
         } else {
             creatingUser = null;
             source = null;
-            creationDate = (new SimpleDateFormat(dateFormatString)).format(new Date());
+            creationDate = (new SimpleDateFormat(DATE_FORMATSTRING)).format(new Date());
             tool = null;
             toolVersion = null;
             tool2 = null;

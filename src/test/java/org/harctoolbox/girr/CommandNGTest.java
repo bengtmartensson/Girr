@@ -306,6 +306,7 @@ public class CommandNGTest {
      * @throws org.harctoolbox.girr.GirrException
      */
     @Test
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public void testGetProntoHex_error() throws GirrException  {
         System.out.println("getProntoHex_error");
         String expResult = NEC1_12_34_56_CCF;

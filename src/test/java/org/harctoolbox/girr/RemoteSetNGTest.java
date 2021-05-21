@@ -262,6 +262,7 @@ public class RemoteSetNGTest {
     }
 
     @Test
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public void testRemoteSetOnCommand() throws IOException, SAXException {
         System.out.println("remoteOnCommand");
         try {
