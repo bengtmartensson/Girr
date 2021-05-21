@@ -109,11 +109,25 @@ public final class Command extends XmlExporter implements Named {
     static final int INITIAL_HASHMAP_CAPACITY = 4;
     private static final int INITIAL_STRINGBUILDER_CAPACITY = 64;
 
-    /** Name of the parameter containing the toggle in the IRP protocol. */
-    private static final String TOGGLE_PARAMETER_NAME = "T";
-            static final String F_PARAMETER_NAME      = "F";
-    public  static final String D_PARAMETER_NAME      = "D";
-    public  static final String S_PARAMETER_NAME      = "S";
+    /**
+     * Name of the parameter containing the toggle in the IRP protocol.
+     */
+    public static final String TOGGLE_PARAMETER_NAME = "T";
+
+    /**
+     * Name of the function name parameter.
+     */
+    public static final String F_PARAMETER_NAME = "F";
+    
+    /**
+     * Name of the parameter denoting device number.
+     */
+    public static final String D_PARAMETER_NAME = "D";
+
+    /**
+     * Name of the subparameter parameter.
+     */
+    public static final String S_PARAMETER_NAME = "S";
 
     private static final String DUMMY_COMMAND_NAME    = "dummy-command";
 
@@ -134,7 +148,7 @@ public final class Command extends XmlExporter implements Named {
     }
 
     /**
-     * if set to true, tries to use protocol/parameter inheritance when generating
+     * If set to true, tries to use protocol/parameter inheritance when generating
      * XML code for Commands.
      * @param val
      */
@@ -294,7 +308,7 @@ public final class Command extends XmlExporter implements Named {
     private Map<String, String> otherFormats;
 
     /**
-     * This constructor is for importing from the Element as first argument.
+     * This constructor is for importing from the Element as first argument, taking the inherited protocol name and parameters, given as parameters, into account.
      * @param element of type "command".
      * @param inheritProtocol
      * @param inheritParameters
@@ -389,7 +403,12 @@ public final class Command extends XmlExporter implements Named {
         }
         sanityCheck();
     }
-
+    
+    /**
+     * This constructor is for importing from the Element as first argument.
+     * @param element of type "command".
+     * @throws org.harctoolbox.girr.GirrException
+     */
     public Command(Element element) throws GirrException {
         this(element, null, null);
     }
@@ -467,14 +486,6 @@ public final class Command extends XmlExporter implements Named {
         this(name, comment, protocolName, parameters, true);
     }
 
-    private Command(String name, String comment, String protocolName, Protocol protocol, Map<String, Long> parameters) throws GirrException {
-        this(MasterType.parameters, name, comment);
-        this.parameters = new LinkedHashMap<>(parameters);
-        this.protocolName = protocolName.toLowerCase(Locale.US);
-        this.protocol = protocol;
-        sanityCheck();
-    }
-
     private Command(MasterType masterType, String name, String comment) {
         this.masterType = masterType;
         this.name = name;
@@ -505,7 +516,7 @@ public final class Command extends XmlExporter implements Named {
     }
 
     /**
-     * Create an empty command.
+     * Create an empty command with the given name.
      * @param name Name of command.
      */
     public Command(String name) {
@@ -518,7 +529,9 @@ public final class Command extends XmlExporter implements Named {
         this.protocolName = protocolName;
     }
 
-
+    /**
+     * Generate an empty command with a dummy name.
+     */
     public Command() {
         this(DUMMY_COMMAND_NAME);
     }
@@ -1084,17 +1097,6 @@ public final class Command extends XmlExporter implements Named {
         addFormat(format.getName(), format.format(toIrSignal(), repeatCount));
     }
 
-    /**
-     * XMLExport of the Command.
-     *
-     * @param doc
-     * @param title
-     * @param fatRaw
-     * @param generateRaw
-     * @param generateProntoHex
-     * @param generateParameters
-     * @return XML Element with tag name "command".
-     */
     @Override
     Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         return toElement(doc, title, fatRaw, createSchemaLocation, generateParameters, generateProntoHex, generateRaw, null, null);
@@ -1237,6 +1239,13 @@ public final class Command extends XmlExporter implements Named {
         return true;
     }
 
+    /**
+     * Removes the forms different from the one given as argument. 
+     * @param type
+     * @throws IrpException
+     * @throws GirrException
+     * @throws IrCoreException 
+     */
     public void strip(MasterType type) throws IrpException, GirrException, IrCoreException {
         if (type != masterType)
             checkFor(type);
@@ -1259,6 +1268,9 @@ public final class Command extends XmlExporter implements Named {
         otherFormats = null;
     }
 
+    /**
+     * Removes the forms other than the master type of the Command.
+     */
     public void strip() {
         try {
             strip(masterType);

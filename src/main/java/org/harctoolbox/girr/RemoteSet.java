@@ -69,6 +69,8 @@ import org.xml.sax.SAXException;
 
 /**
  * This class contains a map of Remotes, indexed by their names.
+ * 
+ * Earlier versions of this library could only import and export RemoteSets.
  */
 public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
@@ -89,6 +91,11 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         }
     }
 
+    /**
+     * Give a path (file or directory) parses the contained file(s) into a Collection of RemoteSets.
+     * @param path
+     * @return 
+     */
     public static Collection<RemoteSet> parseFiles(Path path) {
         Collection<RemoteSet> coll = new ArrayList<>(10);
         if (Files.isRegularFile(path) && ! ignoreByExtension(path)) {
@@ -152,17 +159,40 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         return extension.equals("jpg") || extension.equals("jpeg") || extension.equals("pdf");
     }
 
-
+    /**
+     * Restores a RemoteSet from a serialized stream.
+     *
+     * @param inputStream
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static RemoteSet pmud(InputStream inputStream) throws IOException, ClassNotFoundException {
         try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
             return (RemoteSet) objectInputStream.readObject();
         }
     }
-
+    
+    /**
+     * Restores a RemoteSet from a serialized file.
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static RemoteSet pmud(File file) throws IOException, ClassNotFoundException {
         return pmud(new FileInputStream(file));
     }
-
+    
+   /**
+     * Restores a RemoteSet from a serialized String.
+     *
+     * @param thing
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static RemoteSet pmud(String thing) throws IOException, ClassNotFoundException {
         return pmud(new File(thing));
     }
@@ -451,17 +481,6 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         remotes.putAll(remoteSet.remotes);
     }
 
-    /**
-     * Generates an W3C Element from a RemoteList.
-     * @param doc
-     * @param title
-     * @param fatRaw
-     * @param createSchemaLocation
-     * @param generateRaw
-     * @param generateCcf
-     * @param generateParameters
-     * @return Element describing the RemoteSet
-     */
     @Override
     public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
             boolean generateParameters, boolean generateCcf, boolean generateRaw) {
@@ -625,21 +644,38 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         return irpDatabase;
     }
 
+    /**
+     * Return the number of contained Remotes.
+     * @return 
+     */
     public int size() {
         return remotes.size();
     }
 
+    /**
+     * Applies the strip function to the contained Ramotes.
+     */
     public void strip() {
         for (Remote remote : this)
             remote.strip();
     }
-
+    
+    /**
+     * Serializes the oject and writes it to a stream.
+     * @param outputStream
+     * @throws IOException 
+     */
     public void dump(OutputStream outputStream) throws IOException {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
             objectOutputStream.writeObject(this);
         }
     }
 
+    /**
+     * Serializes the oject and writes it to a file.
+     * @param file
+     * @throws IOException 
+     */
     public void dump(File file) throws IOException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             dump(fileOutputStream);

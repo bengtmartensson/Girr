@@ -29,39 +29,74 @@ import java.util.Map;
  */
 public interface Named extends Serializable {
 
+    /**
+     * Generate a Map&lt;String, T&gt; map containing one element, the argument.
+     * @param <T> type extending Named
+     * @param thing
+     * @return Map&lt;String, T&gt;
+     */
     public static <T extends Named> Map<String, T> toMap(T thing) {
         Map<String, T> map = new LinkedHashMap<>(1);
         map.put(thing.getName(), thing);
         return map;
     }
-
+ 
+    /**
+     * Generate a Map&lt;String, T&gt; map containing one element, the argument.
+     *
+     * @param <T>
+     * @param thing
+     * @return Map&lt;String, T&gt;
+     */
     public static <T extends Named> List<T> toList(T thing) {
         List<T> list = new ArrayList<>(1);
         list.add(thing);
         return list;
     }
 
+    /**
+     * Populate the map as first argument with the elements contained in the Collection in the second argument.
+     * @param <T>
+     * @param map
+     * @param collection 
+     */
     public static <T extends Named> void populateMap(Map<String, T> map, Collection<T> collection) {
         map.clear();
         for (T thing : collection)
             map.put(thing.getName(), thing);
     }
 
+    /**
+     * Create a Map&lt;String, T&gt; and populate with the elements of the second argument.
+     * @param <T>
+     * @param collection Collection of Ts.
+     * @return 
+     */
     public static <T extends Named> Map<String, T> toMap(Collection<T> collection) {
         Map<String, T> map = new LinkedHashMap<>(collection.size());
         populateMap(map, collection);
         return map;
     }
 
+    /**
+     * Return the name of the object.
+     * @return 
+     */
     public String getName();
 
+    /**
+     * Class containing a Comparator implementing standard alphabetical, case sensitive order.
+     */
     public static class CompareNameCaseSensitive implements Comparator<Named>, Serializable {
         @Override
         public int compare(Named o1, Named o2) {
             return o1.getName().compareTo(o2.getName());
         }
     }
-
+    
+    /**
+     * Class containing a Comparator implementing standard alphabetical, case insensitive order.
+     */
     public static class CompareNameCaseInsensitive implements Comparator<Named>, Serializable {
         @Override
         public int compare(Named o1, Named o2) {

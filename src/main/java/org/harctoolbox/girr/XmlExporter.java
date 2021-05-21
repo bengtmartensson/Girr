@@ -39,23 +39,49 @@ public abstract class XmlExporter implements Serializable {
 
     private final static Logger logger = Logger.getLogger(XmlExporter.class.getName());
 
+    /**
+     * Returns the root element of the first argument, which is supposed to be a valid XML document.
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws SAXException 
+     */
     protected static Element getElement(File file) throws IOException, SAXException {
         return XmlUtils.openXmlFile(file).getDocumentElement();
     }
-
+    
+    /**
+     * Returns the root element of the first argument, which is supposed to be a valid XML document.
+     * @param file
+     * @return
+     * @throws IOException
+     * @throws SAXException 
+     */
     protected static Element getElement(String file) throws IOException, SAXException {
         return XmlUtils.openXmlThing(file).getDocumentElement();
     }
-
+    
+    /**
+     * Returns the root element of the first argument, which is supposed to read to a valid XML document.
+     * @param reader
+     * @return
+     * @throws IOException
+     * @throws SAXException 
+     */
     protected static Element getElement(Reader reader) throws IOException, SAXException {
         return XmlUtils.openXmlReader(reader, null, true, true).getDocumentElement();
     }
-
+    
+    /**
+     * Returns the root element of the first argument, which is supposed to be a valid XML Document.
+     * @param document
+     * @return
+     */
     protected static Element getElement(Document document) {
         return document.getDocumentElement();
     }
 
-    XmlExporter() {
+    protected XmlExporter() {
     }
 
     /**
@@ -106,14 +132,12 @@ public abstract class XmlExporter implements Serializable {
      * otherwise a long PCDATA text string of durations will be generated.
      * @param stylesheetUrl URL of stylesheet to be linked in a processing
      * instruction.
-     * @param createSchemaLocation if schema location attributes (for
-     * validation) should be included.
      * @param generateRaw If true, the raw form will be generated.
      * @param generateCcf If true, the CCF ("Pronto hex") form will be
      * generated.
      * @param generateParameters If true, the protocol/parameter description
      * will be generated.
-     * @return XmlExporter
+     * @return W3C Document
      */
     public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
             boolean fatRaw, boolean createSchemaLocation,
@@ -122,7 +146,19 @@ public abstract class XmlExporter implements Serializable {
                 generateParameters, generateCcf, generateRaw);
         return XmlStatic.createDocument(root, stylesheetType, stylesheetUrl, createSchemaLocation);
     }
-
+    
+    /**
+     * Exports the Object to an Element.
+     *
+     * @param doc Owner Document.
+     * @param title Textual title, as attribute in the top level element.
+     * @param fatRaw If generating the raw form, generate it in the so-called fat form, with one element per duration.
+     * @param isTopLevel If true, generate an xsi:schemaLocation attribute in the element.
+     * @param generateParameters If true, generate the parameter form.
+     * @param generateCcf If true, generate the Pronto Hex form.
+     * @param generateRaw If true, generate the raw form.
+     * @return newly constructed element, belonging to the doc Document.
+     */
     abstract Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
             boolean generateParameters, boolean generateCcf, boolean generateRaw);
 }

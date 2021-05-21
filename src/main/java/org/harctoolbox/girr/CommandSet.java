@@ -52,7 +52,7 @@ import org.xml.sax.SAXException;
 
 /**
  * A CommandSet is a set of Commands with unique names.
- * Typically, they share the same protocol, but different parameter values.
+ * Typically, but not necessarily, they share the same protocol, but with different parameter values.
  */
 public final class CommandSet extends XmlExporter implements Named, Iterable<Command> {
 
@@ -184,15 +184,27 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         return Collections.unmodifiableMap(commands);
     }
 
+    /**
+     * Returns the Command with the given name, or null if not found.
+     * @param commandName
+     * @return 
+     */
     public Command getCommand(String commandName) {
         return commands.get(commandName);
     }
 
     @Override
+    /**
+     * Return the name of the CommandSet.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Size, i.e., the number of contained Commands.
+     * @return 
+     */
     public int size() {
         return commands.size();
     }
@@ -206,12 +218,19 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         return commands.values().iterator();
     }
 
+    /**
+     * Sort the commands according to the Comparator given as argument.
+     * @param comparator 
+     */
     public void sort(Comparator<? super Named> comparator) {
         List<Command> list = new ArrayList<>(commands.values());
         Collections.sort(list, comparator);
         Named.populateMap(commands, list);
     }
-
+    
+    /**
+     * Calls sort with a comparator that amounts to case-insensitive alphabetical sorting.
+     */
     public void sort() {
         sort(new Named.CompareNameCaseSensitive());
     }
@@ -220,6 +239,9 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         sort(new Named.CompareNameCaseInsensitive());
     }
 
+    /**
+     * Attempt to generate inheritance information.
+     */
     public void generateInheritanceParameters() {
         Command firstCommand = this.iterator().next();
         if (firstCommand != null && firstCommand.getMasterType() == Command.MasterType.parameters) {
@@ -237,21 +259,14 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         }
     }
 
+    /**
+     * Deletes inheritance information, if present.
+     */
     public void deleteInheritanceParameters() {
         protocolName = null;
         parameters.clear();
     }
 
-    /**
-     * Exports the CommandSet to a Document.
-     *
-     * @param doc
-     * @param fatRaw
-     * @param generateRaw
-     * @param generateCcf
-     * @param generateParameters
-     * @return newly constructed element, belonging to the doc Document.
-     */
     @Override
     Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         if (Command.isUseInheritanceForXml())
@@ -314,6 +329,9 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         });
     }
 
+    /**
+     * Apply the strip() method to all contained Commands.
+     */
     public void strip() {
         for (Command command : this)
             command.strip();

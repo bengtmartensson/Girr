@@ -129,7 +129,7 @@ public abstract class XmlStatic {
      */
     static Document createDocument(Element root, String stylesheetType, String stylesheetUrl, boolean createSchemaLocation) {
         Document document = root.getOwnerDocument();
-
+        
         if (stylesheetType != null && stylesheetUrl != null && !stylesheetUrl.isEmpty()) {
             ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
                     "type=\"text/" + stylesheetType + "\" href=\"" + stylesheetUrl + "\"");
@@ -146,9 +146,9 @@ public abstract class XmlStatic {
         document.appendChild(root);
         root.setAttribute(GIRR_VERSION_ATTRIBUTE_NAME, GIRR_VERSION);
         if (createSchemaLocation) {
-            root.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
-            root.setAttribute(XMLNS_ATTRIBUTE, GIRR_NAMESPACE);
-            root.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + " " + GIRR_SCHEMA_LOCATION_URI);
+        root.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        root.setAttribute(XMLNS_ATTRIBUTE, GIRR_NAMESPACE);
+        root.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + " " + GIRR_SCHEMA_LOCATION_URI);
         }
         return document;
     }

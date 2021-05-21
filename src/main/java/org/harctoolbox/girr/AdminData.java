@@ -42,9 +42,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * This class combines a number of administrative data.
+ * This class bundles a some of administrative data together.
  */
 final class AdminData implements Serializable {
+    /**
+     * Describes how a date/time is to be formatted, as per {@link java.text.SimpleDateFormat}.
+     */
     public static final String DATE_FORMATSTRING = "yyyy-MM-dd_HH:mm:ss";
 
     private final String creatingUser;
@@ -56,14 +59,33 @@ final class AdminData implements Serializable {
     private final String tool2Version;
     private final Map<String, String> notes;
 
+    /**
+     * Generates an empty AdminData.
+     */
     AdminData() {
         this((String) null);
     }
 
+    /**
+     * Generates an AdminData with the source field filled with the argument given.
+     * @param source Description of the origin of the data. Typically a file, a URL, or a person.
+
+     */
     AdminData(String source) {
         this(null, source, null, null, null, null, null, null);
     }
 
+    /**
+     * Generates an AdminData with the fields filled out. All fields are syntax-free Strings, and may optionally be null or empty.
+     * @param creatingUser Name of creating user, as a semantic free String.
+     * @param source Description of the origin of the data. Typically a file, a URL, or a person.
+     * @param creationDate 
+     * @param tool Name of creating tool.
+     * @param toolVersion Version of creating tool-
+     * @param tool2 Name of secondary tool, if applicable.
+     * @param tool2Version Version of secondary tool.
+     * @param notes Comment of any kind, a map indexed by language.
+     */
     AdminData(String creatingUser, String source, String creationDate, String tool, String toolVersion, String tool2, String tool2Version, Map<String, String> notes) {
         this.creatingUser = creatingUser != null ? creatingUser : System.getProperty("user.name");
         this.source = source;
@@ -74,6 +96,12 @@ final class AdminData implements Serializable {
         this.tool2Version = tool2Version;
         this.notes = notes != null ? notes : new HashMap<>(INITIAL_HASHMAP_CAPACITY);
     }
+    
+    /**
+     * Imports an XML Element into an AdminData.
+     * @param element
+     * @throws GirrException 
+     */
 
     AdminData(Element element) throws GirrException {
         if (!element.getTagName().equals(ADMINDATA_ELEMENT_NAME))
@@ -100,7 +128,12 @@ final class AdminData implements Serializable {
             tool2Version = null;
         }
     }
-
+    
+    /**
+     * Export the AdminData into an XML Element.
+     * @param doc Owner document
+     * @return 
+     */
     Element toElement(Document doc) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, ADMINDATA_ELEMENT_NAME);
         Element creationEl = doc.createElementNS(GIRR_NAMESPACE, CREATIONDATA_ELEMENT_NAME);
@@ -135,10 +168,20 @@ final class AdminData implements Serializable {
         return element;
     }
 
+    
+    /**
+     * Same as getNotes("en")
+     * @return 
+     */
     String getNotes() {
         return getNotes(ENGLISH);
     }
 
+    /**
+     * Get the notes for the lanugage in the argument.
+     * @param language
+     * @return 
+     */
     String getNotes(String language) {
         return notes.get(language);
     }

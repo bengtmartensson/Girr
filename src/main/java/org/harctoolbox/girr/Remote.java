@@ -66,6 +66,10 @@ import org.xml.sax.SAXException;
  * A Remote is essentially an abstraction of a hand-held "clicker" for controlling one device.
  * It has a name for identification, and a number of comment-like text fields. Most importantly,
  * it has a dictionary of CommandSets, indexed by their names.
+ * The CommandSets contain Commands, having names that are unique within their CommandSet.
+ * Note that Commands with the same name can be present in different CommandSets.
+ * For example, some TVs have both an RC5 and an RC6 Command set, both containing a command "power",
+ * but these are or course different.
  */
 public final class Remote extends XmlExporter implements Named, Iterable<CommandSet> {
 
@@ -80,7 +84,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     /**
      * This constructor is used to read a Girr file into a Remote.
-     * @param file
+     * @param file Girr file; must have "remote" as the root element.
      * @throws org.harctoolbox.girr.GirrException
      * @throws java.io.IOException
      * @throws org.xml.sax.SAXException
@@ -91,7 +95,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     /**
      * This constructor is used to read a Reader into a Remote.
-     * @param reader
+     * @param reader Reader producing a Document with a top level element "remote".
      * @throws org.harctoolbox.girr.GirrException
      * @throws java.io.IOException
      * @throws org.xml.sax.SAXException
@@ -102,7 +106,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     /**
      * This constructor is used to import a Document.
-     * @param doc W3C Document
+     * @param doc W3C Document with root element of type "remote".
      * @throws org.harctoolbox.girr.GirrException
      */
     public Remote(Document doc) throws GirrException {
@@ -112,8 +116,8 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     /**
      * XML import function.
      *
-     * @param element Element to read from. Must be "remote".
-     * @param source
+     * @param element Element to read from. Must be tag name "remote".
+     * @param source Textual representation of the origin of the information.
      * @throws org.harctoolbox.girr.GirrException
      */
     public Remote(Element element, String source) throws GirrException {
@@ -155,11 +159,11 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     /**
      * Construct a Remote from its arguments, general case.
      *
-     * @param metaData
-     * @param source
-     * @param comment
-     * @param notes
-     * @param commandSetsCollection
+     * @param metaData Remote.MetaData meta data
+     * @param source Textual representation of the origin of the information
+     * @param comment Textual comment
+     * @param notes Textual notes
+     * @param commandSetsCollection Collection&lt;CommandSet&gt;
      * @param applicationParameters
      */
     // The silly type of the commandSetsCollection is to be avoid name clashes with another constructor.
@@ -222,18 +226,6 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         this(new MetaData("unnamed"), null, null, commandSet, null);
     }
 
-    /**
-     * XML export function.
-     *
-     * @param doc
-     * @param title
-     * @param fatRaw
-     * @param createSchemaLocation
-     * @param generateRaw
-     * @param generateCcf
-     * @param generateParameters
-     * @return XML Element of gid "remote",
-     */
     @Override
     public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
@@ -288,6 +280,10 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         return element;
     }
 
+    /**
+     * Apply the sort function to all contained CommandSets.
+     * @param comparator 
+     */
     public void sort(Comparator<? super Named> comparator) {
         List<CommandSet> list = new ArrayList<>(commandSets.values());
         Collections.sort(list, comparator);
@@ -315,6 +311,12 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         sort(new Named.CompareNameCaseInsensitive());
     }
 
+    /**
+     * Replaces all CommandSets with a single one,
+     * containing all the commands of the original CommandSets.
+     * Note that only one commend with a particular name is present after this operation,
+     * so information may be lost.
+     */
     public void normalize() {
         if (commandSets.size() < 2)
             return;
@@ -573,6 +575,9 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         return Collections.unmodifiableMap(commandSets);
     }
 
+    /**
+     * Apply the strip function to all the CommandSets.
+     */
     public void strip() {
         for (CommandSet commandSet : this)
             commandSet.strip();
@@ -617,12 +622,12 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
         /**
          * Generic constructor.
-         * @param name
-         * @param displayName
-         * @param manufacturer
-         * @param model
-         * @param deviceClass
-         * @param remoteName
+         * @param name Name of the remote, as how users and other program is referring to it. Should be in ENglish and not containing special characters.
+         * @param displayName A "nicely looking" displayable name. May contain spaces and special characters.
+         * @param manufacturer Manufacturer of the device.
+         * @param model Model name, to be identified by humans-
+         * @param deviceClass Device class, for example "TV".
+         * @param remoteName Manufacturers name of original remote.
          */
         public MetaData(String name, String displayName, String manufacturer, String model,
                 String deviceClass, String remoteName) {
