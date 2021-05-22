@@ -76,7 +76,7 @@ public class RemoteSetNGTest {
         boolean generateRaw = true;
         boolean generateCcf = true;
         boolean generateParameters = true;
-        Document document = remoteSet.toDocument(title, stylesheetType, stylesheetUrl, fatRaw, createSchemaLocation, generateRaw, generateCcf, generateParameters);
+        Document document = remoteSet.toDocument(title, stylesheetType, stylesheetUrl, fatRaw, generateRaw, generateCcf, generateParameters);
         XmlUtils.printDOM(file, document);
         System.out.println("RemoteSet was written to the file " + file.getCanonicalPath() + ", please examine manually");
     }

@@ -227,7 +227,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     }
 
     @Override
-    public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
+    public Element toElement(Document doc, boolean fatRaw, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
         Element adminDataEl = adminData.toElement(doc);
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
@@ -275,7 +275,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         }
 
         for (CommandSet commandSet : this)
-            element.appendChild(commandSet.toElement(doc, null, fatRaw, false, generateParameters, generateCcf, generateRaw));
+            element.appendChild(commandSet.toElement(doc, fatRaw, generateParameters, generateCcf, generateRaw));
 
         return element;
     }

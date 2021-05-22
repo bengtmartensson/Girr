@@ -40,28 +40,18 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
-import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMANDSET_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.GIRR_NAMESPACE;
-import static org.harctoolbox.girr.XmlStatic.GIRR_SCHEMA_LOCATION_URI;
-import static org.harctoolbox.girr.XmlStatic.GIRR_VERSION;
-import static org.harctoolbox.girr.XmlStatic.GIRR_VERSION_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.REMOTES_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.REMOTE_ELEMENT_NAME;
-import static org.harctoolbox.girr.XmlStatic.SPACE;
-import static org.harctoolbox.girr.XmlStatic.TITLE_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
-import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
-import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_URI;
-import static org.harctoolbox.xml.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
-import static org.harctoolbox.xml.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -482,19 +472,9 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     }
 
     @Override
-    public Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
+    public Element toElement(Document doc, boolean fatRaw,
             boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
-        if (createSchemaLocation) {
-            element.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
-            element.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
-            element.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + SPACE + GIRR_SCHEMA_LOCATION_URI);
-        }
-        element.setAttribute(GIRR_VERSION_ATTRIBUTE_NAME, GIRR_VERSION);
-
-        if (title != null)
-            element.setAttribute(TITLE_ATTRIBUTE_NAME, title);
-
         Element adminDataEl = adminData.toElement(doc);
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
             element.appendChild(adminDataEl);
@@ -503,7 +483,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             element.appendChild(irpDatabase.toElement(doc));
 
         for (Remote remote : this)
-            element.appendChild(remote.toElement(doc, null, fatRaw, false, generateParameters , generateCcf, generateRaw));
+            element.appendChild(remote.toElement(doc, fatRaw, generateParameters , generateCcf, generateRaw));
 
         return element;
     }

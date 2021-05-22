@@ -22,6 +22,8 @@ import java.util.Map;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import static javax.xml.XMLConstants.XMLNS_ATTRIBUTE;
 import static org.harctoolbox.xml.XmlUtils.ENGLISH;
+import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
+import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_URI;
 import static org.harctoolbox.xml.XmlUtils.SCHEMA_LOCATION_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
@@ -127,7 +129,7 @@ public abstract class XmlStatic {
      * @param createSchemaLocation
      * @return
      */
-    static Document createDocument(Element root, String stylesheetType, String stylesheetUrl, boolean createSchemaLocation) {
+    static Document createDocument(String title, Element root, String stylesheetType, String stylesheetUrl) {
         Document document = root.getOwnerDocument();
         
         if (stylesheetType != null && stylesheetUrl != null && !stylesheetUrl.isEmpty()) {
@@ -145,11 +147,12 @@ public abstract class XmlStatic {
         document.appendChild(comment);
         document.appendChild(root);
         root.setAttribute(GIRR_VERSION_ATTRIBUTE_NAME, GIRR_VERSION);
-        if (createSchemaLocation) {
         root.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
         root.setAttribute(XMLNS_ATTRIBUTE, GIRR_NAMESPACE);
+        root.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
         root.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + " " + GIRR_SCHEMA_LOCATION_URI);
-        }
+        if (title != null && ! title.isEmpty())
+            root.setAttribute(TITLE_ATTRIBUTE_NAME, title);
         return document;
     }
 

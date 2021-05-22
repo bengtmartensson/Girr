@@ -52,7 +52,6 @@ import static org.harctoolbox.girr.XmlStatic.PROTOCOL_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.RAW_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.REPEAT_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.SPACE;
-import static org.harctoolbox.girr.XmlStatic.TITLE_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.TOGGLE_ATTRIBUTE_NAME;
 import static org.harctoolbox.girr.XmlStatic.VALUE_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.InvalidArgumentException;
@@ -1098,26 +1097,25 @@ public final class Command extends XmlExporter implements Named {
     }
 
     @Override
-    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
-        return toElement(doc, title, fatRaw, createSchemaLocation, generateParameters, generateProntoHex, generateRaw, null, null);
+    Element toElement(Document doc, boolean fatRaw, boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
+        return toElement(doc, fatRaw, generateParameters, generateProntoHex, generateRaw, null, null);
     }
 
     /**
      * XMLExport of the Command.
      *
      * @param doc
-     * @param title
      * @param fatRaw
-     * @param generateRaw
-     * @param generateProntoHex
      * @param generateParameters
+     * @param generateProntoHex
+     * @param generateRaw
+     * @param inheritedProtocolName  
+     * @param inheritedParameters 
      * @return XML Element with tag name "command".
      */
-    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
+    Element toElement(Document doc, boolean fatRaw,
             boolean generateParameters, boolean generateProntoHex, boolean generateRaw, String inheritedProtocolName, Map<String, Long> inheritedParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
-        if (title != null)
-            element.setAttribute(TITLE_ATTRIBUTE_NAME, title);
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         MasterType actualMasterType = masterType;
         if (masterType == MasterType.raw && !generateRaw

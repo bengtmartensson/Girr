@@ -268,7 +268,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
     }
 
     @Override
-    Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
+    Element toElement(Document doc, boolean fatRaw, boolean generateParameters, boolean generateCcf, boolean generateRaw) {
         if (Command.isUseInheritanceForXml())
             generateInheritanceParameters();
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
@@ -296,7 +296,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         }
         if (commands != null) {
             commands.values().forEach((command) -> {
-                element.appendChild(command.toElement(doc, null, fatRaw, false,
+                element.appendChild(command.toElement(doc, fatRaw,
                         generateParameters, generateCcf, generateRaw, protocolName, parameters));
             });
         }

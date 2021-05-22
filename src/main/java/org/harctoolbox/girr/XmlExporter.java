@@ -92,7 +92,7 @@ public abstract class XmlExporter implements Serializable {
      * @param generateRaw
      */
     public final void print(OutputStream ostr, boolean generateProtocol, boolean generateProntoHex, boolean generateRaw) {
-        Document doc = toDocument("untitled", null, null, false, true, generateProtocol, generateProntoHex, generateRaw);
+        Document doc = toDocument(null, null, null, false, generateProtocol, generateProntoHex, generateRaw);
         try {
             XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
         } catch (UnsupportedEncodingException ex) {
@@ -132,19 +132,39 @@ public abstract class XmlExporter implements Serializable {
      * otherwise a long PCDATA text string of durations will be generated.
      * @param stylesheetUrl URL of stylesheet to be linked in a processing
      * instruction.
-     * @param generateRaw If true, the raw form will be generated.
-     * @param generateCcf If true, the CCF ("Pronto hex") form will be
-     * generated.
      * @param generateParameters If true, the protocol/parameter description
      * will be generated.
+     * @param generateCcf If true, the CCF ("Pronto hex") form will be
+     * generated.
+     * @param generateRaw If true, the raw form will be generated.
      * @return W3C Document
      */
     public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
-            boolean fatRaw, boolean createSchemaLocation,
+            boolean fatRaw,
             boolean generateParameters, boolean generateCcf, boolean generateRaw)  {
-        Element root = toElement(XmlUtils.newDocument(true), title, fatRaw, createSchemaLocation,
+        Element root = toElement(XmlUtils.newDocument(true), fatRaw,
                 generateParameters, generateCcf, generateRaw);
-        return XmlStatic.createDocument(root, stylesheetType, stylesheetUrl, createSchemaLocation);
+        return XmlStatic.createDocument(title, root, stylesheetType, stylesheetUrl);
+    }
+    
+    /**
+     * @deprecated createSchemaLocation has been effectively removed, use version without it instead.
+     * 
+     * @param title
+     * @param stylesheetType
+     * @param stylesheetUrl
+     * @param fatRaw
+     * @param createSchemaLocation
+     * @param generateParameters
+     * @param generateCcf
+     * @param generateRaw
+     * @return 
+     */
+    public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
+            boolean fatRaw, boolean createSchemaLocation,
+            boolean generateParameters, boolean generateCcf, boolean generateRaw) {
+        return toDocument(title, stylesheetType, stylesheetUrl,
+                fatRaw, generateParameters, generateCcf, generateRaw);
     }
     
     /**
@@ -159,6 +179,6 @@ public abstract class XmlExporter implements Serializable {
      * @param generateRaw If true, generate the raw form.
      * @return newly constructed element, belonging to the doc Document.
      */
-    abstract Element toElement(Document doc, String title, boolean fatRaw, boolean createSchemaLocation,
+    abstract Element toElement(Document doc, boolean fatRaw,
             boolean generateParameters, boolean generateCcf, boolean generateRaw);
 }
