@@ -473,7 +473,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     @Override
     public Element toElement(Document doc, boolean fatRaw,
-            boolean generateParameters, boolean generateCcf, boolean generateRaw) {
+            boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
         Element adminDataEl = adminData.toElement(doc);
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
@@ -483,7 +483,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             element.appendChild(irpDatabase.toElement(doc));
 
         for (Remote remote : this)
-            element.appendChild(remote.toElement(doc, fatRaw, generateParameters , generateCcf, generateRaw));
+            element.appendChild(remote.toElement(doc, fatRaw, generateParameters , generateProntoHex, generateRaw));
 
         return element;
     }

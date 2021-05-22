@@ -134,16 +134,16 @@ public abstract class XmlExporter implements Serializable {
      * instruction.
      * @param generateParameters If true, the protocol/parameter description
      * will be generated.
-     * @param generateCcf If true, the CCF ("Pronto hex") form will be
+     * @param generateProntoHex If true, the Pronto hex form will be
      * generated.
      * @param generateRaw If true, the raw form will be generated.
      * @return W3C Document
      */
     public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
             boolean fatRaw,
-            boolean generateParameters, boolean generateCcf, boolean generateRaw)  {
+            boolean generateParameters, boolean generateProntoHex, boolean generateRaw)  {
         Element root = toElement(XmlUtils.newDocument(true), fatRaw,
-                generateParameters, generateCcf, generateRaw);
+                generateParameters, generateProntoHex, generateRaw);
         return XmlStatic.createDocument(title, root, stylesheetType, stylesheetUrl);
     }
     
@@ -156,15 +156,15 @@ public abstract class XmlExporter implements Serializable {
      * @param fatRaw
      * @param createSchemaLocation
      * @param generateParameters
-     * @param generateCcf
+     * @param generateProntoHex
      * @param generateRaw
      * @return 
      */
     public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
             boolean fatRaw, boolean createSchemaLocation,
-            boolean generateParameters, boolean generateCcf, boolean generateRaw) {
+            boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         return toDocument(title, stylesheetType, stylesheetUrl,
-                fatRaw, generateParameters, generateCcf, generateRaw);
+                fatRaw, generateParameters, generateProntoHex, generateRaw);
     }
     
     /**
@@ -175,10 +175,10 @@ public abstract class XmlExporter implements Serializable {
      * @param fatRaw If generating the raw form, generate it in the so-called fat form, with one element per duration.
      * @param isTopLevel If true, generate an xsi:schemaLocation attribute in the element.
      * @param generateParameters If true, generate the parameter form.
-     * @param generateCcf If true, generate the Pronto Hex form.
+     * @param generateProntoHex If true, generate the Pronto Hex form.
      * @param generateRaw If true, generate the raw form.
      * @return newly constructed element, belonging to the doc Document.
      */
     abstract Element toElement(Document doc, boolean fatRaw,
-            boolean generateParameters, boolean generateCcf, boolean generateRaw);
+            boolean generateParameters, boolean generateProntoHex, boolean generateRaw);
 }

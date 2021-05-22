@@ -508,7 +508,7 @@ public final class Command extends XmlExporter implements Named {
      * @throws org.harctoolbox.girr.GirrException
      */
     public Command(String name, String comment, String prontoHex) throws GirrException {
-        this(MasterType.ccf, name, comment);
+        this(MasterType.prontoHex, name, comment);
         this.prontoHex = new String[1];
         this.prontoHex[0] = prontoHex;
         sanityCheck();
@@ -801,7 +801,7 @@ public final class Command extends XmlExporter implements Named {
             case raw:
                 return new IrSignal(intro[T], repeat[T], ending[T], frequency != null ? frequency.doubleValue() : null, dutyCycle);
 
-            case ccf:
+            case prontoHex:
                 return ShortPronto.parse(prontoHex[T]);
 
             case empty:
@@ -900,7 +900,7 @@ public final class Command extends XmlExporter implements Named {
         if (masterType == null)
             masterType = (protocolOk && parametersOk) ? MasterType.parameters
                     : rawOk ? MasterType.raw
-                    : prontoHexOk ? MasterType.ccf
+                    : prontoHexOk ? MasterType.prontoHex
                     : null;
 
         if (masterType == null)
@@ -912,7 +912,7 @@ public final class Command extends XmlExporter implements Named {
             throw new GirrException("Command " + name + ": MasterType is parameters, but no parameters found.");
         if (masterType == MasterType.raw && !rawOk)
             throw new GirrException("Command " + name + ": MasterType is raw, but both intro- and repeat-sequence empty.");
-        if (masterType == MasterType.ccf && !prontoHexOk)
+        if (masterType == MasterType.prontoHex && !prontoHexOk)
             throw new GirrException("Command " + name + ": MasterType is prontoHex, but no Pronto Hex found.");
     }
 
@@ -1017,7 +1017,7 @@ public final class Command extends XmlExporter implements Named {
             case parameters:
                 checkForParameters();
                 break;
-            case ccf:
+            case prontoHex:
                 checkForProntoHex();
                 break;
             case raw:
@@ -1119,11 +1119,11 @@ public final class Command extends XmlExporter implements Named {
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         MasterType actualMasterType = masterType;
         if (masterType == MasterType.raw && !generateRaw
-                || masterType == MasterType.ccf && !generateProntoHex
+                || masterType == MasterType.prontoHex && !generateProntoHex
                 || masterType == MasterType.parameters && !generateParameters) {
             actualMasterType = generateRaw ? MasterType.raw
                     : generateParameters ? MasterType.parameters
-                    : generateProntoHex ? MasterType.ccf
+                    : generateProntoHex ? MasterType.prontoHex
                     : masterType;
         }
         if (actualMasterType != null)
@@ -1193,7 +1193,7 @@ public final class Command extends XmlExporter implements Named {
                 element.appendChild(doc.createComment("Raw signal requested but could not be generated: " + ex.getMessage() + "."));
             }
         }
-        if (generateProntoHex || actualMasterType == MasterType.ccf) {
+        if (generateProntoHex || actualMasterType == MasterType.prontoHex) {
             try {
                 checkForProntoHex();
                 if (prontoHex != null) {
@@ -1253,7 +1253,7 @@ public final class Command extends XmlExporter implements Named {
             this.protocol = null;
             this.protocolName = null;
         }
-        if (type != MasterType.ccf) {
+        if (type != MasterType.prontoHex) {
             this.prontoHex = null;
         }
         if (type != MasterType.raw) {
@@ -1287,7 +1287,7 @@ public final class Command extends XmlExporter implements Named {
         raw,
 
         /** The Pronto Hex representation is the master. Does not have multiple toggle values. */
-        ccf, // to be compatible with the Schema
+        prontoHex, // note: "ccf" in the XML and the Schema
 
         /** The protocol/parameter version is the master. May have multiple Pronto Hex/raw representations if the protocol has a toggle. */
         parameters,
