@@ -49,7 +49,23 @@ final class AdminData implements Serializable {
      * Describes how a date/time is to be formatted, as per {@link java.text.SimpleDateFormat}.
      */
     public static final String DATE_FORMATSTRING = "yyyy-MM-dd_HH:mm:ss";
+    private static String manualCreationDate = null;
+    
+    /**
+     * To manually set the creation date to some pre-formatted striog.
+     * This is essentially for generating reproducible results for testing.
+     * @param newManualCreationData New date to set.
+     */
+    public static void setManualCreationDate(String newManualCreationData) {
+        manualCreationDate = newManualCreationData;
+    }
 
+    private static String mkCreationDate() {
+        return manualCreationDate != null
+                ? manualCreationDate
+                :  (new SimpleDateFormat(DATE_FORMATSTRING)).format(new Date());
+    }
+    
     private final String creatingUser;
     private       String source;
     private final String creationDate;
@@ -89,7 +105,7 @@ final class AdminData implements Serializable {
     AdminData(String creatingUser, String source, String creationDate, String tool, String toolVersion, String tool2, String tool2Version, Map<String, String> notes) {
         this.creatingUser = creatingUser != null ? creatingUser : System.getProperty("user.name");
         this.source = source;
-        this.creationDate = creationDate != null ? creationDate : (new SimpleDateFormat(DATE_FORMATSTRING)).format(new Date());
+        this.creationDate = creationDate != null ? creationDate : mkCreationDate();
         this.tool = tool;
         this.toolVersion = toolVersion;
         this.tool2 = tool2;
@@ -121,7 +137,7 @@ final class AdminData implements Serializable {
         } else {
             creatingUser = null;
             source = null;
-            creationDate = (new SimpleDateFormat(DATE_FORMATSTRING)).format(new Date());
+            creationDate = mkCreationDate();
             tool = null;
             toolVersion = null;
             tool2 = null;

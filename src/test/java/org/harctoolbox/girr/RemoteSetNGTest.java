@@ -36,6 +36,7 @@ public class RemoteSetNGTest {
     private final RemoteSet remoteSet;
 
     public RemoteSetNGTest() throws GirrException, IOException, SAXException {
+        AdminData.setManualCreationDate("A long long time ago");
         remoteSet = new RemoteSet(new File("src/test/girr/philips_37pfl9603_all.girr"));
     }
 
@@ -77,7 +78,7 @@ public class RemoteSetNGTest {
         boolean generateParameters = true;
         Document document = remoteSet.toDocument(title, stylesheetType, stylesheetUrl, fatRaw, generateParameters, generateProntoHex, generateRaw);
         XmlUtils.printDOM(file, document);
-        System.out.println("RemoteSet was written to the file " + file.getCanonicalPath() + ", please examine manually");
+        CommandNGTest.assertFileEqualContent(filename);
     }
 
     /**
@@ -310,7 +311,9 @@ public class RemoteSetNGTest {
         RemoteSet rs = new RemoteSet("Imhotep", path.toString(), result);
         assertEquals(rs.size(), 8);
         rs.strip();
-        rs.print("fatremoteset.girr", false, false, false);
+        String filename = "fatremoteset.girr";
+        rs.print(filename, false, false, false);
+        CommandNGTest.assertFileEqualContent(filename);
     }
 
     /**
@@ -324,7 +327,10 @@ public class RemoteSetNGTest {
         System.out.println("strip");
         RemoteSet instance = new RemoteSet("src/test/girr/marco.girr");
         instance.strip();
-        instance.print("stripped.girr", false, false, false);
+        String filename = "stripped.girr";
+        instance.print(filename, false, false, false);
+        CommandNGTest.assertFileEqualContent(filename);
+
     }
 
     /**

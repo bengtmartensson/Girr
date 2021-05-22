@@ -128,7 +128,7 @@ public class CommandSetNGTest {
         System.out.println("print");
         String filename = "commandset.girr";
         commandSet.print(filename);
-        System.out.println("File " + filename + " written, please examine manually");
+        CommandNGTest.assertFileEqualContent(filename);
     }
 
     /**
@@ -144,7 +144,7 @@ public class CommandSetNGTest {
         CommandSet cmdSet = remote.iterator().next();
         String filename = "commandset_sony.girr";
         cmdSet.print(filename);
-        System.out.println("File " + filename + " written, please examine manually");
+        CommandNGTest.assertFileEqualContent(filename);
     }
 
     /**

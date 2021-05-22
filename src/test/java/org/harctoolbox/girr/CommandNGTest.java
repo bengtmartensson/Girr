@@ -1,8 +1,11 @@
 package org.harctoolbox.girr;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,6 +39,7 @@ public class CommandNGTest {
     private static final String RC5_12_34_0_CCF = "0000 0073 0000 000A 0020 0020 0040 0020 0020 0040 0020 0020 0040 0020 0020 0040 0040 0020 0020 0020 0020 0040 0040 0CC8";
     private static final String RC5_12_34_1_CCF = "0000 0073 0000 000A 0020 0020 0020 0020 0040 0040 0020 0020 0040 0020 0020 0040 0040 0020 0020 0020 0020 0040 0040 0CC8";
     private static final String XMP = "0000 006D 0012 0012 0008 0027 0008 003C 0008 0022 0008 006A 0008 0032 0008 0032 0008 001D 0008 001D 0008 020C 0008 0027 0008 0060 0008 001D 0008 0022 0008 001D 0008 001D 0008 001D 0008 001D 0008 0BEF 0008 0027 0008 003C 0008 0022 0008 006A 0008 0032 0008 0032 0008 001D 0008 001D 0008 020C 0008 0027 0008 0037 0008 0046 0008 0022 0008 001D 0008 001D 0008 001D 0008 001D 0008 0BEF";
+    private static final String REFERENCE_DIR = "src/test/reference";
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -43,6 +47,23 @@ public class CommandNGTest {
 
     @AfterClass
     public static void tearDownClass() throws Exception {
+    }
+
+    public static void assertFileEqualContent(File testFile, File referenceFile) throws IOException {
+        try (BufferedReader testReader = new BufferedReader(new InputStreamReader(new FileInputStream(testFile), XmlUtils.DEFAULT_CHARSETNAME));
+                BufferedReader refReader = new BufferedReader(new InputStreamReader(new FileInputStream(referenceFile), XmlUtils.DEFAULT_CHARSETNAME))) {
+            while (true) {
+                String testLine = testReader.readLine();
+                String refLine = refReader.readLine();
+                assertEquals(testLine, refLine);
+                if (testLine == null)
+                    return;
+            }
+        }
+    }
+    
+    public static void assertFileEqualContent(String filename) throws IOException {
+        assertFileEqualContent(new File(filename), new File(REFERENCE_DIR, filename));
     }
 
     //private final Command nec1_12_34_56_ccf;
@@ -513,6 +534,6 @@ public class CommandNGTest {
         String filename = "command.girr";
         Command cmd = new Command(new File("src/test/girr/topping-command.girr"));
         cmd.print(filename);
-        System.out.println("Wrote " + filename + ", please check manually");
+        assertFileEqualContent(filename);
     }
 }

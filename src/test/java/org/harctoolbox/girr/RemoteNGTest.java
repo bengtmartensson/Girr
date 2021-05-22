@@ -66,7 +66,7 @@ public class RemoteNGTest {
         System.out.println("print");
         String filename = "remote.girr";
         sonyRemote.print(filename);
-        System.out.println("Remote written to " + filename + ", please inspect manually");
+        CommandNGTest.assertFileEqualContent(filename);
     }
 
     /**
