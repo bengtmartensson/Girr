@@ -171,9 +171,7 @@ public abstract class XmlExporter implements Serializable {
      * Exports the Object to an Element.
      *
      * @param doc Owner Document.
-     * @param title Textual title, as attribute in the top level element.
      * @param fatRaw If generating the raw form, generate it in the so-called fat form, with one element per duration.
-     * @param isTopLevel If true, generate an xsi:schemaLocation attribute in the element.
      * @param generateParameters If true, generate the parameter form.
      * @param generateProntoHex If true, generate the Pronto Hex form.
      * @param generateRaw If true, generate the raw form.

@@ -123,11 +123,12 @@ public abstract class XmlStatic {
 
     /**
      * Makes a Document from an Element.
-     * @param root
+     *
+     * @param title Text for title attribute
+     * @param root Element to transfer
      * @param stylesheetType
      * @param stylesheetUrl
-     * @param createSchemaLocation
-     * @return
+     * @return 
      */
     static Document createDocument(String title, Element root, String stylesheetType, String stylesheetUrl) {
         Document document = root.getOwnerDocument();
