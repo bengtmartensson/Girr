@@ -2,7 +2,6 @@ package org.harctoolbox.girr;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import org.harctoolbox.ircore.IrCoreException;
@@ -305,8 +304,8 @@ public class RemoteSetNGTest {
     @Test
     public void testParseFiles() throws IOException {
         System.out.println("parseFiles");
-        Path path = new File("src/test/girr").toPath();
-        Collection<RemoteSet> result = RemoteSet.parseFiles(path);
+        File path = new File("src/test/girr");
+        Collection<RemoteSet> result = RemoteSet.parseAsCollection(path);
         assertEquals(result.size(), 8);
         RemoteSet rs = new RemoteSet("Imhotep", path.toString(), result);
         assertEquals(rs.size(), 8);
