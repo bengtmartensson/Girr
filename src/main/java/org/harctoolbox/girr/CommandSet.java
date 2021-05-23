@@ -58,7 +58,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
 
     private final static Logger logger = Logger.getLogger(CommandSet.class.getName());
 
-    private Map<String, String> notes;
+    private final Map<String, String> notes;
     private String protocolName;
     private final String name;
     private final Map<String, Long> parameters;

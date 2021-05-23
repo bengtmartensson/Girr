@@ -187,9 +187,18 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         return pmud(new File(thing));
     }
 
-    private AdminData adminData;
-    private Map<String, Remote> remotes;
-    private IrpDatabase irpDatabase = new IrpDatabase();
+    private static IrpDatabase mkIrpDatabase(Element element) {
+        try {
+            return new IrpDatabase(element);
+        } catch (IrpParseException ex) {
+            logger.log(Level.WARNING, ex.getLocalizedMessage());
+            return new IrpDatabase();
+        }
+    }
+
+    private final AdminData adminData;
+    private final Map<String, Remote> remotes;
+    private final IrpDatabase irpDatabase;
 
     public RemoteSet(Path path) {
         this(null, path);
@@ -258,13 +267,10 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
         nl = root.getElementsByTagName(IrpDatabase.IRP_NAMESPACE_PREFIX + ":" + IrpDatabase.PROTOCOLS_NAME);
         if (nl.getLength() > 0) {
-            try {
-                Element protocolsElement = (Element) nl.item(0);
-                irpDatabase = new IrpDatabase(protocolsElement);
-            } catch (IrpParseException ex) {
-                logger.log(Level.WARNING, ex.getLocalizedMessage());
-            }
-        }
+            Element protocolsElement = (Element) nl.item(0);
+            irpDatabase = mkIrpDatabase(protocolsElement);
+        } else
+            irpDatabase = new IrpDatabase();
     }
 
     /**
@@ -342,13 +348,13 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             String toolVersion,
             String tool2,
             String tool2Version) {
-        adminData = new AdminData(creatingUser, source, null, tool, toolVersion, tool2, tool2Version, null);
-        this.remotes = new LinkedHashMap<>(1);
+        this(new AdminData(creatingUser, source, null, tool, toolVersion, tool2, tool2Version, null), null);
     }
 
     RemoteSet(AdminData adminData, Map<String, Remote> remotes) {
         this.adminData = adminData;
         this.remotes = remotes != null ? remotes : new LinkedHashMap<>(1);
+        this.irpDatabase = new IrpDatabase();
     }
 
     /**

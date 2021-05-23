@@ -292,9 +292,9 @@ public final class Command extends XmlExporter implements Named {
 
     private Protocol protocol;
     private MasterType masterType;
-    private Map<String, String> notes;
-    private String name;
-    private String displayName;
+    private final Map<String, String> notes;
+    private final String name;
+    private final String displayName;
     private String protocolName; // should always be lowercase
     private Map<String, Long> parameters;
     private Integer frequency;
@@ -303,7 +303,7 @@ public final class Command extends XmlExporter implements Named {
     private String[] repeat;
     private String[] ending;
     private String[] prontoHex;
-    private String comment;
+    private final String comment;
     private Map<String, String> otherFormats;
 
     /**
@@ -314,7 +314,9 @@ public final class Command extends XmlExporter implements Named {
      * @throws org.harctoolbox.girr.GirrException
      */
     public Command(Element element, String inheritProtocol, Map<String, Long> inheritParameters) throws GirrException {
-        this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME), element.getAttribute(COMMENT_ATTRIBUTE_NAME));
+        this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME),
+                element.getAttribute(COMMENT_ATTRIBUTE_NAME), element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME),
+                XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME)));
         if (!element.getTagName().equals(COMMAND_ELEMENT_NAME))
             throw new GirrException("Element is not of type " + COMMAND_ELEMENT_NAME);
 
@@ -323,8 +325,6 @@ public final class Command extends XmlExporter implements Named {
         if (inheritParameters != null)
             parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
-        displayName = element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME);
-        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
 
         try {
             NodeList nl;
@@ -486,11 +486,16 @@ public final class Command extends XmlExporter implements Named {
     }
 
     private Command(MasterType masterType, String name, String comment) {
+        this(masterType, name, comment, null, null);
+    }
+
+    private Command(MasterType masterType, String name, String comment, String displayName, Map<String, String> notes) {
         this.masterType = masterType;
         this.name = name;
         this.comment = comment;
+        this.displayName = displayName;
         this.otherFormats = new HashMap<>(0);
-        this.notes = new HashMap<>(0);
+        this.notes = notes != null ? notes : new HashMap<>(0);
         frequency = null;
         dutyCycle = null;
         prontoHex = null;
@@ -762,10 +767,6 @@ public final class Command extends XmlExporter implements Named {
 
     public String getDisplayName() {
         return displayName;
-    }
-
-    public void setDisplayName(String dispName) {
-        displayName = dispName;
     }
 
     /**

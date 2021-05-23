@@ -75,12 +75,12 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     private final static Logger logger = Logger.getLogger(Remote.class.getName());
 
-    private MetaData metaData;
-    private AdminData adminData;
+    private final MetaData metaData;
+    private final AdminData adminData;
     private String comment;
-    private Map<String, String> notes;
-    private Map<String, CommandSet> commandSets;
-    private Map<String, Map<String, String>> applicationParameters;
+    private final Map<String, String> notes;
+    private final Map<String, CommandSet> commandSets;
+    private final Map<String, Map<String, String>> applicationParameters;
 
     /**
      * This constructor is used to read a Girr file into a Remote.
