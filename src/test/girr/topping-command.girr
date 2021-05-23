@@ -10,8 +10,8 @@
          title="IrScrutinizer parametric export"
          xsi:schemaLocation="http://www.harctoolbox.org/Girr ../../main/schemas/girr_ns-1.2.xsd">
     <parameters protocol="nec1">
-        <parameter name="S" value="136"/>
         <parameter name="D" value="153"/>
+        <parameter name="S" value="136"/>
         <parameter name="F" value="24"/>
     </parameters>
 </command>

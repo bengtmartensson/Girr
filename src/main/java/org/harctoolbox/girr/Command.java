@@ -86,7 +86,7 @@ import org.xml.sax.SAXException;
  * This class models the command in Girr. A command is essentially an IR signal,
  * given either by protocol/parameters or timing data, and a name.
  * <p>
- * Some protocols have toggles, a persistant variable that changes between invocations.
+ * Some protocols have toggles, a persistent variable that changes between invocations.
  * If a such a protocol is used, there are two cases
  * <ol>
  * <li>It the toggle parameter is explicitly specified, the signal is treated no different from other signals,
@@ -282,7 +282,7 @@ public final class Command extends XmlExporter implements Named {
     }
 
     private static Map<String, Long> mkMap(Long device, Long subdevice) {
-        Map<String, Long>params = new HashMap<>(2);
+        Map<String, Long>params = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         if (device != null)
             params.put(D_PARAMETER_NAME, device);
         if (subdevice != null)
@@ -319,7 +319,7 @@ public final class Command extends XmlExporter implements Named {
             throw new GirrException("Element is not of type " + COMMAND_ELEMENT_NAME);
 
         protocolName = inheritProtocol != null ? inheritProtocol.toLowerCase(Locale.US) : null;
-        parameters = new HashMap<>(INITIAL_HASHMAP_CAPACITY);
+        parameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         if (inheritParameters != null)
             parameters.putAll(inheritParameters);
         otherFormats = new HashMap<>(0);
@@ -792,7 +792,7 @@ public final class Command extends XmlExporter implements Named {
         switch (masterType) {
             case parameters:
                 if (toggle != null) {
-                    Map<String, Long> params = new HashMap<>(parameters);
+                    Map<String, Long> params = new LinkedHashMap<>(parameters);
                     params.put(TOGGLE_PARAMETER_NAME, toggle.longValue());
                     return irpDatabase.render(protocolName, params);
                 } else
@@ -926,7 +926,7 @@ public final class Command extends XmlExporter implements Named {
     }
 
     private void generateRawProntoHexForceT(Map<String, Long> parameter, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
-        Map<String, Long> params = new HashMap<>(parameters);
+        Map<String, Long> params = new LinkedHashMap<>(parameters);
         params.put(TOGGLE_PARAMETER_NAME, (long) T);
         generateRawProntoHex(params, T, generateRaw, generateProntoHex);
     }

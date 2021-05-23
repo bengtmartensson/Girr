@@ -21,8 +21,8 @@
         <commandSet name="id1">
             <command master="parameters" name="Power">
                 <parameters protocol="nec1">
-                    <parameter name="S" value="37"/>
                     <parameter name="D" value="210"/>
+                    <parameter name="S" value="37"/>
                     <parameter name="F" value="4"/>
                 </parameters>
             </command>

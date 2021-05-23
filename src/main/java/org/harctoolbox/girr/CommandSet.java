@@ -161,7 +161,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         this.notes = notes != null ? notes : new HashMap<>(0);
         this.commands = commands;
         this.protocolName = protocolName != null ? protocolName.toLowerCase(Locale.US) : null;
-        this.parameters = parameters != null ? parameters : new HashMap<>(INITIAL_HASHMAP_CAPACITY);
+        this.parameters = parameters != null ? new LinkedHashMap<>(parameters) : new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
     }
 
     /**
