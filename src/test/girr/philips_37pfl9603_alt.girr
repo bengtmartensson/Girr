@@ -8,7 +8,7 @@
     <!-- There are non-unique command names here, making the document invalid.
     Relaxing this requirement is planned, see https://github.com/bengtmartensson/harctoolboxbundle/issues/85 -->
     <adminData>
-        <creationData creatingUser="bengt" creationDate="2015-09-11_19:13:58" source="IrScrutinizer parametrized table" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.3"/>
+        <creationData creatingUser="Bernhard Riemann" creationDate="2015-09-11_19:13:58" source="IrScrutinizer parametrized table" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.3"/>
     </adminData>
 
     <remote comment="Export from IrScrutinizer" deviceClass="tv" manufacturer="Philips" model="PFL9603" name="Philips PLD9603 alternative" remoteName="unknown_remote">

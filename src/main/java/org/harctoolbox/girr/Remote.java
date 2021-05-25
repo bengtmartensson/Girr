@@ -132,7 +132,8 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
                 element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
         NodeList nl = element.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
         adminData = nl.getLength() > 0 ? new AdminData((Element) nl.item(0)) : new AdminData();
-        adminData.setSourceIfEmpty(source);
+        if (source != null && !source.isEmpty())
+            adminData.setSourceIfEmpty(source);
         applicationParameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
         notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
@@ -229,9 +230,9 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     @Override
     public Element toElement(Document doc, boolean fatRaw, boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
-        Element adminDataEl = adminData.toElement(doc);
-        if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
-            element.appendChild(adminDataEl);
+            Element adminDataEl = adminData.toElement(doc);
+            if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
+                element.appendChild(adminDataEl);
         element.setAttribute(NAME_ATTRIBUTE_NAME, metaData.name);
         if (metaData.displayName != null && !metaData.displayName.isEmpty())
             element.setAttribute(DISPLAYNAME_ATTRIBUTE_NAME, metaData.displayName);
@@ -282,7 +283,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     /**
      * Apply the sort function to all contained CommandSets.
-     * @param comparator 
+     * @param comparator
      */
     public void sort(Comparator<? super Named> comparator) {
         List<CommandSet> list = new ArrayList<>(commandSets.values());

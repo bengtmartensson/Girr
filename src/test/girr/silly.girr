@@ -9,7 +9,7 @@
          title="Hand written example">
     <adminData>
         <creationData source="/etc/lirc/lircd.conf" creationDate="Thu Jul 11 11:05:14 CEST 2013"
-                       creatingUser="bengt" tool="lirc2xml" toolVersion="0.2.0java"
+                       creatingUser="Archimedes" tool="lirc2xml" toolVersion="0.2.0java"
                        tool2="decodeIr" tool2Version="2.44"/>
         <versioningData/>
         <notes xml:lang="en">Notes in English.</notes>

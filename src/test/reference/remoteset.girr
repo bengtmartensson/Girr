@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--This file is in the Girr (General IR Remote) format, see http://www.harctoolbox.org/Girr.html--><remotes xmlns="http://www.harctoolbox.org/Girr" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" girrVersion="1.2" title="It will just go away by itself" xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1.2.xsd">
     <adminData>
-        <creationData creatingUser="Barf" creationDate="35-septober-2999" source="Whatever" tool="hand written" tool2="nuthin" tool2Version="who cares?" toolVersion="0.0.0"/>
+        <creationData creatingUser="Évariste Galois" creationDate="35-septober-2999" source="Whatever" tool="hand written" tool2="nuthin" tool2Version="who cares?" toolVersion="0.0.0"/>
         <notes xml:lang="en">Lorem Ipsum. Or not.</notes>
     </adminData>
     <remote comment="Full HD" deviceClass="tv" displayName="Philips 37PFL9603" manufacturer="Philips" model="37PFL9603" name="philips_37pfl9603" remoteName="untitled">
         <adminData>
-            <creationData creatingUser="bengt" creationDate="A long long time ago" source="src/test/girr/philips_37pfl9603_all.girr"/>
+            <creationData source="src/test/girr/philips_37pfl9603_all.girr"/>
         </adminData>
         <notes xml:lang="en">This basically demonstrates XInclude
             in Girr.</notes>

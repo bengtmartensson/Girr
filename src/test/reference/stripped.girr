@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--This file is in the Girr (General IR Remote) format, see http://www.harctoolbox.org/Girr.html--><remotes xmlns="http://www.harctoolbox.org/Girr" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" girrVersion="1.2" xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1.2.xsd">
     <adminData>
-        <creationData creatingUser="bengt" creationDate="A long long time ago" source="src/test/girr/marco.girr"/>
+        <creationData creatingUser="Bengt Martensson" creationDate="2020-01-01" source="src/test/girr/marco.girr" tool="IrpTransmogrifier" toolVersion="1.2.7-SNAPSHOT"/>
     </adminData>
     <irp:protocols xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xsi:schemaLocation="http://www.harctoolbox.org/irp-protocols http://www.harctoolbox.org/schemas/irp-protocols.xsd" xmlns:irp="http://www.harctoolbox.org/irp-protocols">
 <irp:protocol name="p_48a3bbc1">
@@ -10,7 +10,7 @@
     </irp:protocols>
     <remote deviceClass="ac" manufacturer="manufacturer" name="ac_remote">
         <adminData>
-            <creationData creatingUser="bengt" creationDate="A long long time ago" source="src/test/girr/marco.girr"/>
+            <creationData source="src/test/girr/marco.girr"/>
         </adminData>
         <commandSet name="commandSet">
             <command master="raw" name="cool-on">

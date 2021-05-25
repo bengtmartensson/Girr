@@ -8,7 +8,7 @@
     xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns.xsd"
     xmlns="http://www.harctoolbox.org/Girr">
     <adminData>
-        <creationData creatingUser="bengt" creationDate="2016-01-12_15:42:17" source="IrScrutinizer parametrized table" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.4snapshot"/>
+        <creationData creatingUser="Augustin-Louis Cauchy" creationDate="2016-01-12_15:42:17" source="IrScrutinizer parametrized table" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.4snapshot"/>
     </adminData>
     <commandSet name="commandSet">
         <command comment="" master="parameters" name="volume_up">

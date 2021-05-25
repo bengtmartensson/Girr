@@ -56,7 +56,7 @@ import org.xml.sax.SAXException;
 
 /**
  * This class contains a map of Remotes, indexed by their names.
- * 
+ *
  * Earlier versions of this library could only import and export RemoteSets.
  */
 public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
@@ -110,25 +110,31 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         }
         return coll;
     }
-    
+
     /**
      * Give a file or directory, parses the contained file(s) into a RemoteSet.
      * Can handle XML documents with root element to type remotes, remote, commandSet and command.
      *
      * @param file
      * @return
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
      */
     public static RemoteSet parse(File file) throws GirrException, IOException, SAXException {
         Collection<RemoteSet> collection = parseAsCollection(file);
         return new RemoteSet(null, file.toString(), collection);
     }
-    
+
     /**
      * Give a file or directory, parses the contained file(s) into a RemoteSet.
      * Can handle XML documents with root element to type remotes, remote, commandSet and command.
      *
      * @param file
      * @return
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     * @throws org.harctoolbox.girr.GirrException
      */
     public static RemoteSet parse(String file) throws IOException, SAXException, GirrException {
         return parse(getElement(file), file);
@@ -173,7 +179,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             return (RemoteSet) objectInputStream.readObject();
         }
     }
-    
+
     /**
      * Restores a RemoteSet from a serialized file.
      *
@@ -185,7 +191,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     public static RemoteSet pmud(File file) throws IOException, ClassNotFoundException {
         return pmud(new FileInputStream(file));
     }
-    
+
    /**
      * Restores a RemoteSet from a serialized String.
      *
@@ -222,7 +228,6 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
                 null, null);
         for (RemoteSet remoteSet : remoteSets) {
             irpDatabase.patch(remoteSet.getIrpDatabase());
-            AdminData adm = remoteSet.getAdminData();
             for (Remote remote : remoteSet) {
                 String originalName = remote.getName();
                 String name = originalName;
@@ -233,7 +238,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
                     remote.setName(name);
                     remote.setComment("Name changed from \"" + originalName + "\" to \"" + name + "\".");
                 }
-                remote.getAdminData().setSourceIfEmpty(adm.getSource());
+                remote.getAdminData().merge(remoteSet.getAdminData());
                 remotes.put(name, remote);
             }
         }
@@ -449,7 +454,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     /**
      * Create a RemoteSet from a single Remote, given as argument.
-     * @param remote 
+     * @param remote
      */
     public RemoteSet(Remote remote) {
         this(remote.getAdminData(), Named.toMap(remote));
@@ -461,6 +466,14 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     private RemoteSet(Command command, String source) {
         this(new CommandSet(command), source);
+    }
+
+    public void setCreationDate(String date) {
+        adminData.setCreationDate(date);
+    }
+
+    public void setCreationDate() {
+        adminData.setCreationDate();
     }
 
     public void sort(Comparator<? super Named> comparator) {
@@ -640,7 +653,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
     /**
      * Return the number of contained Remotes.
-     * @return 
+     * @return
      */
     public int size() {
         return remotes.size();
@@ -653,11 +666,11 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         for (Remote remote : this)
             remote.strip();
     }
-    
+
     /**
      * Serializes the oject and writes it to a stream.
      * @param outputStream
-     * @throws IOException 
+     * @throws IOException
      */
     public void dump(OutputStream outputStream) throws IOException {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
@@ -668,7 +681,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     /**
      * Serializes the oject and writes it to a file.
      * @param file
-     * @throws IOException 
+     * @throws IOException
      */
     public void dump(File file) throws IOException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {

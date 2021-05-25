@@ -7,7 +7,7 @@
          girrVersion="1.2" title="RemoteMaster Girr Export"
          xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1,2.xsd">
     <adminData>
-        <creationData creatingUser="bengt" creationDate="Sun Apr 25 10:37:17 CEST 2021" source="/home/bengt/harctoolbox/support/120240VAC60HZ/Remote ID 1 (Default).rmdu" tool="RemoteMaster" toolVersion="2.12.15"/>
+        <creationData creatingUser="Carl Friederich Gauß" creationDate="Sun Apr 25 10:37:17 CEST 2021" source="/home/bengt/harctoolbox/support/120240VAC60HZ/Remote ID 1 (Default).rmdu" tool="RemoteMaster" toolVersion="2.12.15"/>
     </adminData>
     <remote deviceClass="Tuner" name="onkyo_t-4555" displayName="Integra/Onkyo TUN-3.7/T-4555 Multi Platform Radio Tuner  Remote ID 1, 2, 3." manufacturer="Onkyo" model="Integra T-4555" remoteName="RC-671T">
         <notes xml:lang="en">See <a href="http://www.hifi-remote.com/forums/viewtopic.php?t=102764">this thread</a>.</notes>

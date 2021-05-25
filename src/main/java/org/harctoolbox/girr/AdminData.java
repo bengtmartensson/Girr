@@ -49,31 +49,24 @@ final class AdminData implements Serializable {
      * Describes how a date/time is to be formatted, as per {@link java.text.SimpleDateFormat}.
      */
     public static final String DATE_FORMATSTRING = "yyyy-MM-dd_HH:mm:ss";
-    private static String manualCreationDate = null;
-    
-    /**
-     * To manually set the creation date to some pre-formatted striog.
-     * This is essentially for generating reproducible results for testing.
-     * @param newManualCreationData New date to set.
-     */
-    public static void setManualCreationDate(String newManualCreationData) {
-        manualCreationDate = newManualCreationData;
+
+    static void setAttributeIfNonNull(Element element, String attributeName, Object object) {
+        if (object == null)
+            return;
+        String value = object.toString();
+        if (value.isEmpty())
+            return;
+        element.setAttribute(attributeName, value);
     }
 
-    private static String mkCreationDate() {
-        return manualCreationDate != null
-                ? manualCreationDate
-                :  (new SimpleDateFormat(DATE_FORMATSTRING)).format(new Date());
-    }
-    
-    private final String creatingUser;
-    private       String source;
-    private final String creationDate;
-    private final String tool;
-    private final String toolVersion;
-    private final String tool2;
-    private final String tool2Version;
-    private final Map<String, String> notes;
+    private String creatingUser = null;
+    private String source = null;
+    private String creationDate = null;
+    private String tool = null;
+    private String toolVersion = null;
+    private String tool2 = null;
+    private String tool2Version = null;
+    private Map<String, String> notes = new HashMap<>(1);
 
     /**
      * Generates an empty AdminData.
@@ -95,7 +88,7 @@ final class AdminData implements Serializable {
      * Generates an AdminData with the fields filled out. All fields are syntax-free Strings, and may optionally be null or empty.
      * @param creatingUser Name of creating user, as a semantic free String.
      * @param source Description of the origin of the data. Typically a file, a URL, or a person.
-     * @param creationDate 
+     * @param creationDate
      * @param tool Name of creating tool.
      * @param toolVersion Version of creating tool-
      * @param tool2 Name of secondary tool, if applicable.
@@ -103,20 +96,20 @@ final class AdminData implements Serializable {
      * @param notes Comment of any kind, a map indexed by language.
      */
     AdminData(String creatingUser, String source, String creationDate, String tool, String toolVersion, String tool2, String tool2Version, Map<String, String> notes) {
-        this.creatingUser = creatingUser != null ? creatingUser : System.getProperty("user.name");
+        this.creatingUser = creatingUser;
         this.source = source;
-        this.creationDate = creationDate != null ? creationDate : mkCreationDate();
+        this.creationDate = creationDate;
         this.tool = tool;
         this.toolVersion = toolVersion;
         this.tool2 = tool2;
         this.tool2Version = tool2Version;
         this.notes = notes != null ? notes : new HashMap<>(INITIAL_HASHMAP_CAPACITY);
     }
-    
+
     /**
      * Imports an XML Element into an AdminData.
      * @param element
-     * @throws GirrException 
+     * @throws GirrException
      */
 
     AdminData(Element element) throws GirrException {
@@ -134,40 +127,26 @@ final class AdminData implements Serializable {
             toolVersion = creationdata.getAttribute(TOOLVERSIION_ATTRIBUTE_NAME);
             tool2 = creationdata.getAttribute(TOOL2_ATTRIBUTE_NAME);
             tool2Version = creationdata.getAttribute(TOOL2VERSION_ATTRIBUTE_NAME);
-        } else {
-            creatingUser = null;
-            source = null;
-            creationDate = mkCreationDate();
-            tool = null;
-            toolVersion = null;
-            tool2 = null;
-            tool2Version = null;
         }
     }
-    
+
     /**
      * Export the AdminData into an XML Element.
      * @param doc Owner document
-     * @return 
+     * @return
      */
     Element toElement(Document doc) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, ADMINDATA_ELEMENT_NAME);
         Element creationEl = doc.createElementNS(GIRR_NAMESPACE, CREATIONDATA_ELEMENT_NAME);
 
-        if (creatingUser != null)
-            creationEl.setAttribute(CREATINGUSER_ATTRIBUTE_NAME, creatingUser);
-        if (source != null)
-            creationEl.setAttribute(SOURCE_ATTRIBUTE_NAME, source);
-        if (creationDate != null)
-            creationEl.setAttribute(CREATIONDATE_ATTRIBUTE_NAME, creationDate);
-        if (tool != null)
-            creationEl.setAttribute(TOOL_ATTRIBUTE_NAME, tool);
-        if (toolVersion != null)
-            creationEl.setAttribute(TOOLVERSIION_ATTRIBUTE_NAME, toolVersion);
-        if (tool2 != null)
-            creationEl.setAttribute(TOOL2_ATTRIBUTE_NAME, tool2);
-        if (tool2Version != null)
-            creationEl.setAttribute(TOOL2VERSION_ATTRIBUTE_NAME, tool2Version);
+        setAttributeIfNonNull(creationEl, CREATINGUSER_ATTRIBUTE_NAME, creatingUser);
+        setAttributeIfNonNull(creationEl, SOURCE_ATTRIBUTE_NAME, source);
+        setAttributeIfNonNull(creationEl, CREATIONDATE_ATTRIBUTE_NAME, creationDate);
+        setAttributeIfNonNull(creationEl, TOOL_ATTRIBUTE_NAME, tool);
+        setAttributeIfNonNull(creationEl, TOOLVERSIION_ATTRIBUTE_NAME, toolVersion);
+        setAttributeIfNonNull(creationEl, TOOL2_ATTRIBUTE_NAME, tool2);
+        setAttributeIfNonNull(creationEl, TOOL2VERSION_ATTRIBUTE_NAME, tool2Version);
+
         if (creationEl.hasChildNodes() || creationEl.hasAttributes())
             element.appendChild(creationEl);
 
@@ -184,10 +163,52 @@ final class AdminData implements Serializable {
         return element;
     }
 
-    
+    public void setCreationDate(String date) {
+        creationDate = date != null ? date : new SimpleDateFormat(DATE_FORMATSTRING).format(new Date());
+    }
+
+    public void setCreationDate() {
+        setCreationDate(null);
+    }
+
+    public void setCreatingUser(String creator) {
+        creatingUser = creator != null ? creator : System.getProperty("user.name");
+    }
+
+    public void setCreatingUser() {
+        setCreatingUser(null);
+    }
+
+    /**
+     * Complement the current data with the data in the argument, to the extent meaningful.
+     * @param mergee Another AdminData to be merged in.
+     */
+    void merge(AdminData mergee) {
+        if (creatingUser == null)
+            creatingUser = mergee.creatingUser;
+	if (source == null)
+            source = mergee.source;
+        if (creationDate == null)
+            creationDate = mergee.creationDate;
+        if (tool == null)
+            tool = mergee.tool;
+	if (toolVersion == null)
+            toolVersion = mergee.toolVersion;
+	if (tool2 == null)
+            tool2 = mergee.tool2;
+	if (tool2Version == null)
+            tool2Version = mergee.tool2Version;
+        mergee.notes.entrySet().forEach(kvp -> {
+            String key = kvp.getKey();
+            if (!notes.containsKey(key)) {
+                notes.put(key, kvp.getValue());
+            }
+        });
+    }
+
     /**
      * Same as getNotes("en")
-     * @return 
+     * @return
      */
     String getNotes() {
         return getNotes(ENGLISH);
@@ -196,7 +217,7 @@ final class AdminData implements Serializable {
     /**
      * Get the notes for the lanugage in the argument.
      * @param language
-     * @return 
+     * @return
      */
     String getNotes(String language) {
         return notes.get(language);

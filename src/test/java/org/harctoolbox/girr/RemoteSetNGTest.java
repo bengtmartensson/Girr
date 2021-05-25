@@ -18,10 +18,6 @@ import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-/**
- *
- * @author bengt
- */
 public class RemoteSetNGTest {
 
     @BeforeClass
@@ -35,7 +31,6 @@ public class RemoteSetNGTest {
     private final RemoteSet remoteSet;
 
     public RemoteSetNGTest() throws GirrException, IOException, SAXException {
-        AdminData.setManualCreationDate("A long long time ago");
         remoteSet = new RemoteSet(new File("src/test/girr/philips_37pfl9603_all.girr"));
     }
 
@@ -120,7 +115,7 @@ public class RemoteSetNGTest {
     @Test
     public void testGetCreatingUser() {
         System.out.println("getCreatingUser");
-        String expResult = "Barf";
+        String expResult = "Évariste Galois";
         String result = remoteSet.getCreatingUser();
         assertEquals(result, expResult);
     }
@@ -282,15 +277,15 @@ public class RemoteSetNGTest {
         System.out.println("parse");
         // Root element: remotes
         RemoteSet rs = RemoteSet.parse("src/test/girr/philips_37pfl9603_all.girr");
-        assertEquals(rs.getCreatingUser(), "Barf");
+        assertEquals(rs.getCreatingUser(), "Évariste Galois");
 
         // Root element: remote
         rs = RemoteSet.parse("src/test/girr/sony_tv.girr");
-        assertEquals(rs.getCreatingUser(), "bengt");
+        assertEquals(rs.getCreatingUser(), "Augustin-Louis Cauchy");
 
         // Root element: commandSet
         rs = RemoteSet.parse("src/test/girr/philips_tv_cmdset_rc6.girr");
-        assertEquals(rs.getCreatingUser(), "bengt");
+        assertEquals(rs.getCreatingUser(), null);
 
         // Root element: command
         rs = RemoteSet.parse("src/test/girr/topping-command.girr");
@@ -309,6 +304,7 @@ public class RemoteSetNGTest {
         assertEquals(result.size(), 8);
         RemoteSet rs = new RemoteSet("Imhotep", path.toString(), result);
         assertEquals(rs.size(), 8);
+        rs.setCreationDate("Sometime");
         rs.strip();
         String filename = "fatremoteset.girr";
         rs.print(filename, false, false, false);
@@ -346,6 +342,6 @@ public class RemoteSetNGTest {
         RemoteSet instance = new RemoteSet("src/test/girr/marco.girr");
         instance.dump(file);
         RemoteSet readInstance = RemoteSet.pmud("dump.bin");
-        assertEquals(readInstance.getAdminData().getCreatingUser(), "bengt");
+        assertEquals(readInstance.getAdminData().getCreatingUser(), "Bengt Martensson");
     }
 }
