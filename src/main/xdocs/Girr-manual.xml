@@ -27,6 +27,10 @@
 	  <td>2020-05-29</td>
 	  <td>Some minor updates. Added Maven integration (which previously was found in README.md).</td>
 	</tr>
+        <tr>
+	  <td>2021-05-25</td>
+	  <td>Several minor fixes and clarifications.</td>
+	</tr>
       </table>
 
 <section>
@@ -90,8 +94,28 @@ the format.</p>
 <p><a href="IrScrutinizer.html">IrScrutinizer</a> uses Girr as its preferred format
 for import and export of IR signals. It can interactively import and export from many
 different file formats and data bases. However, it presently supports only files
-with <code>remotes</code> as the root element.</p>
+with <code>remotes</code> as the root element.
+(It is planned to eliminate this restriction in the near future.)</p>
 
+<p>
+<a href="https://sourceforge.net/projects/controlremote/">RMIR</a>
+(sometimes called RemoteMaster) is a powerful program for programming so-called
+<a  href="http://www.hifi-remote.com/forums/index.php">JP1</a>-remotes. Since version 2.11,
+it can export and import Girr files directly.
+</p>
+
+<p>
+    <a href="https://github.com/bengtmartensson/Jirc">Jirc</a> can generate Girr files from Lirc configuration files.
+    (It is also included in IrScrutinizer.)
+</p>
+<p>
+    <a href="https://github.com/bengtmartensson/IrpTransmogrifier">IrpTransmogrifier</a> can generate the output
+    from the <code>decode</code> and the <code>analyze</code> commands in Girr format.
+    (In order to avoid circular dependencies, it does not use the <a href="#Supporting+Java+library">support library</a>
+    described here.)
+</p>
+<p>
+    <a href="#GirrLib">GirrLib</a> is a small collection of Girr files.</p>
 </section>
 
 <section><title>Copyright</title>
@@ -123,7 +147,10 @@ possible, possibly prohibiting "silliness", but otherwise requiring at most a
 number of commands. In particular, it should not determine the semantics of the
 commands, nor does it describe how to control a device that can be commanded by
 the said remote. Names for commands can be "arbitrary", in any language or character set,
-using any printable characters including white space. A well defined semantic of command names is not granted. However, in
+using any printable characters including white space.
+However, it is recommended to us "simple" names in English, with no special characters or embedded whitespace.
+    (A <code>displayName</code> can be used for localized names, with arbitrary characters etc.)
+    A well defined semantic of command names is not granted. However, in
 some cases uniqueness in the purely syntactical sense is required, for example
     ensuring that all commands within a particular <code>commandSet</code> have unique names.</p>
 
@@ -159,16 +186,15 @@ switches.</li>
 </section>
 
 <section><title>Informal overview of the Girr format</title>
-<p>There are four different possible high-level element in the format:
+<p>There are four different possible root element types in the format:
 <code>remotes</code>, <code>remote</code>,
-<code>commandSet</code>s, and <code>command</code>s. All can be the root element of a conforming Girr document, although all
-software may not handle all of them. (Our <a href="#Supporting+Java+library">supporting library</a>
-only supports <code>remotes</code> as root element.) Basically,
+<code>commandSet</code>s, and <code>command</code>s. All can be the root element of a conforming Girr document, although some
+software may not handle all of them.
+(The previous versions of our <a href="#Supporting+Java+library">supporting library</a>
+only supported <code>remotes</code> as root element.) Basically,
 the element <code>remotes</code> contains one or more <code>remote</code>s,
-each
-containing
-one or more <code>commandSet</code>s, each containing either other
-<code>commandSet</code>s and/or <code>command</code>s.</p>
+each containing one or more <code>commandSet</code>s,
+each containing a number of <code>command</code>s.</p>
 <section><title>command</title>
 <p>This element models a command, consisting essentially of a name and an IR
 signal, in one or several different representations. Names can consist of any
@@ -235,22 +261,32 @@ example:</p>
 
 <section><title>commandSet</title>
 <p><code>commandSet</code>s bundles "related" commands together. They may
-contain <code>parameters</code> elements, in which case the values are
-inherited to children <code>commandSet</code>s and their contained
+contain <code>parameters</code> elements, in which case the protocol name and the parameeters therein are
+inherited to the contained
 <code>command</code>s.</p>
 
-<p>Although a <code>remote</code> cannot contain <code>command</code>s
-directly &mdash; it must contain a <code>commandSet</code> &mdash; the use of <code>commandSet</code>s is somewhat arbitrary. They can
+<p>The use of <code>commandSet</code>s is somewhat arbitrary. They can
 be used e.g. to structure a remote containing a few different protocols, or one
 protocol and a few different device numbers nicely, in particular if hand
 writing the Girr file. However, protocol and their parameters can also be given
 as <code>parameters</code> within the <code>command</code> element.</p>
 
+<p>Often, a device can be controlled in one of several "id-s", corresponding to different IR signals.
+    See the <a href="https://raw.githubusercontent.com/bengtmartensson/GirrLib/master/Girr/Oppo/oppo_bdp83-all.girr">Oppo BDP-83</a>
+    as example. The different id-s are modeled as different <code>commandSet</code>s.
+    These are (almost) identical, typically differing only in the device/subdevice parameter in the protocol.
+    In other cases, devices implement a "new" and an "old" set of commands; see for example a
+    <a href="https://raw.githubusercontent.com/bengtmartensson/GirrLib/master/Girr/Philips/philips_37pfl9603_alt.girr">Philips TV</a>
+    (RC5 and RC6 protocols) or a <a href="https://raw.githubusercontent.com/bengtmartensson/GirrLib/master/Girr/Denon/denon_avr4311.girr">Denon AVR receiver</a>
+    (old "Denon" protocol and new "Denon-K" protocol).
+</p>
+
 </section>
 <section><title>remote</title>
 <p>A <code>remote</code> is an abstract "clicker", containing a number of
-<code>command</code>s. The name of the contained commands must be unique, even
-across different <code>commandSet</code>s.</p></section>
+<code>command</code>s. The name of the contained commands must be unique within a
+<code>commandSet</code>, but the same name may be present in more than one <code>commandSet</code>.</p>
+</section>
 
 <section><title>remotes</title></section>
 <p><code>remotes</code>, as the name suggests, is a collection of
@@ -260,7 +296,7 @@ across different <code>commandSet</code>s.</p></section>
 <section><title>Detailed description of syntax and semantics of the Girr format</title>
 <section>
     <title>Version</title>
-<p>This article describes the Girr format version 1.0, identified by the
+<p>This article describes the Girr format version 1.2, identified by the
 attribute <code>girrVersion</code>, expected in the root element of an
 instance. (Not to be confused with the version of the <a href="#Supporting+Java+library">support library</a>.)</p>
 </section>
@@ -269,6 +305,7 @@ instance. (Not to be confused with the version of the <a href="#Supporting+Java+
     <title>Namespace</title>
     <p>The Girr <a href="http://en.wikipedia.org/wiki/Xml_namespace">namespace</a> is
     <code>http://www.harctoolbox.org/Girr</code>.</p>
+    <p>It is recommended to parse instances with a namespace- and XInclude-aware parser.</p>
 </section>
 
 <section>
@@ -323,15 +360,22 @@ As opposed to the specification  as such, it is licensed under the <a
 href="http://www.gnu.org/licenses/gpl.txt">Gnu General Public License, version
 3</a>.</p>
 
-<p>Presently, only import of documents having <a href="#remotes">
-        <code>remotes</code>
-    </a> as
-root element is supported.</p>
+<p>At the time of writing, the library carries the version number 2.2.10.</p>
 
-<p>At the time of writing, the library carries the version number 2.2.6.</p>
+<p>Previous versions only supported import and export of documents having
+        <code>remotes</code>
+as root element.</p>
 
 <p>The library requires the <a href="IrpTransmogrifier.html">IrpTransmogrifier</a> classes.</p>
 
+</section>
+
+<section>
+    <title>GirrLib</title>
+<p>I maintain a small library, GirrLib, available at <a href="https://github.com/bengtmartensson/GirrLib">GitHub</a>.
+    It consists of "my" collection of Girr files. Although not actively maintained, contributions are welcome.
+    The files therein are in the public domain.
+</p>
 </section>
 
 <section>
@@ -342,7 +386,7 @@ root element is supported.</p>
             <artifactId>Girr</artifactId>
             <version>1.2.3</version>  <!-- or another supported version -->
         </dependency>]]></source>
-<p>in the `pom.xml` of the importing project.
+        <p>in the <code>pom.xml</code> of the importing project.
         This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.</p>
 </section>
 
