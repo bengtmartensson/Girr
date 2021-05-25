@@ -9,6 +9,13 @@
                 xmlns:girr="http://www.harctoolbox.org/Girr">
     <xsl:output method="html"/>
 
+    <xsl:template match="html:*">
+        <xsl:element name="{local-name()}">
+            <xsl:copy-of select="@*"/>
+            <xsl:apply-templates select="node()" />
+        </xsl:element>
+    </xsl:template>
+
     <xsl:template match="/">
         <html>
             <head>
@@ -29,7 +36,7 @@
     </xsl:template>
 
     <xsl:template match="girr:notes">
-        <xsl:copy-of select="."/>
+        <xsl:apply-templates/>
     </xsl:template>
 
     <xsl:template match="html:img">
