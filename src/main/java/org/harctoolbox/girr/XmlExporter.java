@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Logger;
 import org.harctoolbox.ircore.IrCoreUtils;
 import org.harctoolbox.ircore.ThisCannotHappenException;
 import org.harctoolbox.xml.XmlUtils;
@@ -38,7 +37,7 @@ import org.xml.sax.SAXException;
  */
 public abstract class XmlExporter implements Serializable {
 
-    private final static Logger logger = Logger.getLogger(XmlExporter.class.getName());
+    //private final static Logger logger = Logger.getLogger(XmlExporter.class.getName());
 
     /**
      * Returns the root element of the first argument, which is supposed to be a valid XML document.

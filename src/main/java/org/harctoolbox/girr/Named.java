@@ -40,7 +40,7 @@ public interface Named extends Serializable {
         map.put(thing.getName(), thing);
         return map;
     }
- 
+
     /**
      * Generate a Map&lt;String, T&gt; map containing one element, the argument.
      *
@@ -58,19 +58,20 @@ public interface Named extends Serializable {
      * Populate the map as first argument with the elements contained in the Collection in the second argument.
      * @param <T>
      * @param map
-     * @param collection 
+     * @param collection
      */
     public static <T extends Named> void populateMap(Map<String, T> map, Collection<T> collection) {
         map.clear();
-        for (T thing : collection)
+        collection.forEach(thing -> {
             map.put(thing.getName(), thing);
+        });
     }
 
     /**
      * Create a Map&lt;String, T&gt; and populate with the elements of the second argument.
      * @param <T>
      * @param collection Collection of Ts.
-     * @return 
+     * @return
      */
     public static <T extends Named> Map<String, T> toMap(Collection<T> collection) {
         Map<String, T> map = new LinkedHashMap<>(collection.size());
@@ -80,7 +81,7 @@ public interface Named extends Serializable {
 
     /**
      * Return the name of the object.
-     * @return 
+     * @return
      */
     public String getName();
 
@@ -93,7 +94,7 @@ public interface Named extends Serializable {
             return o1.getName().compareTo(o2.getName());
         }
     }
-    
+
     /**
      * Class containing a Comparator implementing standard alphabetical, case insensitive order.
      */

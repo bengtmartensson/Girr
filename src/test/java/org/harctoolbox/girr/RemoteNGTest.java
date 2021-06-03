@@ -16,6 +16,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class RemoteNGTest {
 
     @BeforeClass
@@ -53,7 +54,6 @@ public class RemoteNGTest {
     @Test
     public void testGetCommands() {
         System.out.println("getCommands");
-        Remote instance = null;
         int expResult = 25;
         Map<String, Command> result = sonyRemote.getCommands();
         assertEquals(result.size(), expResult);

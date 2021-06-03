@@ -54,6 +54,7 @@ import org.xml.sax.SAXException;
  * A CommandSet is a set of Commands with unique names.
  * Typically, but not necessarily, they share the same protocol, but with different parameter values.
  */
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public final class CommandSet extends XmlExporter implements Named, Iterable<Command> {
 
     private final static Logger logger = Logger.getLogger(CommandSet.class.getName());
@@ -187,7 +188,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
     /**
      * Returns the Command with the given name, or null if not found.
      * @param commandName
-     * @return 
+     * @return
      */
     public Command getCommand(String commandName) {
         return commands.get(commandName);
@@ -203,7 +204,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
 
     /**
      * Size, i.e., the number of contained Commands.
-     * @return 
+     * @return
      */
     public int size() {
         return commands.size();
@@ -220,14 +221,14 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
 
     /**
      * Sort the commands according to the Comparator given as argument.
-     * @param comparator 
+     * @param comparator
      */
     public void sort(Comparator<? super Named> comparator) {
         List<Command> list = new ArrayList<>(commands.values());
         Collections.sort(list, comparator);
         Named.populateMap(commands, list);
     }
-    
+
     /**
      * Calls sort with a comparator that amounts to case-insensitive alphabetical sorting.
      */

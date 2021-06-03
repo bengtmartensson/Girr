@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class CommandNGTest {
     private static final String NEC1_12_34_56_CCF = "0000 006C 0022 0002 015B 00AD 0016 0016 0016 0016 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 06A4 015B 0057 0016 0E6C";
     private static final String IRP_PROTOCOLS_PATH = "src/test/resources/IrpProtocols.xml";
@@ -324,7 +325,6 @@ public class CommandNGTest {
     @Test
     public void testGetEnding_0args() throws IrCoreException, IrpException, GirrException {
         System.out.println("getEnding");
-        Command instance = null;
         String expResult = "";
         String result = rc5_12_34.getEnding();
         assertEquals(result, expResult);
@@ -367,7 +367,6 @@ public class CommandNGTest {
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public void testGetProntoHex_error() throws GirrException  {
         System.out.println("getProntoHex_error");
-        String expResult = NEC1_12_34_56_CCF;
         try {
             new Command("name", null, "nonexisting-protocol", nec1Params);
             fail();
@@ -507,7 +506,6 @@ public class CommandNGTest {
     @Test
     public void testNumberOfToggleValues() {
         System.out.println("numberOfToggleValues");
-        Command instance = null;
         int expResult = 1;
         int result = nec1_12_34_56_param.numberOfToggleValues();
         assertEquals(result, expResult);

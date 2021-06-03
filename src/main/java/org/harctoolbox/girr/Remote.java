@@ -177,8 +177,9 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         this.notes = notes;
         this.commandSets = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         if (commandSetsCollection != null)
-            for (CommandSet cmdSet : commandSetsCollection)
+            commandSetsCollection.forEach(cmdSet -> {
                 commandSets.put(cmdSet.getName(), cmdSet);
+        });
         this.applicationParameters = applicationParameters;
     }
 

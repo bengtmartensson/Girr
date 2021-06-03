@@ -117,7 +117,7 @@ public final class Command extends XmlExporter implements Named {
      * Name of the function name parameter.
      */
     public static final String F_PARAMETER_NAME = "F";
-    
+
     /**
      * Name of the parameter denoting device number.
      */
@@ -402,7 +402,7 @@ public final class Command extends XmlExporter implements Named {
         }
         sanityCheck();
     }
-    
+
     /**
      * This constructor is for importing from the Element as first argument.
      * @param element of type "command".
@@ -918,21 +918,21 @@ public final class Command extends XmlExporter implements Named {
     }
 
 
-    private void generateRawProntoHexAllT(Map<String, Long> parameters, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
+    private void generateRawProntoHexAllT(boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
         if (numberOfToggleValues() == 1)
-            generateRawProntoHex(parameters, generateRaw, generateProntoHex);
+            generateRawProntoHex(generateRaw, generateProntoHex);
         else
             for (int T = 0; T < numberOfToggleValues(); T++)
-                generateRawProntoHexForceT(parameters, T, generateRaw, generateProntoHex);
+                generateRawProntoHexForceT(T, generateRaw, generateProntoHex);
     }
 
-    private void generateRawProntoHexForceT(Map<String, Long> parameter, int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
+    private void generateRawProntoHexForceT(int T, boolean generateRaw, boolean generateProntoHex) throws DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
         Map<String, Long> params = new LinkedHashMap<>(parameters);
         params.put(TOGGLE_PARAMETER_NAME, (long) T);
         generateRawProntoHex(params, T, generateRaw, generateProntoHex);
     }
 
-    private void generateRawProntoHex(Map<String, Long> parameter, boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
+    private void generateRawProntoHex(boolean generateRaw, boolean generateProntoHex) throws GirrException, DomainViolationException, NameUnassignedException, IrpInvalidArgumentException, InvalidNameException, OddSequenceLengthException {
         if (!checkIfProtocol())
             throw new GirrException("protocol named " + this.protocolName + " not found or erroneous");
 
@@ -990,7 +990,7 @@ public final class Command extends XmlExporter implements Named {
             return;
 
         if (masterType == MasterType.parameters)
-            generateRawProntoHexAllT(parameters, true, false);
+            generateRawProntoHexAllT(true, false);
         else {
             IrSignal irSignal = Pronto.parse(prontoHex[0]);
             generateRaw(irSignal);
@@ -1005,7 +1005,7 @@ public final class Command extends XmlExporter implements Named {
             return;
 
         if (masterType == MasterType.parameters)
-            generateRawProntoHexAllT(parameters, false, true);
+            generateRawProntoHexAllT(false, true);
         else {
             IrSignal irSignal;
             irSignal = new IrSignal(intro[0], repeat[0], ending[0], frequency != null ? frequency.doubleValue() : null, dutyCycle);
@@ -1110,10 +1110,11 @@ public final class Command extends XmlExporter implements Named {
      * @param generateParameters
      * @param generateProntoHex
      * @param generateRaw
-     * @param inheritedProtocolName  
-     * @param inheritedParameters 
+     * @param inheritedProtocolName
+     * @param inheritedParameters
      * @return XML Element with tag name "command".
      */
+    @SuppressWarnings("null")
     Element toElement(Document doc, boolean fatRaw,
             boolean generateParameters, boolean generateProntoHex, boolean generateRaw, String inheritedProtocolName, Map<String, Long> inheritedParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
@@ -1239,11 +1240,11 @@ public final class Command extends XmlExporter implements Named {
     }
 
     /**
-     * Removes the forms different from the one given as argument. 
+     * Removes the forms different from the one given as argument.
      * @param type
      * @throws IrpException
      * @throws GirrException
-     * @throws IrCoreException 
+     * @throws IrCoreException
      */
     public void strip(MasterType type) throws IrpException, GirrException, IrCoreException {
         if (type != masterType)

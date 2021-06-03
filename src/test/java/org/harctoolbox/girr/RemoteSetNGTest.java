@@ -19,6 +19,7 @@ import org.testng.annotations.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class RemoteSetNGTest {
 
     @BeforeClass

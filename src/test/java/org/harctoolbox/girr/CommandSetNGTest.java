@@ -15,6 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.xml.sax.SAXException;
 
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class CommandSetNGTest {
 
     @BeforeClass
