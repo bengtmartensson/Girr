@@ -28,8 +28,8 @@
 	  <td>Some minor updates. Added Maven integration (which previously was found in README.md).</td>
 	</tr>
         <tr>
-	  <td>2021-05-25</td>
-	  <td>Several minor fixes and clarifications.</td>
+	  <td>2021-06-03</td>
+	  <td>Several minor fixes and clarifications, in particular embedded protocols.</td>
 	</tr>
       </table>
 
@@ -288,11 +288,17 @@ as <code>parameters</code> within the <code>command</code> element.</p>
 <code>commandSet</code>, but the same name may be present in more than one <code>commandSet</code>.</p>
 </section>
 
-<section><title>remotes</title></section>
+<section><title>remotes</title>
 <p><code>remotes</code>, as the name suggests, is a collection of
 <code>remote</code>s, identified by a unique name.</p>
 </section>
 
+<section>
+    <title>Embedded protocols</title>
+    <p>The parameter form references to a protocol using its name. Normally, this is assumed to be known to a processing program.
+        However, it is also possible to embed additional protocols in a Girr file, and to refer to it by its defined name in the declaration.</p>
+</section>
+</section>
 <section><title>Detailed description of syntax and semantics of the Girr format</title>
 <section>
     <title>Version</title>
@@ -310,8 +316,10 @@ instance. (Not to be confused with the version of the <a href="#Supporting+Java+
 
 <section>
     <title>Imported namespaces</title>
-    <p>Except for the "namespace" namespace (<code>http://www.w3.org/XML/1998/namespace</code>), the namespaces XInclude
-    (<code>http://www.w3.org/2001/XInclude</code>) and html (<code>http://www.w3.org/1999/xhtml</code>) are imported.
+    <p>Except for the <code>namespace</code> namespace (<code>http://www.w3.org/XML/1998/namespace</code>), the namespaces <code>XInclude</code>
+    (<code>http://www.w3.org/2001/XInclude</code>) and <code>html</code> (<code>http://www.w3.org/1999/xhtml</code>) are imported.
+    For embedding of additional protocols, the <code>irp</code> namespace (<code>http://www.harctoolbox.org/irp-protocols</code>) is used;
+    imported only on demand.
     XInclude- and html elements can be used at appropriate places, see the schema.</p>
 </section>
 

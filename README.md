@@ -251,6 +251,10 @@ A `remote` is an abstract "clicker", containing a number of
 `remotes`, as the name suggests, is a collection of
 `remote`s, identified by a unique name.
 
+### Embedded protocols
+The parameter form references to a protocol using its name. Normally, this is assumed to be known to a processing program.
+        However, it is also possible to embed additional protocols in a Girr file, and to refer to it by its defined name in the declaration.
+
 ## Detailed description of syntax and semantics of the Girr format
 ### Version
 This article describes the Girr format version 1.2, identified by the
@@ -264,8 +268,10 @@ The Girr [namespace](http://en.wikipedia.org/wiki/Xml_namespace) is
 It is recommended to parse instances with a namespace- and XInclude-aware parser.
 
 ### Imported namespaces
-Except for the "namespace" namespace (`http://www.w3.org/XML/1998/namespace`), the namespaces XInclude
-    (`http://www.w3.org/2001/XInclude`) and html (`http://www.w3.org/1999/xhtml`) are imported.
+Except for the `namespace` namespace (`http://www.w3.org/XML/1998/namespace`), the namespaces `XInclude`
+    (`http://www.w3.org/2001/XInclude`) and `html` (`http://www.w3.org/1999/xhtml`) are imported.
+    For embedding of additional protocols, the `irp` namespace (`http://www.harctoolbox.org/irp-protocols`) is used;
+    imported only on demand.
     XInclude- and html elements can be used at appropriate places, see the schema.
 
 ### Schema
