@@ -57,17 +57,45 @@ public class CommandNGTest {
     public static void tearDownClass() throws Exception {
     }
 
+    // This tries to compensate for differences in different DOM renderers javax.xml.transform.Transformer,
+    // taking a DOM tree to plain text.
+    // It is just "good enought to ge the job done", and is not a generic comparision engine
     public static void assertFileEqualContent(File testFile, File referenceFile) throws IOException {
         try (BufferedReader testReader = new BufferedReader(new InputStreamReader(new FileInputStream(testFile), XmlUtils.DEFAULT_CHARSETNAME));
                 BufferedReader refReader = new BufferedReader(new InputStreamReader(new FileInputStream(referenceFile), XmlUtils.DEFAULT_CHARSETNAME))) {
+            StringBuilder testLine = new StringBuilder(256);
+            StringBuilder refLine = new StringBuilder(256);
+
             while (true) {
-                String testLine = testReader.readLine();
-                String refLine = refReader.readLine();
-                assertEquals(testLine, refLine);
-                if (testLine == null)
+                load(testLine, testReader);
+                load(refLine, refReader);
+                if (testLine.length() == 0 && refLine.length() == 0)
                     return;
+                if (testLine.length() == 0 || refLine.length() == 0)
+                    fail();
+
+                int compareLength = Math.min(testLine.length(), refLine.length());
+                assertEquals(testLine.substring(0, compareLength), refLine.substring(0, compareLength));
+                testLine.delete(0, compareLength);
+                refLine.delete(0, compareLength);
             }
         }
+    }
+
+    private static void load(StringBuilder stringBuilder, BufferedReader reader) throws IOException {
+        if (stringBuilder.length() > 0)
+            return;
+
+        String line;
+        do {
+            line = reader.readLine();
+            if (line == null) {
+                stringBuilder.setLength(0);
+                return;
+            } else
+                line = line.trim();
+        } while (line.isEmpty());
+        stringBuilder.append(line);
     }
 
     public static void assertFileEqualContent(File file) throws IOException {
