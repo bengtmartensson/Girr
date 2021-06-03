@@ -1,9 +1,11 @@
 package org.harctoolbox.girr;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpException;
 import static org.testng.Assert.*;
@@ -64,7 +66,7 @@ public class RemoteNGTest {
     @Test
     public void testPrint() throws IOException {
         System.out.println("print");
-        String filename = "remote.girr";
+        File filename = new File(OUTDIR, "remote.girr");
         sonyRemote.print(filename);
         CommandNGTest.assertFileEqualContent(filename);
     }

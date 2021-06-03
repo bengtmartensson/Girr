@@ -1,8 +1,10 @@
 package org.harctoolbox.girr;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpException;
 import static org.testng.Assert.*;
@@ -126,7 +128,7 @@ public class CommandSetNGTest {
     @Test
     public void testPrint() throws IOException {
         System.out.println("print");
-        String filename = "commandset.girr";
+        File filename = new File(OUTDIR, "commandset.girr");
         commandSet.print(filename);
         CommandNGTest.assertFileEqualContent(filename);
     }
@@ -142,7 +144,7 @@ public class CommandSetNGTest {
         System.out.println("printSony");
         Remote remote = new Remote("src/test/girr/sony_tv.girr");
         CommandSet cmdSet = remote.iterator().next();
-        String filename = "commandset_sony.girr";
+        File filename = new File(OUTDIR, "commandset_sony.girr");
         cmdSet.print(filename);
         CommandNGTest.assertFileEqualContent(filename);
     }

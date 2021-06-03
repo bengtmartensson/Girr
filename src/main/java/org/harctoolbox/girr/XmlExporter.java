@@ -18,6 +18,7 @@ this program. If not, see http://www.gnu.org/licenses/.
 package org.harctoolbox.girr;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
@@ -44,34 +45,34 @@ public abstract class XmlExporter implements Serializable {
      * @param file
      * @return
      * @throws IOException
-     * @throws SAXException 
+     * @throws SAXException
      */
     protected static Element getElement(File file) throws IOException, SAXException {
         return XmlUtils.openXmlFile(file).getDocumentElement();
     }
-    
+
     /**
      * Returns the root element of the first argument, which is supposed to be a valid XML document.
      * @param file
      * @return
      * @throws IOException
-     * @throws SAXException 
+     * @throws SAXException
      */
     protected static Element getElement(String file) throws IOException, SAXException {
         return XmlUtils.openXmlThing(file).getDocumentElement();
     }
-    
+
     /**
      * Returns the root element of the first argument, which is supposed to read to a valid XML document.
      * @param reader
      * @return
      * @throws IOException
-     * @throws SAXException 
+     * @throws SAXException
      */
     protected static Element getElement(Reader reader) throws IOException, SAXException {
         return XmlUtils.openXmlReader(reader, null, true, true).getDocumentElement();
     }
-    
+
     /**
      * Returns the root element of the first argument, which is supposed to be a valid XML Document.
      * @param document
@@ -124,6 +125,29 @@ public abstract class XmlExporter implements Serializable {
     }
 
     /**
+     * Convenience function that generates a DOM and dumps it onto the argument.
+     *
+     * @param file
+     * @param generateProtocol
+     * @param generateProntoHex
+     * @param generateRaw
+     * @throws java.io.IOException
+     */
+    public final void print(File file, boolean generateProtocol, boolean generateProntoHex, boolean generateRaw) throws IOException {
+        print(new FileOutputStream(file), generateProtocol, generateProntoHex, generateRaw);
+    }
+
+    /**
+     * Convenience function that generates a DOM and dumps it onto the argument.
+     *
+     * @param file
+     * @throws java.io.IOException
+     */
+    public final void print(File file) throws IOException {
+        print(file, true, true, true);
+    }
+
+    /**
      * Generates an XML Document from a RemoteSet.
      *
      * @param title Textual title of document.
@@ -146,10 +170,10 @@ public abstract class XmlExporter implements Serializable {
                 generateParameters, generateProntoHex, generateRaw);
         return XmlStatic.createDocument(title, root, stylesheetType, stylesheetUrl);
     }
-    
+
     /**
      * @deprecated createSchemaLocation has been effectively removed, use version without it instead.
-     * 
+     *
      * @param title
      * @param stylesheetType
      * @param stylesheetUrl
@@ -158,7 +182,7 @@ public abstract class XmlExporter implements Serializable {
      * @param generateParameters
      * @param generateProntoHex
      * @param generateRaw
-     * @return 
+     * @return
      */
     public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
             boolean fatRaw, boolean createSchemaLocation,
@@ -166,7 +190,7 @@ public abstract class XmlExporter implements Serializable {
         return toDocument(title, stylesheetType, stylesheetUrl,
                 fatRaw, generateParameters, generateProntoHex, generateRaw);
     }
-    
+
     /**
      * Exports the Object to an Element.
      *

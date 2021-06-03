@@ -41,8 +41,16 @@ public class CommandNGTest {
     private static final String XMP = "0000 006D 0012 0012 0008 0027 0008 003C 0008 0022 0008 006A 0008 0032 0008 0032 0008 001D 0008 001D 0008 020C 0008 0027 0008 0060 0008 001D 0008 0022 0008 001D 0008 001D 0008 001D 0008 001D 0008 0BEF 0008 0027 0008 003C 0008 0022 0008 006A 0008 0032 0008 0032 0008 001D 0008 001D 0008 020C 0008 0027 0008 0037 0008 0046 0008 0022 0008 001D 0008 001D 0008 001D 0008 001D 0008 0BEF";
     private static final String REFERENCE_DIR = "src/test/reference";
 
+    public static final File OUTDIR = new File("out");
+
+    public static void assertOutDirExists() {
+        if (!OUTDIR.isDirectory())
+            OUTDIR.mkdirs();
+    }
+
     @BeforeClass
     public static void setUpClass() throws Exception {
+        assertOutDirExists();
     }
 
     @AfterClass
@@ -61,9 +69,10 @@ public class CommandNGTest {
             }
         }
     }
-    
-    public static void assertFileEqualContent(String filename) throws IOException {
-        assertFileEqualContent(new File(filename), new File(REFERENCE_DIR, filename));
+
+    public static void assertFileEqualContent(File file) throws IOException {
+        String filename = file.getName();
+        assertFileEqualContent(file, new File(REFERENCE_DIR, filename));
     }
 
     //private final Command nec1_12_34_56_ccf;
@@ -531,9 +540,9 @@ public class CommandNGTest {
     @Test
     public void testToElement() throws GirrException, IOException, SAXException {
         System.out.println("toElement");
-        String filename = "command.girr";
+        File file = new File(OUTDIR, "command.girr");
         Command cmd = new Command(new File("src/test/girr/topping-command.girr"));
-        cmd.print(filename);
-        assertFileEqualContent(filename);
+        cmd.print(file);
+        assertFileEqualContent(file);
     }
 }

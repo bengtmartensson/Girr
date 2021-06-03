@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
@@ -45,7 +46,6 @@ public class RemoteSetNGTest {
     @Test
     public void testParseFileOrDirectory() throws GirrException, SAXException, IOException {
         System.out.println("parseFileOrDirectory");
-        File file = null;
         RemoteSet result = new RemoteSet(new File("src/test/girr/marco.girr"));
         IrpDatabase database = result.getIrpDatabase();
         NamedProtocol protocol = database.iterator().next();
@@ -61,8 +61,7 @@ public class RemoteSetNGTest {
     @Test
     public void testToDocument() throws IOException {
         System.out.println("toDocument");
-        String filename = "remoteset.girr";
-        File file = new File(filename);
+        File file = new File(OUTDIR, "remoteset.girr");
         String title = "It will just go away by itself";
         String stylesheetType = "";
         String stylesheetUrl = "";
@@ -72,7 +71,7 @@ public class RemoteSetNGTest {
         boolean generateParameters = true;
         Document document = remoteSet.toDocument(title, stylesheetType, stylesheetUrl, fatRaw, generateParameters, generateProntoHex, generateRaw);
         XmlUtils.printDOM(file, document);
-        CommandNGTest.assertFileEqualContent(filename);
+        CommandNGTest.assertFileEqualContent(file);
     }
 
     /**
@@ -306,7 +305,7 @@ public class RemoteSetNGTest {
         assertEquals(rs.size(), 8);
         rs.setCreationDate("Sometime");
         rs.strip();
-        String filename = "fatremoteset.girr";
+        File filename = new File(OUTDIR, "fatremoteset.girr");
         rs.print(filename, false, false, false);
         CommandNGTest.assertFileEqualContent(filename);
     }
@@ -322,7 +321,7 @@ public class RemoteSetNGTest {
         System.out.println("strip");
         RemoteSet instance = new RemoteSet("src/test/girr/marco.girr");
         instance.strip();
-        String filename = "stripped.girr";
+        File filename = new File(OUTDIR, "stripped.girr");
         instance.print(filename, false, false, false);
         CommandNGTest.assertFileEqualContent(filename);
 
