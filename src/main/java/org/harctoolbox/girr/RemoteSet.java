@@ -476,15 +476,21 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         adminData.setCreationDate();
     }
 
-    public void sort(Comparator<? super Named> comparator) {
+    public void sort(Comparator<? super Named> comparator, boolean recurse) {
         List<Remote> list = new ArrayList<>(remotes.values());
         Collections.sort(list, comparator);
         remotes.clear();
         list.forEach((Remote remote) -> {
-            remote.sort(comparator);
+            if (recurse)
+                remote.sort(comparator);
             remotes.put(remote.getName(), remote);
         });
     }
+
+    public void sort(boolean recurse) {
+        sort(new Named.CompareNameCaseInsensitive(), recurse);
+    }
+
 
     public boolean isEmpty() {
         return remotes.isEmpty();

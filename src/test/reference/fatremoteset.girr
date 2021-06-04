@@ -55,375 +55,6 @@
             </command>
         </commandSet>
     </remote>
-    <remote comment="Full HD" deviceClass="tv" displayName="Philips 37PFL9603" manufacturer="Philips" model="37PFL9603" name="philips_37pfl9603" remoteName="untitled">
-        <adminData>
-            <creationData creatingUser="Évariste Galois" creationDate="35-septober-2999" source="src/test/girr/philips_37pfl9603_all.girr" tool="hand written" tool2="nuthin" tool2Version="who cares?" toolVersion="0.0.0"/>
-            <notes xml:lang="en">Lorem Ipsum. Or not.</notes>
-        </adminData>
-        <notes xml:lang="en">This basically demonstrates XInclude
-            in Girr.</notes>
-        <commandSet name="device_0">
-            <parameters protocol="rc5">
-                <parameter name="D" value="0"/>
-            </parameters>
-            <command F="0" master="parameters" name="cmd_0"/>
-            <command F="1" master="parameters" name="cmd_1"/>
-            <command F="2" master="parameters" name="cmd_2"/>
-            <command F="3" master="parameters" name="cmd_3"/>
-            <command F="4" master="parameters" name="cmd_4"/>
-            <command F="5" master="parameters" name="cmd_5"/>
-            <command F="6" master="parameters" name="cmd_6"/>
-            <command F="7" master="parameters" name="cmd_7"/>
-            <command F="8" master="parameters" name="cmd_8"/>
-            <command F="9" master="parameters" name="cmd_9"/>
-            <command F="12" displayName="power" master="parameters" name="power_toggle"/>
-            <command F="32" master="parameters" name="channel_up"/>
-            <command F="33" master="parameters" name="channel_down"/>
-            <command F="13" displayName="mute" master="parameters" name="mute_toggle"/>
-            <command F="34" master="parameters" name="last_channel"/>
-            <command F="16" master="parameters" name="volume_up"/>
-            <command F="17" master="parameters" name="volume_down"/>
-            <command F="14" master="parameters" name="PP"/>
-            <command F="15" master="parameters" name="info"/>
-            <command F="19" master="parameters" name="brightness_down"/>
-            <command F="18" master="parameters" name="brightness_up"/>
-            <command F="126" master="parameters" name="aspectratio"/>
-            <command F="82" master="parameters" name="menu"/>
-            <command F="80" master="parameters" name="up"/>
-            <command F="81" master="parameters" name="down"/>
-            <command F="85" master="parameters" name="left"/>
-            <command F="86" master="parameters" name="right"/>
-            <command F="87" master="parameters" name="ok"/>
-            <command F="107" master="parameters" name="red"/>
-            <command F="108" master="parameters" name="green"/>
-            <command F="109" master="parameters" name="yellow"/>
-            <command F="110" master="parameters" name="blue"/>
-            <command F="111" master="parameters" name="white"/>
-            <command F="83" master="parameters" name="menu_off"/>
-            <command F="35" master="parameters" name="I_II"/>
-            <command F="60" master="parameters" name="teletext_toggle"/>
-            <command F="41" master="parameters" name="teletext_freeze"/>
-            <command F="44" master="parameters" name="teletext_reveal"/>
-            <command F="45" master="parameters" name="teletext_hide"/>
-            <command F="46" master="parameters" name="teletext_translucent"/>
-            <command F="43" master="parameters" name="teletext_doubleheight"/>
-            <command F="42" master="parameters" name="teletext_time"/>
-            <command F="88" master="parameters" name="PIP"/>
-            <command F="95" master="parameters" name="PIP_source"/>
-            <command F="90" master="parameters" name="PIP_exchange"/>
-            <command F="101" master="parameters" name="PIP_freeze"/>
-            <command F="89" master="parameters" name="PIP_position"/>
-            <command F="103" master="parameters" name="PIP_ch_down"/>
-            <command F="102" master="parameters" name="PIP_ch_up"/>
-            <command F="58" master="parameters" name="subtitle"/>
-            <command F="57" master="parameters" name="in_ext2"/>
-            <command F="63" master="parameters" name="power_on"/>
-            <command F="61" master="parameters" name="power_off"/>
-            <command F="56" master="parameters" name="input"/>
-        </commandSet>
-        <commandSet name="rc5_3">
-            <parameters protocol="rc5">
-                <parameter name="D" value="3"/>
-            </parameters>
-            <command F="4" master="parameters" name="in_ext1"/>
-            <command F="5" master="parameters" name="in_side"/>
-            <command F="6" master="parameters" name="in_hdmi3"/>
-            <command F="7" master="parameters" name="in_hdmi4"/>
-            <command F="13" master="parameters" name="mute_toggle"/>
-            <command F="19" master="parameters" name="in_usb"/>
-            <command F="40" master="parameters" name="ambilight_on"/>
-            <command F="41" master="parameters" name="ambilight_off"/>
-            <command F="44" master="parameters" name="epg"/>
-            <command F="56" master="parameters" name="in_ext3"/>
-            <command F="57" master="parameters" name="in_hdmi1"/>
-            <command F="61" master="parameters" name="aspectratio_automatic"/>
-            <command F="62" displayName="movie expand 16:9" master="parameters" name="aspectratio_zoom"/>
-            <command F="72" master="parameters" name="tv_mode"/>
-            <command F="80" displayName="movie expand 14:9" master="parameters" name="aspectratio_14_9"/>
-            <command F="123" master="parameters" name="in_hdmi2"/>
-            <command F="116" displayName="wide screen" master="parameters" name="aspectratio_16_9"/>
-            <command F="117" master="parameters" name="aspectratio_4_3"/>
-            <command F="126" displayName="super zoom" master="parameters" name="aspectratio_nat_wide1"/>
-        </commandSet>
-        <commandSet name="rc6">
-            <parameters protocol="rc6">
-                <parameter name="D" value="0"/>
-            </parameters>
-            <command F="12" master="parameters" name="power_toggle"/>
-            <command F="56" master="parameters" name="input"/>
-            <command F="60" master="parameters" name="teletext_toggle"/>
-            <command F="93" master="parameters" name="teletext_pip"/>
-            <command F="75" master="parameters" name="subtitle"/>
-            <command F="245" master="parameters" name="aspectratio"/>
-            <command F="109" master="parameters" name="red"/>
-            <command F="110" master="parameters" name="green"/>
-            <command F="111" master="parameters" name="yellow"/>
-            <command F="112" master="parameters" name="blue"/>
-            <command F="204" master="parameters" name="epg"/>
-            <command F="15" master="parameters" name="info"/>
-            <command F="88" master="parameters" name="up"/>
-            <command F="89" master="parameters" name="down"/>
-            <command F="90" master="parameters" name="left"/>
-            <command F="91" master="parameters" name="right"/>
-            <command F="92" master="parameters" name="ok"/>
-            <command F="10" master="parameters" name="cmd_return"/>
-            <command F="84" master="parameters" name="menu"/>
-            <command F="43" master="parameters" name="rewind"/>
-            <command F="44" master="parameters" name="play_pause"/>
-            <command F="40" master="parameters" name="fast_forward"/>
-            <command F="49" master="parameters" name="stop"/>
-            <command F="55" master="parameters" name="record_toggle"/>
-            <command F="16" master="parameters" name="volume_up"/>
-            <command F="17" master="parameters" name="volume_down"/>
-            <command F="13" master="parameters" name="mute_toggle"/>
-            <command F="0" master="parameters" name="cmd_0"/>
-            <command F="1" master="parameters" name="cmd_1"/>
-            <command F="2" master="parameters" name="cmd_2"/>
-            <command F="3" master="parameters" name="cmd_3"/>
-            <command F="4" master="parameters" name="cmd_4"/>
-            <command F="5" master="parameters" name="cmd_5"/>
-            <command F="6" master="parameters" name="cmd_6"/>
-            <command F="7" master="parameters" name="cmd_7"/>
-            <command F="8" master="parameters" name="cmd_8"/>
-            <command F="9" master="parameters" name="cmd_9"/>
-            <command F="127" master="parameters" name="clock_toggle"/>
-            <command F="10" master="parameters" name="PP"/>
-            <command F="143" master="parameters" name="ambilight_toggle"/>
-            <command F="144" master="parameters" name="ambilight_mode"/>
-        </commandSet>
-    </remote>
-    <remote comment="Export from IrScrutinizer" deviceClass="tv" manufacturer="Philips" model="PFL9603" name="Philips PLD9603 alternative" remoteName="unknown_remote">
-        <adminData>
-            <creationData creatingUser="Bernhard Riemann" creationDate="2015-09-11_19:13:58" source="src/test/girr/philips_37pfl9603_alt.girr" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.3"/>
-        </adminData>
-        <commandSet name="device_0">
-            <parameters protocol="rc5">
-                <parameter name="D" value="0"/>
-            </parameters>
-            <command F="0" master="parameters" name="cmd_0"/>
-            <command F="1" master="parameters" name="cmd_1"/>
-            <command F="2" master="parameters" name="cmd_2"/>
-            <command F="3" master="parameters" name="cmd_3"/>
-            <command F="4" master="parameters" name="cmd_4"/>
-            <command F="5" master="parameters" name="cmd_5"/>
-            <command F="6" master="parameters" name="cmd_6"/>
-            <command F="7" master="parameters" name="cmd_7"/>
-            <command F="8" master="parameters" name="cmd_8"/>
-            <command F="9" master="parameters" name="cmd_9"/>
-            <command F="12" displayName="power" master="parameters" name="power_toggle"/>
-            <command F="32" master="parameters" name="channel_up"/>
-            <command F="33" master="parameters" name="channel_down"/>
-            <command F="13" displayName="mute" master="parameters" name="mute_toggle"/>
-            <command F="34" master="parameters" name="last_channel"/>
-            <command F="16" master="parameters" name="volume_up"/>
-            <command F="17" master="parameters" name="volume_down"/>
-            <command F="14" master="parameters" name="PP"/>
-            <command F="15" master="parameters" name="info"/>
-            <command F="19" master="parameters" name="brightness_down"/>
-            <command F="18" master="parameters" name="brightness_up"/>
-            <command F="126" master="parameters" name="aspectratio"/>
-            <command F="82" master="parameters" name="menu"/>
-            <command F="80" master="parameters" name="up"/>
-            <command F="81" master="parameters" name="down"/>
-            <command F="85" master="parameters" name="left"/>
-            <command F="86" master="parameters" name="right"/>
-            <command F="87" master="parameters" name="ok"/>
-            <command F="107" master="parameters" name="red"/>
-            <command F="108" master="parameters" name="green"/>
-            <command F="109" master="parameters" name="yellow"/>
-            <command F="110" master="parameters" name="blue"/>
-            <command F="111" master="parameters" name="white"/>
-            <command F="83" master="parameters" name="menu_off"/>
-            <command F="35" master="parameters" name="I_II"/>
-            <command F="60" master="parameters" name="teletext_toggle"/>
-            <command F="41" master="parameters" name="teletext_freeze"/>
-            <command F="44" master="parameters" name="teletext_reveal"/>
-            <command F="45" master="parameters" name="teletext_hide"/>
-            <command F="46" master="parameters" name="teletext_translucent"/>
-            <command F="43" master="parameters" name="teletext_doubleheight"/>
-            <command F="42" master="parameters" name="teletext_time"/>
-            <command F="88" master="parameters" name="PIP"/>
-            <command F="95" master="parameters" name="PIP_source"/>
-            <command F="90" master="parameters" name="PIP_exchange"/>
-            <command F="101" master="parameters" name="PIP_freeze"/>
-            <command F="89" master="parameters" name="PIP_position"/>
-            <command F="103" master="parameters" name="PIP_ch_down"/>
-            <command F="102" master="parameters" name="PIP_ch_up"/>
-            <command F="58" master="parameters" name="subtitle"/>
-            <command F="57" master="parameters" name="in_ext2"/>
-            <command F="63" master="parameters" name="power_on"/>
-            <command F="61" master="parameters" name="power_off"/>
-            <command F="56" master="parameters" name="input"/>
-        </commandSet>
-        <commandSet name="rc5_3">
-            <parameters protocol="rc5">
-                <parameter name="D" value="3"/>
-            </parameters>
-            <command F="4" master="parameters" name="in_ext1"/>
-            <command F="5" master="parameters" name="in_side"/>
-            <command F="6" master="parameters" name="in_hdmi3"/>
-            <command F="7" master="parameters" name="in_hdmi4"/>
-            <command F="13" master="parameters" name="mute_toggle"/>
-            <command F="19" master="parameters" name="in_usb"/>
-            <command F="40" master="parameters" name="ambilight_on"/>
-            <command F="41" master="parameters" name="ambilight_off"/>
-            <command F="44" master="parameters" name="epg"/>
-            <command F="56" master="parameters" name="in_ext3"/>
-            <command F="57" master="parameters" name="in_hdmi1"/>
-            <command F="61" master="parameters" name="aspectratio_automatic"/>
-            <command F="62" displayName="movie expand 16:9" master="parameters" name="aspectratio_zoom"/>
-            <command F="72" master="parameters" name="tv_mode"/>
-            <command F="80" displayName="movie expand 14:9" master="parameters" name="aspectratio_14_9"/>
-            <command F="123" master="parameters" name="in_hdmi2"/>
-            <command F="116" displayName="wide screen" master="parameters" name="aspectratio_16_9"/>
-            <command F="117" master="parameters" name="aspectratio_4_3"/>
-            <command F="126" displayName="super zoom" master="parameters" name="aspectratio_nat_wide1"/>
-        </commandSet>
-        <commandSet name="rc6">
-            <parameters protocol="rc6">
-                <parameter name="D" value="0"/>
-            </parameters>
-            <command F="12" master="parameters" name="power_toggle"/>
-            <command F="56" master="parameters" name="input"/>
-            <command F="60" master="parameters" name="teletext_toggle"/>
-            <command F="93" master="parameters" name="teletext_pip"/>
-            <command F="75" master="parameters" name="subtitle"/>
-            <command F="245" master="parameters" name="aspectratio"/>
-            <command F="109" master="parameters" name="red"/>
-            <command F="110" master="parameters" name="green"/>
-            <command F="111" master="parameters" name="yellow"/>
-            <command F="112" master="parameters" name="blue"/>
-            <command F="204" master="parameters" name="epg"/>
-            <command F="15" master="parameters" name="info"/>
-            <command F="88" master="parameters" name="up"/>
-            <command F="89" master="parameters" name="down"/>
-            <command F="90" master="parameters" name="left"/>
-            <command F="91" master="parameters" name="right"/>
-            <command F="92" master="parameters" name="ok"/>
-            <command F="10" master="parameters" name="cmd_return"/>
-            <command F="84" master="parameters" name="menu"/>
-            <command F="43" master="parameters" name="rewind"/>
-            <command F="44" master="parameters" name="play_pause"/>
-            <command F="40" master="parameters" name="fast_forward"/>
-            <command F="49" master="parameters" name="stop"/>
-            <command F="55" master="parameters" name="record_toggle"/>
-            <command F="16" master="parameters" name="volume_up"/>
-            <command F="17" master="parameters" name="volume_down"/>
-            <command F="13" master="parameters" name="mute_toggle"/>
-            <command F="0" master="parameters" name="cmd_0"/>
-            <command F="1" master="parameters" name="cmd_1"/>
-            <command F="2" master="parameters" name="cmd_2"/>
-            <command F="3" master="parameters" name="cmd_3"/>
-            <command F="4" master="parameters" name="cmd_4"/>
-            <command F="5" master="parameters" name="cmd_5"/>
-            <command F="6" master="parameters" name="cmd_6"/>
-            <command F="7" master="parameters" name="cmd_7"/>
-            <command F="8" master="parameters" name="cmd_8"/>
-            <command F="9" master="parameters" name="cmd_9"/>
-            <command F="127" master="parameters" name="clock_toggle"/>
-            <command F="10" master="parameters" name="PP"/>
-            <command F="143" master="parameters" name="ambilight_toggle"/>
-            <command F="144" master="parameters" name="ambilight_mode"/>
-        </commandSet>
-    </remote>
-    <remote comment="Export from IrScrutinizer" deviceClass="TV" manufacturer="Sony" name="Sony Generic TV">
-        <adminData>
-            <creationData creatingUser="Augustin-Louis Cauchy" creationDate="2016-01-12_15:42:17" source="IrScrutinizer parametrized table" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.4snapshot"/>
-        </adminData>
-        <commandSet name="commandSet">
-            <parameters protocol="sony12">
-                <parameter name="D" value="1"/>
-            </parameters>
-            <command F="18" master="parameters" name="volume_up"/>
-            <command F="19" master="parameters" name="volume_down"/>
-            <command F="16" master="parameters" name="channel_up"/>
-            <command F="17" master="parameters" name="channel_down"/>
-            <command F="37" master="parameters" name="in_av"/>
-            <command F="20" master="parameters" name="mute_toggle"/>
-            <command F="21" master="parameters" name="power_toggle"/>
-            <command F="46" master="parameters" name="power_on"/>
-            <command F="47" master="parameters" name="power_off"/>
-            <command F="24" master="parameters" name="contrast_up"/>
-            <command F="25" master="parameters" name="contrast_down"/>
-            <command F="30" master="parameters" name="color_up"/>
-            <command F="31" master="parameters" name="color_down"/>
-            <command F="58" master="parameters" name="info"/>
-            <command F="0" master="parameters" name="cmd_1"/>
-            <command F="1" master="parameters" name="cmd_2"/>
-            <command F="2" master="parameters" name="cmd_3"/>
-            <command F="3" master="parameters" name="cmd_4"/>
-            <command F="4" master="parameters" name="cmd_5"/>
-            <command F="5" master="parameters" name="cmd_6"/>
-            <command F="6" master="parameters" name="cmd_7"/>
-            <command F="7" master="parameters" name="cmd_8"/>
-            <command F="8" master="parameters" name="cmd_9"/>
-            <command F="9" master="parameters" name="cmd_0"/>
-            <command F="57" master="parameters" name="two_digit"/>
-        </commandSet>
-    </remote>
-    <remote name="unnamed">
-        <adminData>
-            <creationData source="src/test/girr/philips_tv_cmdset_rc6.girr"/>
-        </adminData>
-        <commandSet name="rc6">
-            <parameters protocol="rc6">
-                <parameter name="D" value="0"/>
-            </parameters>
-            <command F="12" master="parameters" name="power_toggle"/>
-            <command F="56" master="parameters" name="input"/>
-            <command F="60" master="parameters" name="teletext_toggle"/>
-            <command F="93" master="parameters" name="teletext_pip"/>
-            <command F="75" master="parameters" name="subtitle"/>
-            <command F="245" master="parameters" name="aspectratio"/>
-            <command F="109" master="parameters" name="red"/>
-            <command F="110" master="parameters" name="green"/>
-            <command F="111" master="parameters" name="yellow"/>
-            <command F="112" master="parameters" name="blue"/>
-            <command F="204" master="parameters" name="epg"/>
-            <command F="15" master="parameters" name="info"/>
-            <command F="88" master="parameters" name="up"/>
-            <command F="89" master="parameters" name="down"/>
-            <command F="90" master="parameters" name="left"/>
-            <command F="91" master="parameters" name="right"/>
-            <command F="92" master="parameters" name="ok"/>
-            <command F="10" master="parameters" name="cmd_return"/>
-            <command F="84" master="parameters" name="menu"/>
-            <command F="43" master="parameters" name="rewind"/>
-            <command F="44" master="parameters" name="play_pause"/>
-            <command F="40" master="parameters" name="fast_forward"/>
-            <command F="49" master="parameters" name="stop"/>
-            <command F="55" master="parameters" name="record_toggle"/>
-            <command F="16" master="parameters" name="volume_up"/>
-            <command F="17" master="parameters" name="volume_down"/>
-            <command F="13" master="parameters" name="mute_toggle"/>
-            <command F="0" master="parameters" name="cmd_0"/>
-            <command F="1" master="parameters" name="cmd_1"/>
-            <command F="2" master="parameters" name="cmd_2"/>
-            <command F="3" master="parameters" name="cmd_3"/>
-            <command F="4" master="parameters" name="cmd_4"/>
-            <command F="5" master="parameters" name="cmd_5"/>
-            <command F="6" master="parameters" name="cmd_6"/>
-            <command F="7" master="parameters" name="cmd_7"/>
-            <command F="8" master="parameters" name="cmd_8"/>
-            <command F="9" master="parameters" name="cmd_9"/>
-            <command F="127" master="parameters" name="clock_toggle"/>
-            <command F="10" master="parameters" name="PP"/>
-            <command F="143" master="parameters" name="ambilight_toggle"/>
-            <command F="144" master="parameters" name="ambilight_mode"/>
-        </commandSet>
-    </remote>
-    <remote comment="Name changed from &quot;unnamed&quot; to &quot;unnamed_1&quot;." name="unnamed_1">
-        <adminData>
-            <creationData source="src/test/girr/topping-command.girr"/>
-        </adminData>
-        <commandSet name="power_toggle">
-            <parameters protocol="nec1">
-                <parameter name="D" value="153"/>
-                <parameter name="S" value="136"/>
-            </parameters>
-            <command F="24" displayName="Power On/Off" master="parameters" name="power_toggle"/>
-        </commandSet>
-    </remote>
     <remote deviceClass="Tuner" displayName="Integra/Onkyo TUN-3.7/T-4555 Multi Platform Radio Tuner  Remote ID 1, 2, 3." manufacturer="Onkyo" model="Integra T-4555" name="onkyo_t-4555" remoteName="RC-671T">
         <adminData>
             <creationData creatingUser="Carl Friederich Gauß" creationDate="Sun Apr 25 10:37:17 CEST 2021" source="src/test/girr/onkyo-t-4555.girr" tool="RemoteMaster" toolVersion="2.12.15"/>
@@ -936,6 +567,312 @@
             </command>
         </commandSet>
     </remote>
+    <remote comment="Export from IrScrutinizer" deviceClass="tv" manufacturer="Philips" model="PFL9603" name="Philips PLD9603 alternative" remoteName="unknown_remote">
+        <adminData>
+            <creationData creatingUser="Bernhard Riemann" creationDate="2015-09-11_19:13:58" source="src/test/girr/philips_37pfl9603_alt.girr" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.3"/>
+        </adminData>
+        <commandSet name="device_0">
+            <parameters protocol="rc5">
+                <parameter name="D" value="0"/>
+            </parameters>
+            <command F="0" master="parameters" name="cmd_0"/>
+            <command F="1" master="parameters" name="cmd_1"/>
+            <command F="2" master="parameters" name="cmd_2"/>
+            <command F="3" master="parameters" name="cmd_3"/>
+            <command F="4" master="parameters" name="cmd_4"/>
+            <command F="5" master="parameters" name="cmd_5"/>
+            <command F="6" master="parameters" name="cmd_6"/>
+            <command F="7" master="parameters" name="cmd_7"/>
+            <command F="8" master="parameters" name="cmd_8"/>
+            <command F="9" master="parameters" name="cmd_9"/>
+            <command F="12" displayName="power" master="parameters" name="power_toggle"/>
+            <command F="32" master="parameters" name="channel_up"/>
+            <command F="33" master="parameters" name="channel_down"/>
+            <command F="13" displayName="mute" master="parameters" name="mute_toggle"/>
+            <command F="34" master="parameters" name="last_channel"/>
+            <command F="16" master="parameters" name="volume_up"/>
+            <command F="17" master="parameters" name="volume_down"/>
+            <command F="14" master="parameters" name="PP"/>
+            <command F="15" master="parameters" name="info"/>
+            <command F="19" master="parameters" name="brightness_down"/>
+            <command F="18" master="parameters" name="brightness_up"/>
+            <command F="126" master="parameters" name="aspectratio"/>
+            <command F="82" master="parameters" name="menu"/>
+            <command F="80" master="parameters" name="up"/>
+            <command F="81" master="parameters" name="down"/>
+            <command F="85" master="parameters" name="left"/>
+            <command F="86" master="parameters" name="right"/>
+            <command F="87" master="parameters" name="ok"/>
+            <command F="107" master="parameters" name="red"/>
+            <command F="108" master="parameters" name="green"/>
+            <command F="109" master="parameters" name="yellow"/>
+            <command F="110" master="parameters" name="blue"/>
+            <command F="111" master="parameters" name="white"/>
+            <command F="83" master="parameters" name="menu_off"/>
+            <command F="35" master="parameters" name="I_II"/>
+            <command F="60" master="parameters" name="teletext_toggle"/>
+            <command F="41" master="parameters" name="teletext_freeze"/>
+            <command F="44" master="parameters" name="teletext_reveal"/>
+            <command F="45" master="parameters" name="teletext_hide"/>
+            <command F="46" master="parameters" name="teletext_translucent"/>
+            <command F="43" master="parameters" name="teletext_doubleheight"/>
+            <command F="42" master="parameters" name="teletext_time"/>
+            <command F="88" master="parameters" name="PIP"/>
+            <command F="95" master="parameters" name="PIP_source"/>
+            <command F="90" master="parameters" name="PIP_exchange"/>
+            <command F="101" master="parameters" name="PIP_freeze"/>
+            <command F="89" master="parameters" name="PIP_position"/>
+            <command F="103" master="parameters" name="PIP_ch_down"/>
+            <command F="102" master="parameters" name="PIP_ch_up"/>
+            <command F="58" master="parameters" name="subtitle"/>
+            <command F="57" master="parameters" name="in_ext2"/>
+            <command F="63" master="parameters" name="power_on"/>
+            <command F="61" master="parameters" name="power_off"/>
+            <command F="56" master="parameters" name="input"/>
+        </commandSet>
+        <commandSet name="rc5_3">
+            <parameters protocol="rc5">
+                <parameter name="D" value="3"/>
+            </parameters>
+            <command F="4" master="parameters" name="in_ext1"/>
+            <command F="5" master="parameters" name="in_side"/>
+            <command F="6" master="parameters" name="in_hdmi3"/>
+            <command F="7" master="parameters" name="in_hdmi4"/>
+            <command F="13" master="parameters" name="mute_toggle"/>
+            <command F="19" master="parameters" name="in_usb"/>
+            <command F="40" master="parameters" name="ambilight_on"/>
+            <command F="41" master="parameters" name="ambilight_off"/>
+            <command F="44" master="parameters" name="epg"/>
+            <command F="56" master="parameters" name="in_ext3"/>
+            <command F="57" master="parameters" name="in_hdmi1"/>
+            <command F="61" master="parameters" name="aspectratio_automatic"/>
+            <command F="62" displayName="movie expand 16:9" master="parameters" name="aspectratio_zoom"/>
+            <command F="72" master="parameters" name="tv_mode"/>
+            <command F="80" displayName="movie expand 14:9" master="parameters" name="aspectratio_14_9"/>
+            <command F="123" master="parameters" name="in_hdmi2"/>
+            <command F="116" displayName="wide screen" master="parameters" name="aspectratio_16_9"/>
+            <command F="117" master="parameters" name="aspectratio_4_3"/>
+            <command F="126" displayName="super zoom" master="parameters" name="aspectratio_nat_wide1"/>
+        </commandSet>
+        <commandSet name="rc6">
+            <parameters protocol="rc6">
+                <parameter name="D" value="0"/>
+            </parameters>
+            <command F="12" master="parameters" name="power_toggle"/>
+            <command F="56" master="parameters" name="input"/>
+            <command F="60" master="parameters" name="teletext_toggle"/>
+            <command F="93" master="parameters" name="teletext_pip"/>
+            <command F="75" master="parameters" name="subtitle"/>
+            <command F="245" master="parameters" name="aspectratio"/>
+            <command F="109" master="parameters" name="red"/>
+            <command F="110" master="parameters" name="green"/>
+            <command F="111" master="parameters" name="yellow"/>
+            <command F="112" master="parameters" name="blue"/>
+            <command F="204" master="parameters" name="epg"/>
+            <command F="15" master="parameters" name="info"/>
+            <command F="88" master="parameters" name="up"/>
+            <command F="89" master="parameters" name="down"/>
+            <command F="90" master="parameters" name="left"/>
+            <command F="91" master="parameters" name="right"/>
+            <command F="92" master="parameters" name="ok"/>
+            <command F="10" master="parameters" name="cmd_return"/>
+            <command F="84" master="parameters" name="menu"/>
+            <command F="43" master="parameters" name="rewind"/>
+            <command F="44" master="parameters" name="play_pause"/>
+            <command F="40" master="parameters" name="fast_forward"/>
+            <command F="49" master="parameters" name="stop"/>
+            <command F="55" master="parameters" name="record_toggle"/>
+            <command F="16" master="parameters" name="volume_up"/>
+            <command F="17" master="parameters" name="volume_down"/>
+            <command F="13" master="parameters" name="mute_toggle"/>
+            <command F="0" master="parameters" name="cmd_0"/>
+            <command F="1" master="parameters" name="cmd_1"/>
+            <command F="2" master="parameters" name="cmd_2"/>
+            <command F="3" master="parameters" name="cmd_3"/>
+            <command F="4" master="parameters" name="cmd_4"/>
+            <command F="5" master="parameters" name="cmd_5"/>
+            <command F="6" master="parameters" name="cmd_6"/>
+            <command F="7" master="parameters" name="cmd_7"/>
+            <command F="8" master="parameters" name="cmd_8"/>
+            <command F="9" master="parameters" name="cmd_9"/>
+            <command F="127" master="parameters" name="clock_toggle"/>
+            <command F="10" master="parameters" name="PP"/>
+            <command F="143" master="parameters" name="ambilight_toggle"/>
+            <command F="144" master="parameters" name="ambilight_mode"/>
+        </commandSet>
+    </remote>
+    <remote comment="Full HD" deviceClass="tv" displayName="Philips 37PFL9603" manufacturer="Philips" model="37PFL9603" name="philips_37pfl9603" remoteName="untitled">
+        <adminData>
+            <creationData creatingUser="Évariste Galois" creationDate="35-septober-2999" source="src/test/girr/philips_37pfl9603_all.girr" tool="hand written" tool2="nuthin" tool2Version="who cares?" toolVersion="0.0.0"/>
+            <notes xml:lang="en">Lorem Ipsum. Or not.</notes>
+        </adminData>
+        <notes xml:lang="en">This basically demonstrates XInclude
+            in Girr.</notes>
+        <commandSet name="device_0">
+            <parameters protocol="rc5">
+                <parameter name="D" value="0"/>
+            </parameters>
+            <command F="0" master="parameters" name="cmd_0"/>
+            <command F="1" master="parameters" name="cmd_1"/>
+            <command F="2" master="parameters" name="cmd_2"/>
+            <command F="3" master="parameters" name="cmd_3"/>
+            <command F="4" master="parameters" name="cmd_4"/>
+            <command F="5" master="parameters" name="cmd_5"/>
+            <command F="6" master="parameters" name="cmd_6"/>
+            <command F="7" master="parameters" name="cmd_7"/>
+            <command F="8" master="parameters" name="cmd_8"/>
+            <command F="9" master="parameters" name="cmd_9"/>
+            <command F="12" displayName="power" master="parameters" name="power_toggle"/>
+            <command F="32" master="parameters" name="channel_up"/>
+            <command F="33" master="parameters" name="channel_down"/>
+            <command F="13" displayName="mute" master="parameters" name="mute_toggle"/>
+            <command F="34" master="parameters" name="last_channel"/>
+            <command F="16" master="parameters" name="volume_up"/>
+            <command F="17" master="parameters" name="volume_down"/>
+            <command F="14" master="parameters" name="PP"/>
+            <command F="15" master="parameters" name="info"/>
+            <command F="19" master="parameters" name="brightness_down"/>
+            <command F="18" master="parameters" name="brightness_up"/>
+            <command F="126" master="parameters" name="aspectratio"/>
+            <command F="82" master="parameters" name="menu"/>
+            <command F="80" master="parameters" name="up"/>
+            <command F="81" master="parameters" name="down"/>
+            <command F="85" master="parameters" name="left"/>
+            <command F="86" master="parameters" name="right"/>
+            <command F="87" master="parameters" name="ok"/>
+            <command F="107" master="parameters" name="red"/>
+            <command F="108" master="parameters" name="green"/>
+            <command F="109" master="parameters" name="yellow"/>
+            <command F="110" master="parameters" name="blue"/>
+            <command F="111" master="parameters" name="white"/>
+            <command F="83" master="parameters" name="menu_off"/>
+            <command F="35" master="parameters" name="I_II"/>
+            <command F="60" master="parameters" name="teletext_toggle"/>
+            <command F="41" master="parameters" name="teletext_freeze"/>
+            <command F="44" master="parameters" name="teletext_reveal"/>
+            <command F="45" master="parameters" name="teletext_hide"/>
+            <command F="46" master="parameters" name="teletext_translucent"/>
+            <command F="43" master="parameters" name="teletext_doubleheight"/>
+            <command F="42" master="parameters" name="teletext_time"/>
+            <command F="88" master="parameters" name="PIP"/>
+            <command F="95" master="parameters" name="PIP_source"/>
+            <command F="90" master="parameters" name="PIP_exchange"/>
+            <command F="101" master="parameters" name="PIP_freeze"/>
+            <command F="89" master="parameters" name="PIP_position"/>
+            <command F="103" master="parameters" name="PIP_ch_down"/>
+            <command F="102" master="parameters" name="PIP_ch_up"/>
+            <command F="58" master="parameters" name="subtitle"/>
+            <command F="57" master="parameters" name="in_ext2"/>
+            <command F="63" master="parameters" name="power_on"/>
+            <command F="61" master="parameters" name="power_off"/>
+            <command F="56" master="parameters" name="input"/>
+        </commandSet>
+        <commandSet name="rc5_3">
+            <parameters protocol="rc5">
+                <parameter name="D" value="3"/>
+            </parameters>
+            <command F="4" master="parameters" name="in_ext1"/>
+            <command F="5" master="parameters" name="in_side"/>
+            <command F="6" master="parameters" name="in_hdmi3"/>
+            <command F="7" master="parameters" name="in_hdmi4"/>
+            <command F="13" master="parameters" name="mute_toggle"/>
+            <command F="19" master="parameters" name="in_usb"/>
+            <command F="40" master="parameters" name="ambilight_on"/>
+            <command F="41" master="parameters" name="ambilight_off"/>
+            <command F="44" master="parameters" name="epg"/>
+            <command F="56" master="parameters" name="in_ext3"/>
+            <command F="57" master="parameters" name="in_hdmi1"/>
+            <command F="61" master="parameters" name="aspectratio_automatic"/>
+            <command F="62" displayName="movie expand 16:9" master="parameters" name="aspectratio_zoom"/>
+            <command F="72" master="parameters" name="tv_mode"/>
+            <command F="80" displayName="movie expand 14:9" master="parameters" name="aspectratio_14_9"/>
+            <command F="123" master="parameters" name="in_hdmi2"/>
+            <command F="116" displayName="wide screen" master="parameters" name="aspectratio_16_9"/>
+            <command F="117" master="parameters" name="aspectratio_4_3"/>
+            <command F="126" displayName="super zoom" master="parameters" name="aspectratio_nat_wide1"/>
+        </commandSet>
+        <commandSet name="rc6">
+            <parameters protocol="rc6">
+                <parameter name="D" value="0"/>
+            </parameters>
+            <command F="12" master="parameters" name="power_toggle"/>
+            <command F="56" master="parameters" name="input"/>
+            <command F="60" master="parameters" name="teletext_toggle"/>
+            <command F="93" master="parameters" name="teletext_pip"/>
+            <command F="75" master="parameters" name="subtitle"/>
+            <command F="245" master="parameters" name="aspectratio"/>
+            <command F="109" master="parameters" name="red"/>
+            <command F="110" master="parameters" name="green"/>
+            <command F="111" master="parameters" name="yellow"/>
+            <command F="112" master="parameters" name="blue"/>
+            <command F="204" master="parameters" name="epg"/>
+            <command F="15" master="parameters" name="info"/>
+            <command F="88" master="parameters" name="up"/>
+            <command F="89" master="parameters" name="down"/>
+            <command F="90" master="parameters" name="left"/>
+            <command F="91" master="parameters" name="right"/>
+            <command F="92" master="parameters" name="ok"/>
+            <command F="10" master="parameters" name="cmd_return"/>
+            <command F="84" master="parameters" name="menu"/>
+            <command F="43" master="parameters" name="rewind"/>
+            <command F="44" master="parameters" name="play_pause"/>
+            <command F="40" master="parameters" name="fast_forward"/>
+            <command F="49" master="parameters" name="stop"/>
+            <command F="55" master="parameters" name="record_toggle"/>
+            <command F="16" master="parameters" name="volume_up"/>
+            <command F="17" master="parameters" name="volume_down"/>
+            <command F="13" master="parameters" name="mute_toggle"/>
+            <command F="0" master="parameters" name="cmd_0"/>
+            <command F="1" master="parameters" name="cmd_1"/>
+            <command F="2" master="parameters" name="cmd_2"/>
+            <command F="3" master="parameters" name="cmd_3"/>
+            <command F="4" master="parameters" name="cmd_4"/>
+            <command F="5" master="parameters" name="cmd_5"/>
+            <command F="6" master="parameters" name="cmd_6"/>
+            <command F="7" master="parameters" name="cmd_7"/>
+            <command F="8" master="parameters" name="cmd_8"/>
+            <command F="9" master="parameters" name="cmd_9"/>
+            <command F="127" master="parameters" name="clock_toggle"/>
+            <command F="10" master="parameters" name="PP"/>
+            <command F="143" master="parameters" name="ambilight_toggle"/>
+            <command F="144" master="parameters" name="ambilight_mode"/>
+        </commandSet>
+    </remote>
+    <remote comment="Export from IrScrutinizer" deviceClass="TV" manufacturer="Sony" name="Sony Generic TV">
+        <adminData>
+            <creationData creatingUser="Augustin-Louis Cauchy" creationDate="2016-01-12_15:42:17" source="IrScrutinizer parametrized table" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.4snapshot"/>
+        </adminData>
+        <commandSet name="commandSet">
+            <parameters protocol="sony12">
+                <parameter name="D" value="1"/>
+            </parameters>
+            <command F="18" master="parameters" name="volume_up"/>
+            <command F="19" master="parameters" name="volume_down"/>
+            <command F="16" master="parameters" name="channel_up"/>
+            <command F="17" master="parameters" name="channel_down"/>
+            <command F="37" master="parameters" name="in_av"/>
+            <command F="20" master="parameters" name="mute_toggle"/>
+            <command F="21" master="parameters" name="power_toggle"/>
+            <command F="46" master="parameters" name="power_on"/>
+            <command F="47" master="parameters" name="power_off"/>
+            <command F="24" master="parameters" name="contrast_up"/>
+            <command F="25" master="parameters" name="contrast_down"/>
+            <command F="30" master="parameters" name="color_up"/>
+            <command F="31" master="parameters" name="color_down"/>
+            <command F="58" master="parameters" name="info"/>
+            <command F="0" master="parameters" name="cmd_1"/>
+            <command F="1" master="parameters" name="cmd_2"/>
+            <command F="2" master="parameters" name="cmd_3"/>
+            <command F="3" master="parameters" name="cmd_4"/>
+            <command F="4" master="parameters" name="cmd_5"/>
+            <command F="5" master="parameters" name="cmd_6"/>
+            <command F="6" master="parameters" name="cmd_7"/>
+            <command F="7" master="parameters" name="cmd_8"/>
+            <command F="8" master="parameters" name="cmd_9"/>
+            <command F="9" master="parameters" name="cmd_0"/>
+            <command F="57" master="parameters" name="two_digit"/>
+        </commandSet>
+    </remote>
     <remote comment="just a test" name="test">
         <adminData>
             <creationData creatingUser="Archimedes" creationDate="Thu Jul 11 11:05:14 CEST 2013" source="src/test/girr/silly.girr" tool="lirc2xml" tool2="decodeIr" tool2Version="2.44" toolVersion="0.2.0java"/>
@@ -959,6 +896,69 @@
                 <notes xml:lang="en"/>
                 <ccf>0000 006C 0022 0002 015B 00AD 0016 0016 0016 0016 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 06A4 015B 0057 0016 0E6C</ccf>
             </command>
+        </commandSet>
+    </remote>
+    <remote name="unnamed">
+        <adminData>
+            <creationData source="src/test/girr/philips_tv_cmdset_rc6.girr"/>
+        </adminData>
+        <commandSet name="rc6">
+            <parameters protocol="rc6">
+                <parameter name="D" value="0"/>
+            </parameters>
+            <command F="12" master="parameters" name="power_toggle"/>
+            <command F="56" master="parameters" name="input"/>
+            <command F="60" master="parameters" name="teletext_toggle"/>
+            <command F="93" master="parameters" name="teletext_pip"/>
+            <command F="75" master="parameters" name="subtitle"/>
+            <command F="245" master="parameters" name="aspectratio"/>
+            <command F="109" master="parameters" name="red"/>
+            <command F="110" master="parameters" name="green"/>
+            <command F="111" master="parameters" name="yellow"/>
+            <command F="112" master="parameters" name="blue"/>
+            <command F="204" master="parameters" name="epg"/>
+            <command F="15" master="parameters" name="info"/>
+            <command F="88" master="parameters" name="up"/>
+            <command F="89" master="parameters" name="down"/>
+            <command F="90" master="parameters" name="left"/>
+            <command F="91" master="parameters" name="right"/>
+            <command F="92" master="parameters" name="ok"/>
+            <command F="10" master="parameters" name="cmd_return"/>
+            <command F="84" master="parameters" name="menu"/>
+            <command F="43" master="parameters" name="rewind"/>
+            <command F="44" master="parameters" name="play_pause"/>
+            <command F="40" master="parameters" name="fast_forward"/>
+            <command F="49" master="parameters" name="stop"/>
+            <command F="55" master="parameters" name="record_toggle"/>
+            <command F="16" master="parameters" name="volume_up"/>
+            <command F="17" master="parameters" name="volume_down"/>
+            <command F="13" master="parameters" name="mute_toggle"/>
+            <command F="0" master="parameters" name="cmd_0"/>
+            <command F="1" master="parameters" name="cmd_1"/>
+            <command F="2" master="parameters" name="cmd_2"/>
+            <command F="3" master="parameters" name="cmd_3"/>
+            <command F="4" master="parameters" name="cmd_4"/>
+            <command F="5" master="parameters" name="cmd_5"/>
+            <command F="6" master="parameters" name="cmd_6"/>
+            <command F="7" master="parameters" name="cmd_7"/>
+            <command F="8" master="parameters" name="cmd_8"/>
+            <command F="9" master="parameters" name="cmd_9"/>
+            <command F="127" master="parameters" name="clock_toggle"/>
+            <command F="10" master="parameters" name="PP"/>
+            <command F="143" master="parameters" name="ambilight_toggle"/>
+            <command F="144" master="parameters" name="ambilight_mode"/>
+        </commandSet>
+    </remote>
+    <remote comment="Name changed from &quot;unnamed&quot; to &quot;unnamed_1&quot;." name="unnamed_1">
+        <adminData>
+            <creationData source="src/test/girr/topping-command.girr"/>
+        </adminData>
+        <commandSet name="power_toggle">
+            <parameters protocol="nec1">
+                <parameter name="D" value="153"/>
+                <parameter name="S" value="136"/>
+            </parameters>
+            <command F="24" displayName="Power On/Off" master="parameters" name="power_toggle"/>
         </commandSet>
     </remote>
 </remotes>

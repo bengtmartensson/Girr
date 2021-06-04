@@ -307,6 +307,7 @@ public class RemoteSetNGTest {
         assertEquals(rs.size(), 8);
         rs.setCreationDate("Sometime");
         rs.strip();
+        rs.sort(false);
         File filename = new File(OUTDIR, "fatremoteset.girr");
         rs.print(filename, false, false, false);
         CommandNGTest.assertFileEqualContent(filename);
