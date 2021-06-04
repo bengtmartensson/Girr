@@ -44,7 +44,7 @@ public class CommandNGTest {
 
     public static final File OUTDIR = new File("out");
 
-    public static void assertOutDirExists() {
+    static void assertOutDirExists() {
         if (!OUTDIR.isDirectory())
             OUTDIR.mkdirs();
     }

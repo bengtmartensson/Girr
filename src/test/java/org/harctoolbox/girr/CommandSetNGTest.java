@@ -20,6 +20,7 @@ public class CommandSetNGTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        CommandNGTest.assertOutDirExists();
     }
 
     @AfterClass

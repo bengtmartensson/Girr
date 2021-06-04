@@ -21,6 +21,7 @@ public class RemoteNGTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        CommandNGTest.assertOutDirExists();
     }
 
     @AfterClass
