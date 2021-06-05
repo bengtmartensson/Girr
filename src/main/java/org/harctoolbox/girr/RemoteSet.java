@@ -27,6 +27,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -102,6 +103,8 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
                 logger.log(Level.WARNING, "Could not read directory {0}", file.toString());
                 return null;
             }
+            // Sort to get reproducible results
+            Arrays.sort(files);
             for (File f : files) {
                 Collection<RemoteSet> c = parseAsCollection(f);
                 if (c != null)
