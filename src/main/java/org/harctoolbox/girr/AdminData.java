@@ -59,6 +59,11 @@ final class AdminData implements Serializable {
         element.setAttribute(attributeName, value);
     }
 
+    static void printIfNonempty(StringBuilder sb, String name, Object object) {
+        if (object != null && ! object.toString().isEmpty())
+            sb.append(name).append(": ").append(object.toString()).append("\n");
+    }
+
     private String creatingUser = null;
     private String source = null;
     private String creationDate = null;
@@ -66,7 +71,7 @@ final class AdminData implements Serializable {
     private String toolVersion = null;
     private String tool2 = null;
     private String tool2Version = null;
-    private Map<String, String> notes = new HashMap<>(1);
+    private Map<String, String> notes = new HashMap<>(INITIAL_HASHMAP_CAPACITY);
 
     /**
      * Generates an empty AdminData.
@@ -163,6 +168,30 @@ final class AdminData implements Serializable {
         return element;
     }
 
+    public String toFormattedString(String lang) {
+        StringBuilder sb = new StringBuilder(256);
+        printIfNonempty(sb, CREATINGUSER_ATTRIBUTE_NAME, creatingUser);
+
+        printIfNonempty(sb, "source", source);
+        printIfNonempty(sb, "creationDate", creationDate);
+        printIfNonempty(sb, "tool", tool);
+        printIfNonempty(sb, "toolVersion", toolVersion);
+        printIfNonempty(sb, "tool2", tool2);
+        printIfNonempty(sb, "tool2Version", tool2Version);
+        String note = notes.get(lang);
+        if (note == null)
+            note = notes.get(ENGLISH);
+        printIfNonempty(sb, "notes", note);
+        int len = sb.length();
+        if (len > 1)
+            sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
+    }
+
+    public String toFormattedString() {
+        return toFormattedString(ENGLISH);
+    }
+
     public void setCreationDate(String date) {
         creationDate = date != null ? date : new SimpleDateFormat(DATE_FORMATSTRING).format(new Date());
     }
@@ -210,7 +239,7 @@ final class AdminData implements Serializable {
      * Same as getNotes("en")
      * @return
      */
-    String getNotes() {
+    public String getNotes() {
         return getNotes(ENGLISH);
     }
 
@@ -219,8 +248,16 @@ final class AdminData implements Serializable {
      * @param language
      * @return
      */
-    String getNotes(String language) {
+    public String getNotes(String language) {
         return notes.get(language);
+    }
+
+    public void setNotes(String lang, String str) {
+        notes.put(lang, str);
+    }
+
+    public void setNotes(String str) {
+        notes.put(ENGLISH, str);
     }
 
     /**
