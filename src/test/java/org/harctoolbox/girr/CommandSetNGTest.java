@@ -2,8 +2,8 @@ package org.harctoolbox.girr;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpException;
@@ -49,7 +49,7 @@ public class CommandSetNGTest {
     public void testGetCommands() {
         System.out.println("getCommands");
         int expResult = 41;
-        Map result = commandSet.getCommands();
+        Collection<Command> result = commandSet.getCommands();
         assertEquals(result.size(), expResult);
     }
 

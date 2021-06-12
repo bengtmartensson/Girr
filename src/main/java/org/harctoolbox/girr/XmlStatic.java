@@ -63,63 +63,63 @@ public abstract class XmlStatic {
     /**
      * URL for schema file, namespace-less version.
      */
-    static final String GIRR_NONAMESPACE_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr.xsd";
+    public static final String GIRR_NONAMESPACE_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr.xsd";
 
     /**
      * Comment string pointing to Girr docu.
      */
-    static final String GIRR_COMMENT                = "This file is in the Girr (General IR Remote) format, see " + GIRR_HOMEPAGE;
+    public static final String GIRR_COMMENT                = "This file is in the Girr (General IR Remote) format, see " + GIRR_HOMEPAGE;
 
       // Attribute names in Girr file.
-    static final String GIRR_VERSION_ATTRIBUTE_NAME = "girrVersion";
-    static final String TOGGLE_ATTRIBUTE_NAME       = "T";
-    static final String F_ATTRIBUTE_NAME            = "F";
-    static final String VALUE_ATTRIBUTE_NAME        = "value";
-    public static final String NAME_ATTRIBUTE_NAME  = "name";
-    public static final String COMMENT_ATTRIBUTE_NAME = "comment";
-    static final String MASTER_ATTRIBUTE_NAME       = "master";
-    static final String FREQUENCY_ATTRIBUTE_NAME    = "frequency";
-    static final String DUTYCYCLE_ATTRIBUTE_NAME    = "dutyCycle";
-    public static final String TITLE_ATTRIBUTE_NAME = "title";
-    public static final String PROTOCOL_ATTRIBUTE_NAME = "protocol";
-    static final String DISPLAYNAME_ATTRIBUTE_NAME  = "displayName";
-    static final String MANUFACTURER_ATTRIBUTE_NAME = "manufacturer";
-    static final String APPLICATION_ATTRIBUTE_NAME  = "application";
-    public static final String MODEL_ATTRIBUTE_NAME = "model";
-    static final String DEVICECLASS_ATTRIBUTE_NAME  = "deviceClass";
-    static final String REMOTENAME_ATTRIBUTE_NAME   = "remoteName";
+    public static final String GIRR_VERSION_ATTRIBUTE_NAME = "girrVersion";
+    public static final String TOGGLE_ATTRIBUTE_NAME       = "T";
+    public static final String F_ATTRIBUTE_NAME            = "F";
+    public static final String VALUE_ATTRIBUTE_NAME        = "value";
+    public static final String NAME_ATTRIBUTE_NAME         = "name";
+    public static final String COMMENT_ATTRIBUTE_NAME      = "comment";
+    public static final String MASTER_ATTRIBUTE_NAME       = "master";
+    public static final String FREQUENCY_ATTRIBUTE_NAME    = "frequency";
+    public static final String DUTYCYCLE_ATTRIBUTE_NAME    = "dutyCycle";
+    public static final String TITLE_ATTRIBUTE_NAME        = "title";
+    public static final String PROTOCOL_ATTRIBUTE_NAME     = "protocol";
+    public static final String DISPLAYNAME_ATTRIBUTE_NAME  = "displayName";
+    public static final String MANUFACTURER_ATTRIBUTE_NAME = "manufacturer";
+    public static final String APPLICATION_ATTRIBUTE_NAME  = "application";
+    public static final String MODEL_ATTRIBUTE_NAME        = "model";
+    public static final String DEVICECLASS_ATTRIBUTE_NAME  = "deviceClass";
+    public static final String REMOTENAME_ATTRIBUTE_NAME   = "remoteName";
     public static final String CREATINGUSER_ATTRIBUTE_NAME = "creatingUser";
-    static final String SOURCE_ATTRIBUTE_NAME       = "source";
+    public static final String SOURCE_ATTRIBUTE_NAME       = "source";
     public static final String CREATIONDATE_ATTRIBUTE_NAME = "creationDate";
-    static final String TOOL_ATTRIBUTE_NAME         = "tool";
-    static final String TOOLVERSIION_ATTRIBUTE_NAME = "toolVersion";
-    static final String TOOL2_ATTRIBUTE_NAME        = "tool2";
-    static final String TOOL2VERSION_ATTRIBUTE_NAME = "tool2Version";
+    public static final String TOOL_ATTRIBUTE_NAME         = "tool";
+    public static final String TOOLVERSIION_ATTRIBUTE_NAME = "toolVersion";
+    public static final String TOOL2_ATTRIBUTE_NAME        = "tool2";
+    public static final String TOOL2VERSION_ATTRIBUTE_NAME = "tool2Version";
 
     // Element names in Girr files.
-    static final String PRONTO_HEX_ELEMENT_NAME     = "ccf";
-    static final String FLASH_ELEMENT_NAME          = "flash";
-    static final String GAP_ELEMENT_NAME            = "gap";
-    static final String PARAMETER_ELEMENT_NAME      = "parameter";
-    static final String NOTES_ELEMENT_NAME          = "notes";
-    static final String PARAMETERS_ELEMENT_NAME     = "parameters";
-    static final String PROTOCOL_ELEMENT_NAME       = "protocol";
-    static final String RAW_ELEMENT_NAME            = "raw";
-    static final String INTRO_ELEMENT_NAME          = "intro";
-    static final String REPEAT_ELEMENT_NAME         = "repeat";
-    static final String ENDING_ELEMENT_NAME         = "ending";
-    static final String FORMAT_ELEMENT_NAME         = "format";
-    static final String COMMAND_ELEMENT_NAME        = "command";
-    static final String COMMANDSET_ELEMENT_NAME     = "commandSet";
-    static final String APPLICATIONDATA_ELEMENT_NAME = "applicationData" ;
-    static final String APPPARAMETER_ELEMENT_NAME   = "appParameter";
-    public static final String REMOTE_ELEMENT_NAME  = "remote";
-    static final String ADMINDATA_ELEMENT_NAME      = "adminData";
-    static final String CREATIONDATA_ELEMENT_NAME   = "creationData";
-    public static final String REMOTES_ELEMENT_NAME = "remotes";
+    public static final String PRONTO_HEX_ELEMENT_NAME     = "ccf";
+    public static final String FLASH_ELEMENT_NAME          = "flash";
+    public static final String GAP_ELEMENT_NAME            = "gap";
+    public static final String PARAMETER_ELEMENT_NAME      = "parameter";
+    public static final String NOTES_ELEMENT_NAME          = "notes";
+    public static final String PARAMETERS_ELEMENT_NAME     = "parameters";
+    public static final String PROTOCOL_ELEMENT_NAME       = "protocol";
+    public static final String RAW_ELEMENT_NAME            = "raw";
+    public static final String INTRO_ELEMENT_NAME          = "intro";
+    public static final String REPEAT_ELEMENT_NAME         = "repeat";
+    public static final String ENDING_ELEMENT_NAME         = "ending";
+    public static final String FORMAT_ELEMENT_NAME         = "format";
+    public static final String COMMAND_ELEMENT_NAME        = "command";
+    public static final String COMMANDSET_ELEMENT_NAME     = "commandSet";
+    public static final String APPLICATIONDATA_ELEMENT_NAME = "applicationData" ;
+    public static final String APPPARAMETER_ELEMENT_NAME   = "appParameter";
+    public static final String REMOTE_ELEMENT_NAME         = "remote";
+    public static final String ADMINDATA_ELEMENT_NAME      = "adminData";
+    public static final String CREATIONDATA_ELEMENT_NAME   = "creationData";
+    public static final String REMOTES_ELEMENT_NAME        = "remotes";
 
-    static final String SPACE                       = " ";
-    static final String EQUALS                      = "=";
+    public static final String SPACE                       = " ";
+    public static final String EQUALS                      = "=";
 
     /**
      * Makes a Document from an Element.
@@ -128,11 +128,11 @@ public abstract class XmlStatic {
      * @param root Element to transfer
      * @param stylesheetType
      * @param stylesheetUrl
-     * @return 
+     * @return
      */
     static Document createDocument(String title, Element root, String stylesheetType, String stylesheetUrl) {
         Document document = root.getOwnerDocument();
-        
+
         if (stylesheetType != null && stylesheetUrl != null && !stylesheetUrl.isEmpty()) {
             ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
                     "type=\"text/" + stylesheetType + "\" href=\"" + stylesheetUrl + "\"");

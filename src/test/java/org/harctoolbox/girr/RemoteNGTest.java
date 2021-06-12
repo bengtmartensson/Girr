@@ -2,6 +2,7 @@ package org.harctoolbox.girr;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,16 +29,12 @@ public class RemoteNGTest {
     public static void tearDownClass() throws Exception {
     }
 
-    private static <T extends Named> String firstKeyInMap(Map<String, T> map) {
-        return map.keySet().iterator().next();
-    }
-
     private final Remote sonyRemote;
     private final Remote philipsRemote;
 
     public RemoteNGTest() throws GirrException, IOException, SAXException {
         sonyRemote = new Remote("src/test/girr/sony_tv.girr");
-        philipsRemote = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").getFirstRemote();
+        philipsRemote = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").iterator().next();
     }
 
     @BeforeMethod
@@ -56,7 +53,8 @@ public class RemoteNGTest {
     public void testGetCommands() {
         System.out.println("getCommands");
         int expResult = 25;
-        Map<String, Command> result = sonyRemote.getCommands();
+        @SuppressWarnings("deprecation")
+        Collection<Command> result = sonyRemote.getCommands();
         assertEquals(result.size(), expResult);
     }
 
@@ -79,13 +77,15 @@ public class RemoteNGTest {
      * @throws org.xml.sax.SAXException
      */
     @Test
+    @SuppressWarnings("deprecation")
     public void testSort_0args() throws GirrException, IOException, SAXException {
         System.out.println("sort");
         Remote instance = new Remote("src/test/girr/sony_tv.girr");
-        String first = firstKeyInMap(instance.getCommands());
+        @SuppressWarnings("deprecation")
+        String first = instance.getCommands().iterator().next().getName();
         assertEquals(first, "volume_up");
         instance.sortCommands();
-        first = firstKeyInMap(instance.getCommands());
+        first = instance.getCommands().iterator().next().getName();
         assertEquals(first, "channel_down");
     }
 
@@ -98,7 +98,7 @@ public class RemoteNGTest {
     @Test
     public void testNormalize() throws GirrException, IOException, SAXException {
         System.out.println("normalize");
-        Remote instance = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").getFirstRemote();
+        Remote instance = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").iterator().next();
         assertEquals(instance.getCommandSets().size(), 3);
         instance.normalize();
         assertEquals(instance.getCommandSets().size(), 1);
@@ -141,9 +141,10 @@ public class RemoteNGTest {
     public void testGetAllCommands_String() throws GirrException, IOException, SAXException {
         System.out.println("getAllCommands");
         String commandName = "cmd_0";
-        Remote instance = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").getFirstRemote();
+        Remote instance = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").iterator().next();
         int expResult = 2;
-        List<Command> result = instance.getAllCommands(commandName);
+        @SuppressWarnings("deprecation")
+        List<Command> result = instance.getCommand(commandName);
         assertEquals(result.size(), expResult);
     }
 
@@ -155,8 +156,11 @@ public class RemoteNGTest {
         System.out.println("getCommand");
         String commandName = "power_toggle";
         String expResult = "power_toggle: rc5, D=0 F=12";
-        Command result = philipsRemote.getCommand(commandName);
-        assertEquals(result.toString(), expResult);
+
+        @SuppressWarnings("deprecation")
+        List<Command> result = philipsRemote.getCommand(commandName);
+        assertEquals(result.get(0).toString(), expResult);
+        assertEquals(result.size(), 2);
     }
 
     /**
@@ -211,7 +215,8 @@ public class RemoteNGTest {
         System.out.println("numberAllCommands");
         Remote instance = philipsRemote;
         int expResult = 114;
-        int result = instance.numberAllCommands();
+        @SuppressWarnings("deprecation")
+        int result = instance.getNumberOfCommands();
         assertEquals(result, expResult);
     }
 
@@ -222,8 +227,9 @@ public class RemoteNGTest {
     public void testNumberCommands() {
         System.out.println("numberCommands");
         Remote instance = philipsRemote;
-        int expResult = 82;
-        int result = instance.numberCommands();
+        int expResult = 114;
+        @SuppressWarnings("deprecation")
+        int result = instance.getNumberOfCommands();
         assertEquals(result, expResult);
     }
 
@@ -236,8 +242,9 @@ public class RemoteNGTest {
     @Test
     public void testGetAllCommands_0args() throws GirrException, IOException, SAXException {
         System.out.println("getAllCommands");
-        Remote instance = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").getFirstRemote();
-        List<Command> result = instance.getAllCommands();
+        Remote instance = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").iterator().next();
+        @SuppressWarnings("deprecation")
+        Collection<Command> result = instance.getCommands();
         assertEquals(result.size(), 114);
     }
 
@@ -318,5 +325,26 @@ public class RemoteNGTest {
     public void testCheckForParameters() throws IrpException, IrCoreException {
         System.out.println("checkForParameters");
         sonyRemote.checkForParameters();
+    }
+
+    /**
+     * Test of toFormattedString method, of class MetaData.
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    @Test
+    public void testToFormattedString() throws GirrException, IOException, SAXException {
+        System.out.println("toFormattedString");
+        Remote remote = new RemoteSet("src/test/girr/onkyo-t-4555.girr").iterator().next();
+        Remote.MetaData metaData = remote.getMetaData();
+        String expResult = "name: onkyo_t-4555\n"
+                + "displayName: Integra/Onkyo TUN-3.7/T-4555 Multi Platform Radio Tuner  Remote ID 1, 2, 3.\n"
+                + "manufacturer: Onkyo\n"
+                + "model: Integra T-4555\n"
+                + "deviceClass: Tuner\n"
+                + "remoteName: RC-671T";
+        String result = metaData.toFormattedString();
+        assertEquals(result, expResult);
     }
 }

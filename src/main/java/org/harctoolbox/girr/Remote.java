@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static org.harctoolbox.girr.AdminData.printIfNonempty;
 import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.APPLICATIONDATA_ELEMENT_NAME;
@@ -174,7 +175,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         this.adminData = new AdminData(source);
         this.metaData = metaData;
         this.comment = comment;
-        this.notes = notes;
+        this.notes = notes != null ? notes : new HashMap<>(2);
         this.commandSets = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         if (commandSetsCollection != null)
             commandSetsCollection.forEach(cmdSet -> {
@@ -322,18 +323,25 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     public void normalize() {
         if (commandSets.size() < 2)
             return;
-
-        Map<String, Command> commands = new LinkedHashMap<>(numberAllCommands());
-        StringJoiner stringJoiner = new StringJoiner(", ", "Merge of CommandSets ", ".");
+        
+        int numberOfOriginalCommands = getNumberOfCommands();
+        Map<String, Command> commands = new LinkedHashMap<>(numberOfOriginalCommands);
+        StringJoiner stringJoiner = new StringJoiner(", ", "Merge of CommandSets ", "");
+        
         for (CommandSet cmdSet : this) {
-            commands.putAll(cmdSet.getCommands());
+            for (Command cmd : cmdSet)
+                commands.put(cmd.getName(), cmd);
             stringJoiner.add(cmdSet.getName());
         }
         Map<String, String> notesCmdSet = new HashMap<>(1);
-        notesCmdSet.put(XmlUtils.ENGLISH, stringJoiner.toString());
+        String noteString = stringJoiner.toString();
         CommandSet commandSet = new CommandSet("MergedCommandSet", notesCmdSet, commands, null, null);
         commandSets.clear();
         commandSets.put(commandSet.getName(), commandSet);
+        int missing = numberOfOriginalCommands - commandSet.size();
+        if (missing > 0)
+            noteString += "\n" + missing + " commands lost in merge";
+        notesCmdSet.put(XmlUtils.ENGLISH, noteString);
     }
 
     /**
@@ -393,36 +401,6 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     }
 
     /**
-     * Return List of Commands with the selected name, possibly more than one.
-     * @param commandName
-     * @return List of Commands, possibly empty.
-     */
-    public List<Command> getAllCommands(String commandName) {
-        List<Command> list = new ArrayList<>(INITIAL_HASHMAP_CAPACITY);
-        for (CommandSet commandSet : this) {
-            Command cmd = commandSet.getCommand(commandName);
-            if (cmd != null)
-                list.add(cmd);
-        }
-        return list;
-    }
-
-    /**
-     * Returns a Command with the given name, or null if not found.
-     * If the given name is found in several ComandSets, the first found is returned.
-     * @param commandName
-     * @return Command, or null.
-     */
-    public Command getCommand(String commandName) {
-        for (CommandSet commandSet : this) {
-            Command cmd = commandSet.getCommand(commandName);
-            if (cmd != null)
-                return cmd;
-        }
-        return null;
-    }
-
-    /**
      *
      * @return the metaData
      */
@@ -458,39 +436,53 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         return comment;
     }
 
-    public int numberAllCommands() {
+    /**
+     * @deprecated Loop the CommandSets instead.
+     * @return 
+     */
+    public int getNumberOfCommands() {
         int sum = 0;
         for (CommandSet cmdSet : this)
             sum += cmdSet.size();
         return sum;
     }
 
-    public int numberCommands() {
-        return getCommands().size();
-    }
-
     /**
      * Returns all commands contained.
-     * If a command name is present in several CommandSets,
-     * only one is returned; which one is undefined.
+     * If there are several CommandSets, the index names will be two part: commandSet : command.
      * @return the commands
+     * @deprecated Loop the CommandSets instead.
      */
-    public Map<String, Command> getCommands() {
-        Map<String, Command> allCommands = new LinkedHashMap<>(numberAllCommands());
-        for (CommandSet cmdSet : this)
-            allCommands.putAll(cmdSet.getCommands());
+    public Collection<Command> getCommands() {
+        if (commandSets.isEmpty())
+            return new ArrayList<>(0);
+        if (commandSets.size() == 1)
+            return iterator().next().getCommands();
+
+        List<Command> allCommands = new ArrayList<>(getNumberOfCommands());
+        for (CommandSet cmdSet : this) {
+            //String prefix = cmdSet.getName() + ':';
+            for (Command cmd : cmdSet) {
+                //String newName = prefix + cmd.getName();
+                allCommands.add(cmd);
+            }
+        }
         return allCommands;
     }
 
     /**
-     * Returns a list of all commands, possibly with duplicate names.
-     * @return
+     * @deprecated Loop the CommandSets instead.
+     * @param name
+     * @return 
      */
-    public List<Command> getAllCommands() {
-        List<Command> list = new ArrayList<>(numberCommands());
-        for (CommandSet commandSet : this)
-            list.addAll(commandSet.getCommands().values());
-        return list;
+    public List<Command> getCommand(String name) {
+        List<Command> commands = new ArrayList<>(commandSets.size());
+        for (CommandSet cmdSet : this) {
+            Command cmd = cmdSet.getCommand(name);
+            if (cmd != null)
+                commands.add(cmd);
+        }
+        return commands;
     }
 
     /**
@@ -532,6 +524,10 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         return adminData;
     }
 
+    public String getFormattedAdminData() {
+        return adminData.toFormattedString();
+    }
+
     /**
      * @return the notes
      */
@@ -554,8 +550,12 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         return notes.get(lang);
     }
 
-    public void setNotes(String lang, String notes) {
-        this.notes.put(lang, notes);
+    public void setNotes(String lang, String string) {
+        this.notes.put(lang, string);
+    }
+
+    public void setNotes(String string) {
+        this.notes.put(ENGLISH, string);
     }
 
     void setComment(String comment) {
@@ -639,6 +639,21 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
             this.model = model;
             this.deviceClass = deviceClass;
             this.remoteName = remoteName;
+        }
+
+        public String toFormattedString() {
+            StringBuilder sb = new StringBuilder(256);
+            printIfNonempty(sb, NAME_ATTRIBUTE_NAME, name);
+            printIfNonempty(sb, DISPLAYNAME_ATTRIBUTE_NAME, displayName);
+            printIfNonempty(sb, MANUFACTURER_ATTRIBUTE_NAME, manufacturer);
+            printIfNonempty(sb, MODEL_ATTRIBUTE_NAME, model);
+            printIfNonempty(sb, DEVICECLASS_ATTRIBUTE_NAME, deviceClass);
+            printIfNonempty(sb, REMOTENAME_ATTRIBUTE_NAME, remoteName);
+
+            int len = sb.length();
+            if (len > 1)
+                sb.deleteCharAt(sb.length() - 1);
+            return sb.toString();
         }
 
         /**

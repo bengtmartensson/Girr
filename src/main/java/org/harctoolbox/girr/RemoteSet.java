@@ -542,12 +542,31 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * a RemoteSet, you want to know the commands of the individual Remotes.
      * @return ArrayList of the commands.
      */
-    public List<Command> getAllCommands() {
+    public Collection<Command> getCommands() {
         List<Command> allCommands = new ArrayList<>(32);
         for (Remote remote : this)
-            allCommands.addAll(remote.getCommands().values());
+            allCommands.addAll(remote.getCommands());
 
         return allCommands;
+    }
+    
+    @SuppressWarnings("deprecation")
+    public List<Command> getCommand(String name) {
+        List<Command> list = new ArrayList<>(remotes.size());
+        for (Remote remote : this)
+            list.addAll(remote.getCommand(name));
+        return list;
+    }
+
+    /**
+     * @deprecated 
+     * @return 
+     */
+    public int getNumberOfCommands() {
+        int sum = 0;
+        for (Remote remote : this)
+            sum += remote.getNumberOfCommands();
+        return sum;
     }
 
     /**
@@ -638,23 +657,23 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         return remotes.get(name);
     }
 
-    public Remote getFirstRemote() {
-        return iterator().next();
-    }
+//    public Remote getFirstRemote() {
+//        return iterator().next();
+//    }
 
     @Override
     public Iterator<Remote> iterator() {
         return remotes.values().iterator();
     }
 
-    /**
-     * Returns the metaData of first Remote. This should not be considered to be the meta data of the RemoteSet.
-     * @return metaData of first Remote.
-     */
-    public Remote.MetaData getFirstMetaData() {
-        Remote remote = getFirstRemote();
-        return remote != null ? remote.getMetaData() : new Remote.MetaData();
-    }
+//    /**
+//     * Returns the metaData of first Remote. This should not be considered to be the meta data of the RemoteSet.
+//     * @return metaData of first Remote.
+//     */
+//    public Remote.MetaData getFirstMetaData() {
+//        Remote remote = getFirstRemote();
+//        return remote != null ? remote.getMetaData() : new Remote.MetaData();
+//    }
 
     public IrpDatabase getIrpDatabase() {
         return irpDatabase;

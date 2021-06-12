@@ -3,7 +3,6 @@ package org.harctoolbox.girr;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpDatabase;
@@ -88,16 +87,16 @@ public class RemoteSetNGTest {
         assertFalse(remoteSet.isEmpty());
     }
 
-    /**
-     * Test of getAllCommands method, of class RemoteSet.
-     */
-    @Test
-    public void testGetAllCommands() {
-        System.out.println("getAllCommands");
-        @SuppressWarnings("deprecation")
-        List<Command> result = remoteSet.getAllCommands();
-        assertEquals(result.size(), 82);
-    }
+//    /**
+//     * Test of getAllCommands method, of class RemoteSet.
+//     */
+//    @Test
+//    public void testGetAllCommands() {
+//        System.out.println("getAllCommands");
+//        @SuppressWarnings("deprecation")
+//        List<Command> result = remoteSet.getAllCommands();
+//        assertEquals(result.size(), 82);
+//    }
 
     /**
      * Test of checkForParameters method, of class RemoteSet.
@@ -229,7 +228,7 @@ public class RemoteSetNGTest {
     public void testGetFirstRemote() {
         System.out.println("getFirstRemote");
         String expResult = "tv";
-        Remote result = remoteSet.getFirstRemote();
+        Remote result = remoteSet.iterator().next();
         assertEquals(result.getDeviceClass(), expResult);
     }
 
@@ -240,7 +239,7 @@ public class RemoteSetNGTest {
     public void testGetFirstMetaData() {
         System.out.println("getFirstMetaData");
         String expResult = "Philips 37PFL9603";
-        Remote.MetaData result = remoteSet.getFirstMetaData();
+        Remote.MetaData result = remoteSet.iterator().next().getMetaData();
         assertEquals(result.getDisplayName(), expResult);
     }
 
@@ -290,7 +289,7 @@ public class RemoteSetNGTest {
 
         // Root element: command
         rs = RemoteSet.parse("src/test/girr/topping-command.girr");
-        assertEquals(rs.getFirstRemote().getCommands().size(), 1);
+        assertEquals(rs.iterator().next().iterator().next().getCommands().size(), 1);
     }
 
     /**

@@ -19,6 +19,7 @@ package org.harctoolbox.girr;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import static org.harctoolbox.girr.XmlStatic.VALUE_ATTRIBUTE_NAME;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrCoreUtils;
 import org.harctoolbox.irp.IrpException;
+import org.harctoolbox.irp.NameEngine;
 import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -181,8 +183,12 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
      * Returns the Commands in the CommandSet.
      * @return unmodifiable Map.
      */
-    public Map<String, Command> getCommands() {
-        return Collections.unmodifiableMap(commands);
+    public Collection<Command> getCommands() {
+        return Collections.unmodifiableCollection(commands.values());
+    }
+
+    public int getNumberOfCommand() {
+        return commands.size();
     }
 
     /**
@@ -200,6 +206,18 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
      */
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(128);
+        sb.append(name).append(": ");
+        if (protocolName != null && ! protocolName.isEmpty()) {
+            sb.append(XmlStatic.PROTOCOL_ATTRIBUTE_NAME).append("=").append(protocolName).append(" ");
+            sb.append(" ").append(new NameEngine(parameters));
+        }
+        sb.append(" (").append(Integer.toString(size())).append(" commands)");
+        return sb.toString();
     }
 
     /**
