@@ -64,13 +64,11 @@ public class RemoteSetNGTest {
         System.out.println("toDocument");
         File file = new File(OUTDIR, "remoteset.girr");
         String title = "It will just go away by itself";
-        String stylesheetType = "";
-        String stylesheetUrl = "";
         boolean fatRaw = false;
         boolean generateRaw = true;
         boolean generateProntoHex = true;
         boolean generateParameters = true;
-        Document document = remoteSet.toDocument(title, stylesheetType, stylesheetUrl, fatRaw, generateParameters, generateProntoHex, generateRaw);
+        Document document = remoteSet.toDocument(title, fatRaw, generateParameters, generateProntoHex, generateRaw);
         XmlUtils.printDOM(file, document);
         CommandNGTest.assertFileEqualContent(file);
     }

@@ -92,7 +92,7 @@ public abstract class XmlExporter implements Serializable {
      * @param generateRaw
      */
     public final void print(OutputStream ostr, boolean generateProtocol, boolean generateProntoHex, boolean generateRaw) {
-        Document doc = toDocument(null, null, null, false, generateProtocol, generateProntoHex, generateRaw);
+        Document doc = toDocument(null, false, generateProtocol, generateProntoHex, generateRaw);
         try {
             XmlUtils.printDOM(ostr, doc, DEFAULT_CHARSETNAME, null);
         } catch (UnsupportedEncodingException ex) {
@@ -150,11 +150,8 @@ public abstract class XmlExporter implements Serializable {
      * Generates an XML Document from a RemoteSet.
      *
      * @param title Textual title of document.
-     * @param stylesheetType Type of stylesheet, normally "css" or "xsl".
      * @param fatRaw For the raw form, generate elements for each flash and gap,
      * otherwise a long PCDATA text string of durations will be generated.
-     * @param stylesheetUrl URL of stylesheet to be linked in a processing
-     * instruction.
      * @param generateParameters If true, the protocol/parameter description
      * will be generated.
      * @param generateProntoHex If true, the Pronto hex form will be
@@ -162,32 +159,12 @@ public abstract class XmlExporter implements Serializable {
      * @param generateRaw If true, the raw form will be generated.
      * @return W3C Document
      */
-    public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
+    public final Document toDocument(String title,
             boolean fatRaw,
             boolean generateParameters, boolean generateProntoHex, boolean generateRaw)  {
         Element root = toElement(XmlUtils.newDocument(true), fatRaw,
                 generateParameters, generateProntoHex, generateRaw);
-        return XmlStatic.createDocument(title, root, stylesheetType, stylesheetUrl);
-    }
-
-    /**
-     * @deprecated createSchemaLocation has been effectively removed, use version without it instead.
-     *
-     * @param title
-     * @param stylesheetType
-     * @param stylesheetUrl
-     * @param fatRaw
-     * @param createSchemaLocation
-     * @param generateParameters
-     * @param generateProntoHex
-     * @param generateRaw
-     * @return
-     */
-    public final Document toDocument(String title, String stylesheetType, String stylesheetUrl,
-            boolean fatRaw, boolean createSchemaLocation,
-            boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
-        return toDocument(title, stylesheetType, stylesheetUrl,
-                fatRaw, generateParameters, generateProntoHex, generateRaw);
+        return XmlStatic.createDocument(title, root);
     }
 
     /**

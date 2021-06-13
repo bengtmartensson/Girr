@@ -121,19 +121,35 @@ public abstract class XmlStatic {
     public static final String SPACE                       = " ";
     public static final String EQUALS                      = "=";
 
+    private static String stylesheetType                   = null;
+    private static String stylesheetUrl                    = null;
+
+    /**
+     * @param aStylesheetType the stylesheetType to set
+     */
+    public static void setStylesheetType(String aStylesheetType) {
+        stylesheetType = aStylesheetType;
+    }
+
+    /**
+     * @param aStylesheetUrl the stylesheetUrl to set
+     */
+    public static void setStylesheetUrl(String aStylesheetUrl) {
+        stylesheetUrl = aStylesheetUrl;
+    }
+
     /**
      * Makes a Document from an Element.
      *
      * @param title Text for title attribute
      * @param root Element to transfer
-     * @param stylesheetType
-     * @param stylesheetUrl
      * @return
      */
-    static Document createDocument(String title, Element root, String stylesheetType, String stylesheetUrl) {
+    static Document createDocument(String title, Element root) {
         Document document = root.getOwnerDocument();
 
-        if (stylesheetType != null && stylesheetUrl != null && !stylesheetUrl.isEmpty()) {
+        if (stylesheetType != null && !stylesheetType.isEmpty()
+                && stylesheetUrl != null && !stylesheetUrl.isEmpty()) {
             ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
                     "type=\"text/" + stylesheetType + "\" href=\"" + stylesheetUrl + "\"");
             document.appendChild(pi);
