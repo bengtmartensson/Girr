@@ -320,7 +320,7 @@ public final class Command extends XmlExporter implements Named {
         if (!element.getTagName().equals(COMMAND_ELEMENT_NAME))
             throw new GirrException("Element is not of type " + COMMAND_ELEMENT_NAME);
 
-        protocolName = inheritProtocol != null ? inheritProtocol.toLowerCase(Locale.US) : null;
+        protocolName = inheritProtocol != null ? irpDatabase.expandAlias(inheritProtocol) : null;
         parameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         if (inheritParameters != null)
             parameters.putAll(inheritParameters);
@@ -331,9 +331,9 @@ public final class Command extends XmlExporter implements Named {
             NodeList paramsNodeList = element.getElementsByTagName(PARAMETERS_ELEMENT_NAME);
             if (paramsNodeList.getLength() > 0) {
                 Element params = (Element) paramsNodeList.item(0);
-                String proto = params.getAttribute(PROTOCOL_ELEMENT_NAME);
+                String proto = params.getAttribute(PROTOCOL_ATTRIBUTE_NAME);
                 if (!proto.isEmpty())
-                    this.protocolName = proto.toLowerCase(Locale.US);
+                    protocolName = irpDatabase.expandAlias(proto.toLowerCase(Locale.US));
                 nl = params.getElementsByTagName(PARAMETER_ELEMENT_NAME);
                 for (int i = 0; i < nl.getLength(); i++) {
                     Element el = (Element) nl.item(i);
@@ -461,14 +461,15 @@ public final class Command extends XmlExporter implements Named {
         if (protocolName == null)
             throw new GirrException("No protocol name");
         this.parameters = new LinkedHashMap<>(parameters);
+        String expandedProtocolName = irpDatabase.expandAlias(protocolName);
         try {
-            protocol = irpDatabase.getProtocol(protocolName);
+            protocol = irpDatabase.getProtocol(expandedProtocolName);
         } catch (IrpException ex) {
             if (check)
                 throw new GirrException(ex);
             protocol = null;
         }
-        this.protocolName = protocolName;
+        this.protocolName = expandedProtocolName;
         sanityCheck();
     }
 

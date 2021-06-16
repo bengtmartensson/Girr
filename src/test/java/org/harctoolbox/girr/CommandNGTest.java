@@ -571,4 +571,32 @@ public class CommandNGTest {
         cmd.print(file);
         assertFileEqualContent(file);
     }
+
+    @Test
+    public void testConstructorWithAlias() throws GirrException, IrpException, IrCoreException {
+        System.out.println("constructorWithAlias");
+        Map<String, Long> parameters = new HashMap<>(5);
+        parameters.put("F", 0L);
+        parameters.put("D", 0L);
+        parameters.put("T", 0L);
+        Command command = new Command("name", "comment ", "Pace", parameters, true);
+        String actual = command.getProtocolName();
+        String expected = "PaceMSS";
+        assertEquals(actual, expected);
+    }
+
+    @Test
+    public void testAliasesInXml() throws Exception {
+        System.out.println("testAliasesInXml");
+        RemoteSet remoteSet = new RemoteSet(new File("src/test/girr/silly.girr"));
+        Remote remote = remoteSet.iterator().next();
+        CommandSet cmdSet = remote.getCommandSet("godzilla");
+        String actual = cmdSet.getCommand("Mothra").getProtocolName();
+        String expected = "Blaupunkt";
+        assertEquals(actual, expected);
+
+        actual = remote.getCommand("godzilla", "Rodan").getProtocolName();
+        expected = "CanalSat";
+        assertEquals(actual, expected);
+    }
 }
