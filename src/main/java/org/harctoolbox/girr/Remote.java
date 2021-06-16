@@ -323,11 +323,11 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     public void normalize() {
         if (commandSets.size() < 2)
             return;
-        
+
         int numberOfOriginalCommands = getNumberOfCommands();
         Map<String, Command> commands = new LinkedHashMap<>(numberOfOriginalCommands);
         StringJoiner stringJoiner = new StringJoiner(", ", "Merge of CommandSets ", "");
-        
+
         for (CommandSet cmdSet : this) {
             for (Command cmd : cmdSet)
                 commands.put(cmd.getName(), cmd);
@@ -438,7 +438,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     /**
      * @deprecated Loop the CommandSets instead.
-     * @return 
+     * @return
      */
     public int getNumberOfCommands() {
         int sum = 0;
@@ -473,7 +473,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     /**
      * @deprecated Loop the CommandSets instead.
      * @param name
-     * @return 
+     * @return
      */
     public List<Command> getCommand(String name) {
         List<Command> commands = new ArrayList<>(commandSets.size());
@@ -575,6 +575,14 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
 
     public Map<String, CommandSet> getCommandSets() {
         return Collections.unmodifiableMap(commandSets);
+    }
+
+    public CommandSet getCommandSet(String name) {
+        return commandSets.get(name);
+    }
+
+    public Command getCommand(String commandSetName, String name) {
+        return getCommandSet(commandSetName).getCommand(name);
     }
 
     /**

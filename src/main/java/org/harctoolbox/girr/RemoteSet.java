@@ -549,7 +549,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
 
         return allCommands;
     }
-    
+
     @SuppressWarnings("deprecation")
     public List<Command> getCommand(String name) {
         List<Command> list = new ArrayList<>(remotes.size());
@@ -558,9 +558,13 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         return list;
     }
 
+    public Command getCommand(String remote, String commandSet, String command) {
+        return getRemote(remote).getCommand(commandSet, remote);
+    }
+
     /**
-     * @deprecated 
-     * @return 
+     * @deprecated
+     * @return
      */
     public int getNumberOfCommands() {
         int sum = 0;
