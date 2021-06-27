@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--This file is in the Girr (General IR Remote) format, see http://www.harctoolbox.org/Girr.html--><remotes xmlns="http://www.harctoolbox.org/Girr" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" girrVersion="1.2" xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1.2.xsd">
     <adminData>
-        <creationData creatingUser="Imhotep" creationDate="Sometime" source="src/test/girr" tool="Girr" toolVersion="Girr version 2.2.10-SNAPSHOT"/>
+        <creationData creatingUser="Imhotep" creationDate="Sometime" source="src/test/girr" tool="Girr" toolVersion="Girr version 2.2.10"/>
     </adminData>
     <irp:protocols xmlns="http://www.w3.org/1999/xhtml" xmlns:xi="http://www.w3.org/2001/XInclude" xsi:schemaLocation="http://www.harctoolbox.org/irp-protocols http://www.harctoolbox.org/schemas/irp-protocols.xsd" xmlns:irp="http://www.harctoolbox.org/irp-protocols">
 <irp:protocol name="p_48a3bbc1">
