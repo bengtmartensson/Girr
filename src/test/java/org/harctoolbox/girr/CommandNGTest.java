@@ -20,6 +20,7 @@ import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
+import org.harctoolbox.irp.NameEngine;
 import org.harctoolbox.xml.XmlUtils;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
@@ -27,6 +28,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -598,5 +601,19 @@ public class CommandNGTest {
         actual = remote.getCommand("godzilla", "Rodan").getProtocolName();
         expected = "CanalSat";
         assertEquals(actual, expected);
+    }
+
+    /**
+     * Test of transform method, of class Command.
+     */
+    @Test
+    public void testTransform_String() throws Exception {
+        System.out.println("transform");
+        String str = "{D=D:-8, Z=D*S-F}";
+        Command cmd = nec1_12_34_56_param.transform(str);
+        long result = cmd.getParameters().get("D");
+        assertEquals(result, 48);
+        result = cmd.getParameters().get("Z");
+        assertEquals(result, 12*34-56);
     }
 }

@@ -20,10 +20,12 @@ package org.harctoolbox.girr;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
@@ -48,7 +50,6 @@ import static org.harctoolbox.girr.XmlStatic.PARAMETERS_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.PARAMETER_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.PRONTO_HEX_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.PROTOCOL_ATTRIBUTE_NAME;
-import static org.harctoolbox.girr.XmlStatic.PROTOCOL_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.RAW_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.REPEAT_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.SPACE;
@@ -63,6 +64,7 @@ import org.harctoolbox.ircore.ModulatedIrSequence;
 import org.harctoolbox.ircore.OddSequenceLengthException;
 import org.harctoolbox.ircore.Pronto;
 import org.harctoolbox.ircore.ThisCannotHappenException;
+import org.harctoolbox.irp.Assignment;
 import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.DomainViolationException;
 import org.harctoolbox.irp.ElementaryDecode;
@@ -71,6 +73,7 @@ import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpInvalidArgumentException;
 import org.harctoolbox.irp.IrpParseException;
+import org.harctoolbox.irp.NameEngine;
 import org.harctoolbox.irp.NameUnassignedException;
 import org.harctoolbox.irp.Protocol;
 import org.harctoolbox.irp.ShortPronto;
@@ -290,6 +293,16 @@ public final class Command extends XmlExporter implements Named {
         return params;
     }
 
+    private static List<Assignment> parseTransformations(String str) {
+        List<Assignment> list = new ArrayList<>(8);
+        String payload = str.trim().replaceFirst("^\\{", "").replaceFirst("\\}$", "").replaceAll("\\s*=\\s*", "=");
+        String[] array = payload.split(",");
+        for (String s : array)
+            list.add(new Assignment(s));
+
+        return list;
+    }
+
     private Protocol protocol;
     private MasterType masterType;
     private final Map<String, String> notes;
@@ -457,7 +470,23 @@ public final class Command extends XmlExporter implements Named {
      * @throws org.harctoolbox.girr.GirrException
      */
     public Command(String name, String comment, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
-        this(MasterType.parameters, name, comment);
+        this(name, null, comment, null, protocolName, parameters, check);
+    }
+
+    /**
+     * Construct a Command from protocolName and parameters.
+     *
+     * @param name
+     * @param displayName
+     * @param comment
+     * @param notes
+     * @param protocolName
+     * @param parameters
+     * @param check If true, throw GirrException if the projectName cannot be made a protocol.
+     * @throws org.harctoolbox.girr.GirrException
+     */
+    public Command(String name, String displayName, String comment, Map<String, String> notes, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
+        this(MasterType.parameters, name, displayName, comment, notes);
         if (protocolName == null)
             throw new GirrException("No protocol name");
         this.parameters = new LinkedHashMap<>(parameters);
@@ -1278,6 +1307,30 @@ public final class Command extends XmlExporter implements Named {
         } catch (IrpException | GirrException | IrCoreException ex) {
             logger.log(Level.WARNING, ex.getLocalizedMessage());
         }
+    }
+
+    public Command transform(String str) throws InvalidNameException, NameUnassignedException, GirrException {
+        List<Assignment> transformations = parseTransformations(str);
+        return transform(transformations);
+    }
+
+    // Don't use NameEngine to represent a set of transformations, since it is unordered.
+    public Command transform(Iterable<Assignment> transformations) throws NameUnassignedException, GirrException {
+        Map<String, Long> newParameters = transformParameters(transformations);
+        Command newCommand = new Command(name, displayName, comment, notes, protocolName, newParameters, true);
+        return newCommand;
+    }
+
+    public Map<String, Long> transformParameters(Iterable<Assignment> transformations) throws NameUnassignedException {
+        Map<String, Long> newParameters = new HashMap<>(parameters.size());
+        NameEngine nameEngine = new NameEngine(parameters);
+        for (Assignment transformation : transformations) {
+            long newValue = transformation.toLong(nameEngine);
+            newParameters.put(transformation.getName(), newValue);
+        }
+        HashMap<String, Long> result = new HashMap<>(nameEngine.toMap());
+        result.putAll(newParameters);
+        return result;
     }
 
     /**
