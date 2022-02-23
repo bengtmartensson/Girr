@@ -1210,7 +1210,7 @@ public final class Command extends XmlExporter implements Named {
                         Element rawEl = doc.createElementNS(GIRR_NAMESPACE, RAW_ELEMENT_NAME);
                         rawEl.setAttribute(FREQUENCY_ATTRIBUTE_NAME,
                                 Integer.toString(frequency != null ? frequency : (int) ModulatedIrSequence.DEFAULT_FREQUENCY));
-                        if (dutyCycle != null)
+                        if (dutyCycle != null && dutyCycle > 0.0)
                             rawEl.setAttribute(DUTYCYCLE_ATTRIBUTE_NAME, Double.toString(dutyCycle));
                         if (numberOfToggleValues() > 1)
                             rawEl.setAttribute(TOGGLE_ATTRIBUTE_NAME, Integer.toString(T));
