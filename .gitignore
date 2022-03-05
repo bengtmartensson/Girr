@@ -11,3 +11,5 @@ garbage
 dump.bin
 out
 /nbproject/
+
+nbactions-*.xml

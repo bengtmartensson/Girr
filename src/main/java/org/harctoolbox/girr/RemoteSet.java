@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.validation.Schema;
 import static org.harctoolbox.girr.Command.INITIAL_HASHMAP_CAPACITY;
 import static org.harctoolbox.girr.XmlStatic.ADMINDATA_ELEMENT_NAME;
 import static org.harctoolbox.girr.XmlStatic.COMMANDSET_ELEMENT_NAME;
@@ -54,6 +55,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 /**
  * This class contains a map of Remotes, indexed by their names.
@@ -72,8 +74,9 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     public static void main(String[] args) {
         try {
             Command.setIrpDatabase(new IrpDatabase());
-            RemoteSet remoteSet = parse(new File(args[0]));
-            remoteSet.print(args.length > 1 ? args[1] : "-");
+            RemoteSet remoteSet = parse(new File(args[0]), XmlStatic.girrSchema());
+           if (!remoteSet.isEmpty())
+                remoteSet.print(args.length > 1 ? args[1] : "-");
         }
         catch (IOException | GirrException | SAXException | IrpParseException ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -86,14 +89,17 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * Can handle XML documents with root element to type remotes, remote, commandSet and command.
      *
      * @param file
+     * @param schema
      * @return
      */
-    public static Collection<RemoteSet> parseAsCollection(File file) {
+    public static Collection<RemoteSet> parseAsCollection(File file, Schema schema) {
         Collection<RemoteSet> coll = new ArrayList<>(INITIAL_LIST_CAPACITY);
         if (file.isFile() && !ignoreByExtension(file.getName())) {
             try {
-                RemoteSet remoteSet = parse(getElement(file), file.toString());
+                RemoteSet remoteSet = parse(getElement(file, schema), file.toString());
                 coll.add(remoteSet);
+            } catch (SAXParseException ex) {
+                logger.log(Level.WARNING, "Could not read file {0}: {1}", new Object[] {file.toString(), ex.getMessage()});
             } catch (GirrException | IOException | SAXException ex) {
                 logger.log(Level.WARNING, "Could not read file {0}", file.toString());
             }
@@ -106,12 +112,32 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
             // Sort to get reproducible results
             Arrays.sort(files);
             for (File f : files) {
-                Collection<RemoteSet> c = parseAsCollection(f);
+                Collection<RemoteSet> c = parseAsCollection(f, schema);
                 if (c != null)
                     coll.addAll(c);
             }
         }
         return coll;
+    }
+
+    public static Collection<RemoteSet> parseAsCollection(File file) {
+        return parseAsCollection(file, null);
+    }
+
+    /**
+     * Give a file or directory, parses the contained file(s) into a RemoteSet.
+     * Can handle XML documents with root element to type remotes, remote, commandSet and command.
+     *
+     * @param file
+     * @param schema
+     * @return
+     * @throws org.harctoolbox.girr.GirrException
+     * @throws java.io.IOException
+     * @throws org.xml.sax.SAXException
+     */
+    public static RemoteSet parse(File file, Schema schema) throws GirrException, IOException, SAXException {
+        Collection<RemoteSet> collection = parseAsCollection(file, schema);
+        return new RemoteSet(null, file.toString(), collection);
     }
 
     /**
@@ -125,8 +151,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public static RemoteSet parse(File file) throws GirrException, IOException, SAXException {
-        Collection<RemoteSet> collection = parseAsCollection(file);
-        return new RemoteSet(null, file.toString(), collection);
+        return parse(file, null);
     }
 
     /**
@@ -134,13 +159,18 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * Can handle XML documents with root element to type remotes, remote, commandSet and command.
      *
      * @param file
+     * @param schema
      * @return
      * @throws java.io.IOException
      * @throws org.xml.sax.SAXException
      * @throws org.harctoolbox.girr.GirrException
      */
+    public static RemoteSet parse(String file, Schema schema) throws IOException, SAXException, GirrException {
+        return parse(getElement(file, schema), file);
+    }
+
     public static RemoteSet parse(String file) throws IOException, SAXException, GirrException {
-        return parse(getElement(file), file);
+        return parse(getElement(file, null), file);
     }
 
     public static RemoteSet parse(Element element, String source) throws GirrException {
@@ -221,7 +251,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     private final IrpDatabase irpDatabase;
 
     public RemoteSet(String creatingUser, File file) {
-        this(creatingUser, file.toString(), parseAsCollection(file));
+        this(creatingUser, file.toString(), parseAsCollection(file, null));
     }
 
     public RemoteSet(String creatingUser, String source, Collection<RemoteSet> remoteSets) {
@@ -294,7 +324,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.xml.sax.SAXException
      */
     public RemoteSet(File file) throws GirrException, IOException, SAXException {
-        this(getElement(file), file.toString());
+        this(getElement(file, null), file.toString());
     }
 
     /**
@@ -315,8 +345,8 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws java.io.IOException
      * @throws org.xml.sax.SAXException
      */
-    public RemoteSet(Reader reader) throws IOException, SAXException, GirrException {
-        this(getElement(reader), null);
+    public RemoteSet(Reader reader, Schema schema) throws IOException, SAXException, GirrException {
+        this(getElement(reader, schema), null);
     }
 
     /**

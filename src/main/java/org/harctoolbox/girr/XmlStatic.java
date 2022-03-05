@@ -17,10 +17,13 @@ this program. If not, see http://www.gnu.org/licenses/.
 
 package org.harctoolbox.girr;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
 import static javax.xml.XMLConstants.XMLNS_ATTRIBUTE;
+import javax.xml.validation.Schema;
+import org.harctoolbox.xml.XmlUtils;
 import static org.harctoolbox.xml.XmlUtils.ENGLISH;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_ATTRIBUTE_NAME;
 import static org.harctoolbox.xml.XmlUtils.HTML_NAMESPACE_URI;
@@ -32,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
+import org.xml.sax.SAXException;
 
 /**
  * Static constants and helper functions for XML export. Usage in other contexts not recommended.
@@ -65,6 +69,10 @@ public abstract class XmlStatic {
      */
     public static final String GIRR_NONAMESPACE_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr.xsd";
 
+    /**
+     * Location of schema file (namespace version) in jar.
+     */
+    public static final String GIRR_SCHEMA_LOCATION_JAR = "/girr_ns-"  + GIRR_VERSION + ".xsd";
     /**
      * Comment string pointing to Girr docu.
      */
@@ -183,6 +191,11 @@ public abstract class XmlStatic {
             map.put(lang, note.getTextContent().trim());
         }
         return map;
+    }
+
+    static Schema girrSchema() throws SAXException {
+        InputStream stream = XmlStatic.class.getResourceAsStream(GIRR_SCHEMA_LOCATION_JAR);
+        return XmlUtils.readSchema(stream);
     }
 
     private XmlStatic() {

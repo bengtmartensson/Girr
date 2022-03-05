@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import javax.xml.validation.Schema;
 import org.harctoolbox.ircore.IrCoreUtils;
 import org.harctoolbox.ircore.ThisCannotHappenException;
 import org.harctoolbox.xml.XmlUtils;
@@ -38,6 +39,20 @@ import org.xml.sax.SAXException;
 public abstract class XmlExporter implements Serializable {
 
     //private final static Logger logger = Logger.getLogger(XmlExporter.class.getName());
+    private static final boolean IS_NAMESPACE_AWARE = true;
+    private static final boolean IS_XINCLUDE_AWARE = true;
+
+    /**
+     * Returns the root element of the first argument, which is supposed to be a valid XML document.
+     * @param file
+     * @param schema
+     * @return
+     * @throws IOException
+     * @throws SAXException
+     */
+    protected static Element getElement(File file, Schema schema) throws IOException, SAXException {
+        return getElement(XmlUtils.openXmlFile(file, schema, IS_NAMESPACE_AWARE, IS_XINCLUDE_AWARE));
+    }
 
     /**
      * Returns the root element of the first argument, which is supposed to be a valid XML document.
@@ -47,7 +62,19 @@ public abstract class XmlExporter implements Serializable {
      * @throws SAXException
      */
     protected static Element getElement(File file) throws IOException, SAXException {
-        return XmlUtils.openXmlFile(file).getDocumentElement();
+        return getElement(file, null);
+    }
+
+    /**
+     * Returns the root element of the first argument, which is supposed to be a valid XML document.
+     * @param file
+     * @param schema
+     * @return
+     * @throws IOException
+     * @throws SAXException
+     */
+    protected static Element getElement(String file, Schema schema) throws IOException, SAXException {
+        return getElement(XmlUtils.openXmlThing(file, schema, IS_NAMESPACE_AWARE, IS_XINCLUDE_AWARE));
     }
 
     /**
@@ -58,7 +85,19 @@ public abstract class XmlExporter implements Serializable {
      * @throws SAXException
      */
     protected static Element getElement(String file) throws IOException, SAXException {
-        return XmlUtils.openXmlThing(file).getDocumentElement();
+        return getElement(file, null);
+    }
+
+    /**
+     * Returns the root element of the first argument, which is supposed to read to a valid XML document.
+     * @param reader
+     * @param schema
+     * @return
+     * @throws IOException
+     * @throws SAXException
+     */
+    protected static Element getElement(Reader reader, Schema schema) throws IOException, SAXException {
+        return getElement(XmlUtils.openXmlReader(reader, schema,  IS_NAMESPACE_AWARE, IS_XINCLUDE_AWARE));
     }
 
     /**
@@ -69,7 +108,7 @@ public abstract class XmlExporter implements Serializable {
      * @throws SAXException
      */
     protected static Element getElement(Reader reader) throws IOException, SAXException {
-        return XmlUtils.openXmlReader(reader, null, true, true).getDocumentElement();
+        return getElement(reader, null);
     }
 
     /**
