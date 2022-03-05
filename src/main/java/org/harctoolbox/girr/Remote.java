@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.StringJoiner;
 import java.util.logging.Level;
@@ -370,11 +369,10 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * @throws org.harctoolbox.ircore.IrCoreException
      */
     public boolean hasThisProtocol(String protocolName) throws IrpException, IrCoreException {
-        String protName = protocolName.toLowerCase(Locale.US);
         for (CommandSet commandSet : this) {
             for (Command command : commandSet) {
                 String prtcl = command.getProtocolName();
-                if (prtcl == null || !prtcl.equals(protName))
+                if (prtcl == null || !prtcl.equalsIgnoreCase(protocolName))
                     return false;
             }
         }
@@ -389,11 +387,10 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * @throws org.harctoolbox.ircore.IrCoreException
      */
     public boolean containsThisProtocol(String protocolName) throws IrpException, IrCoreException {
-        String protName = protocolName.toLowerCase(Locale.US);
         for (CommandSet commandSet : this) {
             for (Command command : commandSet) {
                 String prtcl = command.getProtocolName();
-                if (prtcl != null && prtcl.equals(protName))
+                if (prtcl != null && prtcl.equalsIgnoreCase(protocolName))
                     return true;
             }
         }

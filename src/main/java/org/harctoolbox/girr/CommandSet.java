@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -124,7 +123,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
                 continue;
             String newProtocol = el.getAttribute(PROTOCOL_ATTRIBUTE_NAME);
             if (!newProtocol.isEmpty())
-                protocolName = newProtocol.toLowerCase(Locale.US);
+                protocolName = newProtocol;
             NodeList paramList = el.getElementsByTagName(PARAMETER_ELEMENT_NAME);
             for (int i = 0; i < paramList.getLength(); i++) {
                 Element e = (Element) paramList.item(i);
@@ -163,7 +162,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         this.name = name != null ? name : COMMANDSET_ELEMENT_NAME;
         this.notes = notes != null ? notes : new HashMap<>(0);
         this.commands = commands;
-        this.protocolName = protocolName != null ? protocolName.toLowerCase(Locale.US) : null;
+        this.protocolName = protocolName;
         this.parameters = parameters != null ? new LinkedHashMap<>(parameters) : new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
     }
 

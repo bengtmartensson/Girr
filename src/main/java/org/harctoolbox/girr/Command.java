@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -346,7 +345,7 @@ public final class Command extends XmlExporter implements Named {
                 Element params = (Element) paramsNodeList.item(0);
                 String proto = params.getAttribute(PROTOCOL_ATTRIBUTE_NAME);
                 if (!proto.isEmpty())
-                    protocolName = irpDatabase.expandAlias(proto.toLowerCase(Locale.US));
+                    protocolName = irpDatabase.expandAlias(proto);
                 nl = params.getElementsByTagName(PARAMETER_ELEMENT_NAME);
                 for (int i = 0; i < nl.getLength(); i++) {
                     Element el = (Element) nl.item(i);

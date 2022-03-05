@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.ircore.IrSignal;
@@ -20,7 +19,6 @@ import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
-import org.harctoolbox.irp.NameEngine;
 import org.harctoolbox.xml.XmlUtils;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterClass;
@@ -28,8 +26,6 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -543,7 +539,7 @@ public class CommandNGTest {
         Decoder.setDebugProtocolRegExp("xmp-1");
         Command xmp1Command = new Command("xyz", "covfefe", XMP);
         String protocolName = xmp1Command.getProtocolName();
-        assertTrue(protocolName.toLowerCase(Locale.US).startsWith("xmp"));
+        assertTrue(protocolName.substring(0, 3).equalsIgnoreCase("xmp"));
 
         // https://github.com/bengtmartensson/Girr/issues/12
         Decoder.DecoderParameters params = new Decoder.DecoderParameters();
@@ -557,7 +553,7 @@ public class CommandNGTest {
         params.setOverride(false);
         xmp1Command = new Command("xyz", "covfefe", XMP);
         protocolName = xmp1Command.getProtocolName();
-        assertTrue(protocolName.toLowerCase(Locale.US).startsWith("xmp"));
+        assertTrue(protocolName.substring(0, 3).equalsIgnoreCase("xmp"));
     }
 
     /**
