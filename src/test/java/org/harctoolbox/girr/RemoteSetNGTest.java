@@ -294,20 +294,31 @@ public class RemoteSetNGTest {
      * Test of parseFiles method, of class RemoteSet.
      * @throws java.io.IOException
      */
-    @Test
     public void testParseFiles() throws IOException {
         System.out.println("parseFiles");
         File path = new File("src/test/girr");
         Collection<RemoteSet> result = RemoteSet.parseAsCollection(path);
-        assertEquals(result.size(), 8);
+        assertEquals(result.size(), 9);
         RemoteSet rs = new RemoteSet("Imhotep", path.toString(), result);
-        assertEquals(rs.size(), 8);
+        assertEquals(rs.size(), 9);
         rs.setCreationDate("Sometime");
         rs.strip();
         rs.sort(false);
         File filename = new File(OUTDIR, "fatremoteset.girr");
         rs.print(filename, false, false, false);
         CommandNGTest.assertFileEqualContent(filename);
+    }
+
+    /**
+     * Test that "prontoHex" for "ccf" s msterType is accepted.
+     */
+    @Test
+    public void testParseProntoHex() throws IOException, SAXException, GirrException {
+        System.out.println("parseProntoHex");
+        RemoteSet rs = RemoteSet.parse("src/test/girr/duhow.girr");
+        Remote remote = rs.iterator().next();
+        Command command = remote.iterator().next().iterator().next();
+        assert(command.getMasterType() == Command.MasterType.ccf);
     }
 
     /**

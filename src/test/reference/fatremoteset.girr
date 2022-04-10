@@ -838,12 +838,37 @@
             <command F="144" master="parameters" name="ambilight_mode"/>
         </commandSet>
     </remote>
+    <remote comment="Export from IrScrutinizer" deviceClass="radiator" manufacturer="Orbegozo" model="REH 1060" name="remote">
+        <adminData>
+            <creationData creatingUser="duhow" creationDate="2022-04-09_23:03:49" source="src/test/girr/duhow.girr" tool="IrScrutinizer" tool2="IrpTransmogrifier" tool2Version="1.2.10" toolVersion="2.3.1"/>
+        </adminData>
+        <commandSet name="commandSet">
+            <command master="ccf" name="Set">
+                <ccf>0000 006D 0000 000C 0030 0010 0030 0010 0010 0030 0030 0010 0030 0010 0010 0030 0010 0030 0010 0030 0010 0030 0010 0030 0010 0030 0030 050F</ccf>
+            </command>
+            <command master="ccf" name="Lock">
+                <ccf>0000 006D 0000 000C 0030 0010 0030 0010 0010 0030 0030 0010 0030 0010 0010 0030 0010 0030 0010 0030 0030 0010 0010 0030 0010 0030 0010 052F</ccf>
+            </command>
+            <command master="ccf" name="Mode">
+                <ccf>0000 006D 0000 000C 0030 0010 0030 0010 0010 0030 0030 0010 0030 0010 0010 0030 0010 0030 0030 0010 0010 0030 0010 0030 0010 0030 0010 052F</ccf>
+            </command>
+            <command master="ccf" name="Heat">
+                <ccf>0000 006D 0000 000C 0030 0010 0030 0010 0010 0030 0030 0010 0030 0010 0010 0030 0010 0030 0010 0030 0010 0030 0010 0030 0030 0010 0010 052F</ccf>
+            </command>
+            <command master="ccf" name="Up">
+                <ccf>0000 006D 0000 000C 0030 0010 0030 0010 0010 0030 0030 0010 0030 0010 0010 0030 0010 0030 0010 0030 0010 0030 0030 0010 0010 0030 0010 052F</ccf>
+            </command>
+            <command master="ccf" name="Down">
+                <ccf>0000 006D 0000 000C 0030 0010 0030 0010 0010 0030 0030 0010 0030 0010 0010 0030 0030 0010 0010 0030 0010 0030 0010 0030 0010 0030 0010 052F</ccf>
+            </command>
+        </commandSet>
+    </remote>
     <remote comment="Export from IrScrutinizer" deviceClass="TV" manufacturer="Sony" name="Sony Generic TV">
         <adminData>
             <creationData creatingUser="Augustin-Louis Cauchy" creationDate="2016-01-12_15:42:17" source="IrScrutinizer parametrized table" tool="IrScrutinizer" tool2="DecodeIR" tool2Version="2.45" toolVersion="1.1.4snapshot"/>
         </adminData>
         <commandSet name="commandSet">
-            <parameters protocol="sony12">
+           <parameters protocol="sony12">
                 <parameter name="D" value="1"/>
             </parameters>
             <command F="18" master="parameters" name="volume_up"/>
@@ -888,11 +913,11 @@
         </applicationData>
         <commandSet name="commandSet">
             <notes xml:lang="en"/>
-            <command displayName="Play |&gt;" master="prontoHex" name="play">
+            <command displayName="Play |&gt;" master="ccf" name="play">
                 <notes xml:lang="en"/>
                 <ccf>0000 006C 0022 0002 015B 00AD 0016 0016 0116 0016 0016 0016 0116 0016 0016 0016 0116 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041</ccf>
             </command>
-            <command master="prontoHex" name="Work">
+            <command master="ccf" name="Work">
                 <notes xml:lang="en"/>
                 <ccf>0000 006C 0022 0002 015B 00AD 0016 0016 0016 0016 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 06A4 015B 0057 0016 0E6C</ccf>
             </command>
