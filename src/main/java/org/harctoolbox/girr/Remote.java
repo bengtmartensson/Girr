@@ -231,9 +231,9 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     @Override
     public Element toElement(Document doc, boolean fatRaw, boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
-            Element adminDataEl = adminData.toElement(doc);
-            if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
-                element.appendChild(adminDataEl);
+        Element adminDataEl = adminData.toElement(doc);
+        if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
+            element.appendChild(adminDataEl);
         element.setAttribute(NAME_ATTRIBUTE_NAME, metaData.name);
         if (metaData.displayName != null && !metaData.displayName.isEmpty())
             element.setAttribute(DISPLAYNAME_ATTRIBUTE_NAME, metaData.displayName);
