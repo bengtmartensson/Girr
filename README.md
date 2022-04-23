@@ -36,6 +36,7 @@ file format, containing named commands, grouped into named
 the Lirc format was never intended as an exchange format, and, as a general
 rule, only Lirc program can read Lirc files. Also, Lirc has not a viable concept
 of [intro- and repeat sequences](http://harctoolbox.org/Glossary.html#IrSignal).
+Lirc also does not handle meta data (manufacturer, device type, model, etc.
 
 This leads to our mission:
 
@@ -55,9 +56,7 @@ the format.
 ## Program support
 [IrScrutinizer](http://harctoolbox.org/IrScrutinizer.html) uses Girr as its preferred format
 for import and export of IR signals. It can interactively import and export from many
-different file formats and data bases. However, it presently supports only files
-with `remotes` as the root element.
-(It is planned to eliminate this restriction in the near future.)
+different file formats and data bases.
 
 [RMIR](https://sourceforge.net/projects/controlremote/)
 (sometimes called RemoteMaster) is a powerful program for programming so-called
@@ -86,8 +85,8 @@ is licensed under the [Gnu General
 Public License, version 3](http://www.gnu.org/licenses/gpl.txt).
 
 ## The name of the game
-Pronounce "Girr" as one word (not G.I.R.R.), but otherwise any way you
-want. It should be used as a proper noun,
+Pronounce "Girr" like "girl", as one word (not G.I.R.R.).
+It should be used as a proper noun,
 capitalized (not uppercase). Preferred file extension is
 `girr`, but this is not necessary. Also, e.g. `xml` is possible.
 
@@ -104,9 +103,9 @@ number of commands. In particular, it should not determine the semantics of the
 commands, nor does it describe how to control a device that can be commanded by
 the said remote. Names for commands can be "arbitrary", in any language or character set,
 using any printable characters including white space.
-However, it is recommended to us "simple" names in English, with no special characters or embedded whitespace.
+However, it is recommended to us "simple" names in English, without non-ASCII characters or embedded whitespace.
     (A `displayName` can be used for localized names, with arbitrary characters etc.)
-    A well defined semantic of command names is not granted. However, in
+    A well defined semantic of command names is not guaranteed. However, in
 some cases uniqueness in the purely syntactical sense is required, for example
     ensuring that all commands within a particular `commandSet` have unique names.
 
@@ -148,7 +147,7 @@ There are four different possible root element types in the format:
 `commandSet`s, and `command`s. All can be the root element of a conforming Girr document, although some
 software may not handle all of them.
 (The previous versions of our [supporting library](http://harctoolbox.org/Girr.html#Supporting+Java+library)
-only supported `remotes` as root element.) Basically,
+only supported `remotes` as root element, but this restriction has been lifted.) Basically,
 the element `remotes` contains one or more `remote`s,
 each containing one or more `commandSet`s,
 each containing a number of `command`s.
@@ -219,6 +218,7 @@ example:
            <gap>564</gap>
            <flash>564</flash>
            <gap>564</gap>
+           ...
 ```
 ### commandSet
 `commandSet`s bundles "related" commands together. They may
@@ -234,7 +234,7 @@ as `parameters` within the `command` element.
 
 Often, a device can be controlled in one of several "id-s", corresponding to different IR signals.
     See the [Oppo BDP-83](https://raw.githubusercontent.com/bengtmartensson/GirrLib/master/Girr/Oppo/oppo_bdp83-all.girr)
-    as example. The different id-s are modeled as different `commandSet`s.
+    as example. The different id-s can be conveniently modeled as different `commandSet`s.
     These are (almost) identical, typically differing only in the device/subdevice parameter in the protocol.
     In other cases, devices implement a "new" and an "old" set of commands; see for example a
     [Philips TV](https://raw.githubusercontent.com/bengtmartensson/GirrLib/master/Girr/Philips/philips_37pfl9603_alt.girr)
@@ -322,7 +322,7 @@ as root element.
 The library requires the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) classes.
 
 ## GirrLib
-I maintain a small library, GirrLib, available at [GitHub](https://github.com/bengtmartensson/GirrLib).
+I maintain a small library, GirrLib, [available at GitHub](https://github.com/bengtmartensson/GirrLib).
     It consists of "my" collection of Girr files. Although not actively maintained, contributions are welcome.
     The files therein are in the public domain.
 
@@ -360,5 +360,5 @@ making up an [IR signal](http://harctoolbox.org/Glossary.html#IrSignal). This re
 often expressed in the [IRP Notation](http://harctoolbox.org/Glossary.html#IrpNotation),
 which is a compact formal representation of the computations involved. For
 particular values of the parameters, a [rendering engine](http://harctoolbox.org/Glossary.html#Generating) computes the resulting IR
-signal, often in [CCF, also called Pronto Hex](http://harctoolbox.org/Glossary.html#CCF) format, or in [raw format](http://harctoolbox.org/Glossary.html#RawIrSignal).
+signal, often in [Pronto Hex](http://harctoolbox.org/Glossary.html#ProntoHex) format, or in [raw format](http://harctoolbox.org/Glossary.html#RawIrSignal).
 

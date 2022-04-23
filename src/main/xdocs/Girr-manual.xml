@@ -31,6 +31,10 @@
 	  <td>2021-06-03</td>
 	  <td>Several minor fixes and clarifications, in particular embedded protocols.</td>
 	</tr>
+        <tr>
+	  <td>2022-04-23</td>
+	  <td>Some minor improvements.</td>
+	</tr>
       </table>
 
 <section>
@@ -73,7 +77,8 @@ file format, containing named commands, grouped into named
 "remotes". However,
 the Lirc format was never intended as an exchange format, and, as a general
 rule, only Lirc program can read Lirc files. Also, Lirc has not a viable concept
-of <a href="Glossary.html#IrSignal">intro- and repeat sequences</a>.</p>
+of <a href="Glossary.html#IrSignal">intro- and repeat sequences</a>.
+Lirc also does not handle meta data (manufacturer, device type, model, etc.</p>
 
 <p>This leads to our mission:</p>
 <section><title>Mission</title></section>
@@ -93,9 +98,7 @@ the format.</p>
 <section><title>Program support</title>
 <p><a href="IrScrutinizer.html">IrScrutinizer</a> uses Girr as its preferred format
 for import and export of IR signals. It can interactively import and export from many
-different file formats and data bases. However, it presently supports only files
-with <code>remotes</code> as the root element.
-(It is planned to eliminate this restriction in the near future.)</p>
+different file formats and data bases.</p>
 
 <p>
 <a href="https://sourceforge.net/projects/controlremote/">RMIR</a>
@@ -129,8 +132,8 @@ Public License, version 3</a>.</p>
 </section>
 
 <section><title>The name of the game</title>
-<p>Pronounce "Girr" as one word (not G.I.R.R.), but otherwise any way you
-want. It should be used as a proper noun,
+<p>Pronounce "Girr" like "girl", as one word (not G.I.R.R.).
+It should be used as a proper noun,
 capitalized (not uppercase). Preferred file extension is
 <code>girr</code>, but this is not necessary. Also, e.g. <code>xml</code> is possible.</p></section>
 
@@ -148,9 +151,9 @@ number of commands. In particular, it should not determine the semantics of the
 commands, nor does it describe how to control a device that can be commanded by
 the said remote. Names for commands can be "arbitrary", in any language or character set,
 using any printable characters including white space.
-However, it is recommended to us "simple" names in English, with no special characters or embedded whitespace.
+However, it is recommended to us "simple" names in English, without non-ASCII characters or embedded whitespace.
     (A <code>displayName</code> can be used for localized names, with arbitrary characters etc.)
-    A well defined semantic of command names is not granted. However, in
+    A well defined semantic of command names is not guaranteed. However, in
 some cases uniqueness in the purely syntactical sense is required, for example
     ensuring that all commands within a particular <code>commandSet</code> have unique names.</p>
 
@@ -191,7 +194,7 @@ switches.</li>
 <code>commandSet</code>s, and <code>command</code>s. All can be the root element of a conforming Girr document, although some
 software may not handle all of them.
 (The previous versions of our <a href="#Supporting+Java+library">supporting library</a>
-only supported <code>remotes</code> as root element.) Basically,
+only supported <code>remotes</code> as root element, but this restriction has been lifted.) Basically,
 the element <code>remotes</code> contains one or more <code>remote</code>s,
 each containing one or more <code>commandSet</code>s,
 each containing a number of <code>command</code>s.</p>
@@ -255,7 +258,8 @@ example:</p>
            <flash>564</flash>
            <gap>564</gap>
            <flash>564</flash>
-           <gap>564</gap>]]></source>
+           <gap>564</gap>
+           ...]]></source>
 </section>
 </section>
 
@@ -273,7 +277,7 @@ as <code>parameters</code> within the <code>command</code> element.</p>
 
 <p>Often, a device can be controlled in one of several "id-s", corresponding to different IR signals.
     See the <a href="https://raw.githubusercontent.com/bengtmartensson/GirrLib/master/Girr/Oppo/oppo_bdp83-all.girr">Oppo BDP-83</a>
-    as example. The different id-s are modeled as different <code>commandSet</code>s.
+    as example. The different id-s can be conveniently modeled as different <code>commandSet</code>s.
     These are (almost) identical, typically differing only in the device/subdevice parameter in the protocol.
     In other cases, devices implement a "new" and an "old" set of commands; see for example a
     <a href="https://raw.githubusercontent.com/bengtmartensson/GirrLib/master/Girr/Philips/philips_37pfl9603_alt.girr">Philips TV</a>
@@ -380,7 +384,7 @@ as root element.</p>
 
 <section>
     <title>GirrLib</title>
-<p>I maintain a small library, GirrLib, available at <a href="https://github.com/bengtmartensson/GirrLib">GitHub</a>.
+<p>I maintain a small library, GirrLib, <a href="https://github.com/bengtmartensson/GirrLib">available at GitHub</a>.
     It consists of "my" collection of Girr files. Although not actively maintained, contributions are welcome.
     The files therein are in the public domain.
 </p>
@@ -423,7 +427,7 @@ often expressed in the <a href="Glossary.html#IrpNotation">IRP Notation</a>,
 which is a compact formal representation of the computations involved. For
 particular values of the parameters, a <a
 href="Glossary.html#Generating">rendering engine</a> computes the resulting IR
-signal, often in <a href="Glossary.html#CCF">CCF, also called Pronto Hex</a> format, or in <a
+signal, often in <a href="Glossary.html#ProntoHex">Pronto Hex</a> format, or in <a
 href="Glossary.html#RawIrSignal">raw format</a>.</p>
 </section>
   </body>
