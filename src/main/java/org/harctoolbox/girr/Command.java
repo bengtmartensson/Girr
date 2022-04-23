@@ -1148,15 +1148,8 @@ public final class Command extends XmlExporter implements Named {
             boolean generateParameters, boolean generateProntoHex, boolean generateRaw, String inheritedProtocolName, Map<String, Long> inheritedParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
-        MasterType actualMasterType = masterType;
-        if (masterType == MasterType.raw && !generateRaw
-                || masterType == MasterType.ccf && !generateProntoHex
-                || masterType == MasterType.parameters && !generateParameters) {
-            actualMasterType = generateRaw ? MasterType.raw
-                    : generateParameters ? MasterType.parameters
-                    : generateProntoHex ? MasterType.ccf
-                    : masterType;
-        }
+        MasterType actualMasterType = actualMasterType(generateParameters, generateProntoHex, generateRaw);
+
         if (actualMasterType != null)
             element.setAttribute(MASTER_ATTRIBUTE_NAME, actualMasterType.name());
         if (comment != null && !comment.isEmpty())
@@ -1252,6 +1245,26 @@ public final class Command extends XmlExporter implements Named {
             });
         }
         return element;
+    }
+
+    /**
+     * Returns the MasterType that is to be used.
+     * @param generateParameters
+     * @param generateProntoHex
+     * @param generateRaw
+     * @return MasterType to be used.
+     */
+    MasterType actualMasterType(boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
+        MasterType actualMasterType = masterType;
+        if (masterType == MasterType.raw && !generateRaw
+                || masterType == MasterType.ccf && !generateProntoHex
+                || masterType == MasterType.parameters && !generateParameters) {
+            actualMasterType = generateRaw ? MasterType.raw
+                    : generateParameters ? MasterType.parameters
+                    : generateProntoHex ? MasterType.ccf
+                    : masterType;
+        }
+        return actualMasterType;
     }
 
     private boolean canReduce(String inheritedProtocolName, Map<String, Long> inheritedParameters) {

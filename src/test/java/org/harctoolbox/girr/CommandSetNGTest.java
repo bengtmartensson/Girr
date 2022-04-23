@@ -151,6 +151,16 @@ public class CommandSetNGTest {
         CommandNGTest.assertFileEqualContent(filename);
     }
 
+    @Test
+    public void testPrintSonyPronto() throws GirrException, IOException, SAXException {
+        System.out.println("printSony");
+        Remote remote = new Remote("src/test/girr/sony_tv.girr");
+        CommandSet cmdSet = remote.iterator().next();
+        File filename = new File(OUTDIR, "commandset_sony_pronto.girr");
+        cmdSet.print(filename, false, true, false);
+        CommandNGTest.assertFileEqualContent(filename);
+    }
+
     /**
      * Test of sort method, of class CommandSet.
      * @throws org.harctoolbox.girr.GirrException

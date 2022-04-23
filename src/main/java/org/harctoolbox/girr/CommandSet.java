@@ -299,7 +299,7 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         }).forEachOrdered((notesEl) -> {
             element.appendChild(notesEl);
         });
-        if (shouldDoParameters(generateParameters)) {
+        if (shouldDoParameters(generateParameters, generateProntoHex, generateRaw)) {
             Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
             parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
             element.appendChild(parametersEl);
@@ -321,14 +321,14 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         return element;
     }
 
-    private boolean shouldDoParameters(boolean generateParameters) {
+    private boolean shouldDoParameters(boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         return parameters != null && ! parameters.isEmpty()
-                && (generateParameters || firstCommandMasterParameters());
+                && (generateParameters || firstCommandMasterParameters(generateParameters, generateProntoHex, generateRaw));
     }
 
-    private boolean firstCommandMasterParameters() {
+    private boolean firstCommandMasterParameters(boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         Command command = commands.values().iterator().next();
-        return command != null && command.getMasterType() == Command.MasterType.parameters;
+        return command != null && command.actualMasterType(generateParameters, generateProntoHex, generateRaw) == Command.MasterType.parameters;
     }
 
     /**
