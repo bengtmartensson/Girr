@@ -594,6 +594,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * This class bundles different meta data for a remote together.
      */
     public static final class MetaData implements Serializable {
+        public static final String DEFAULT_REMOTENAME = "remote";
 
         private static boolean isVoid(String s) {
             return s == null || s.isEmpty();
@@ -610,7 +611,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
          * Constructor for empty MetaData.
          */
         public MetaData() {
-            this.name = null;
+            this.name = DEFAULT_REMOTENAME;
             this.displayName = null;
             this.manufacturer = null;
             this.model = null;
