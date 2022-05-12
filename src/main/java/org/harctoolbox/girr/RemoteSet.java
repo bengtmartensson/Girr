@@ -691,23 +691,10 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
         return remotes.get(name);
     }
 
-//    public Remote getFirstRemote() {
-//        return iterator().next();
-//    }
-
     @Override
     public Iterator<Remote> iterator() {
         return remotes.values().iterator();
     }
-
-//    /**
-//     * Returns the metaData of first Remote. This should not be considered to be the meta data of the RemoteSet.
-//     * @return metaData of first Remote.
-//     */
-//    public Remote.MetaData getFirstMetaData() {
-//        Remote remote = getFirstRemote();
-//        return remote != null ? remote.getMetaData() : new Remote.MetaData();
-//    }
 
     public IrpDatabase getIrpDatabase() {
         return irpDatabase;
