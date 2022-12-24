@@ -1275,7 +1275,8 @@ public final class Command extends XmlExporter implements Named {
             String parameterName = kvp.getKey();
             if (parameterName.equals(F_PARAMETER_NAME))
                 continue;
-            if (! inheritedParameters.get(parameterName).equals(kvp.getValue()))
+            Long inheritedParameter = inheritedParameters.get(parameterName);
+            if (! (inheritedParameter != null && inheritedParameter.equals(kvp.getValue())))
                 return false;
         }
         return true;
