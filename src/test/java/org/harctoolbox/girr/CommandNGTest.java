@@ -21,7 +21,6 @@ import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.xml.XmlUtils;
 import static org.testng.Assert.*;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -46,15 +45,6 @@ public class CommandNGTest {
     static void assertOutDirExists() {
         if (!OUTDIR.isDirectory())
             OUTDIR.mkdirs();
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        assertOutDirExists();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
     }
 
     // This tries to compensate for differences in different DOM renderers javax.xml.transform.Transformer,
@@ -127,6 +117,11 @@ public class CommandNGTest {
         rc5Params.put("D", 12L);
         rc5Params.put("F", 34L);
         rc5_12_34 = new Command("rc5_12_34", "An RC5 signal", "rc5", rc5Params);
+    }
+
+    @BeforeClass
+    public void setUpClass() throws Exception {
+        assertOutDirExists();
     }
 
 

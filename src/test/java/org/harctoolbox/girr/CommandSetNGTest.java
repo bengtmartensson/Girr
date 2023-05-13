@@ -8,7 +8,6 @@ import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpException;
 import static org.testng.Assert.*;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -18,20 +17,16 @@ import org.xml.sax.SAXException;
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class CommandSetNGTest {
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        CommandNGTest.assertOutDirExists();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     private final CommandSet commandSet;
 
     public CommandSetNGTest() throws GirrException, IOException, SAXException {
         Command.setUseInheritanceForXml(true);
         commandSet = new CommandSet("src/test/girr/philips_tv_cmdset_rc6.girr");
+    }
+
+    @BeforeClass
+    public void setUpClass() throws Exception {
+        CommandNGTest.assertOutDirExists();
     }
 
     @BeforeMethod

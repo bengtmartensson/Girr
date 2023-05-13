@@ -10,7 +10,6 @@ import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.NamedProtocol;
 import org.harctoolbox.xml.XmlUtils;
 import static org.testng.Assert.*;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -21,19 +20,15 @@ import org.xml.sax.SAXException;
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class RemoteSetNGTest {
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        CommandNGTest.assertOutDirExists();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     private final RemoteSet remoteSet;
 
     public RemoteSetNGTest() throws GirrException, IOException, SAXException {
         remoteSet = new RemoteSet(new File("src/test/girr/philips_37pfl9603_all.girr"));
+    }
+
+    @BeforeClass
+    public void setUpClass() throws Exception {
+        CommandNGTest.assertOutDirExists();
     }
 
     @BeforeMethod

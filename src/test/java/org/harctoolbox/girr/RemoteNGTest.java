@@ -10,7 +10,6 @@ import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpException;
 import static org.testng.Assert.*;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -20,21 +19,17 @@ import org.xml.sax.SAXException;
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
 public class RemoteNGTest {
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-        CommandNGTest.assertOutDirExists();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     private final Remote sonyRemote;
     private final Remote philipsRemote;
 
     public RemoteNGTest() throws GirrException, IOException, SAXException {
         sonyRemote = new Remote("src/test/girr/sony_tv.girr");
         philipsRemote = new RemoteSet("src/test/girr/philips_37pfl9603_all.girr").iterator().next();
+    }
+
+    @BeforeClass
+    public void setUpClass() throws Exception {
+        CommandNGTest.assertOutDirExists();
     }
 
     @BeforeMethod
