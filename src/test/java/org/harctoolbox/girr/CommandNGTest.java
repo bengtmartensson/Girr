@@ -596,6 +596,7 @@ public class CommandNGTest {
 
     /**
      * Test of transform method, of class Command.
+     * @throws Exception
      */
     @Test
     public void testTransform_String() throws Exception {

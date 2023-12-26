@@ -306,6 +306,9 @@ public class RemoteSetNGTest {
 
     /**
      * Test that "prontoHex" for "ccf" s msterType is accepted.
+     * @throws IOException
+     * @throws SAXException
+     * @throws GirrException
      */
     @Test
     public void testParseProntoHex() throws IOException, SAXException, GirrException {

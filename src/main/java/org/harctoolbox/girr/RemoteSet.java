@@ -341,6 +341,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     /**
      * This constructor is used to read a Reader into a RemoteSet.
      * @param reader
+     * @param schema
      * @throws org.harctoolbox.girr.GirrException
      * @throws java.io.IOException
      * @throws org.xml.sax.SAXException

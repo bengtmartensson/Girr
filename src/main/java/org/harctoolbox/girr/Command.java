@@ -388,10 +388,10 @@ public final class Command extends XmlExporter implements Named {
                     barfIfInvalidToggle(T, nl.getLength());
                     String freq = el.getAttribute(FREQUENCY_ATTRIBUTE_NAME);
                     if (!freq.isEmpty())
-                        frequency = Integer.parseInt(freq);
+                        frequency = Integer.valueOf(freq);
                     String dc = el.getAttribute(DUTYCYCLE_ATTRIBUTE_NAME);
                     if (!dc.isEmpty()) {
-                        dutyCycle = Double.parseDouble(dc);
+                        dutyCycle = Double.valueOf(dc);
                         if (!ModulatedIrSequence.isValidDutyCycle(dutyCycle))
                             throw new GirrException("Invalid dutyCycle: " + dutyCycle + "; must be between 0 and 1.");
                     }
@@ -1347,8 +1347,7 @@ public final class Command extends XmlExporter implements Named {
     // Don't use NameEngine to represent a set of transformations, since it is unordered.
     public Command transform(Iterable<Assignment> transformations) throws NameUnassignedException, GirrException {
         Map<String, Long> newParameters = transformParameters(transformations);
-        Command newCommand = new Command(name, displayName, comment, notes, protocolName, newParameters, true);
-        return newCommand;
+        return new Command(name, displayName, comment, notes, protocolName, newParameters, true);
     }
 
     public Map<String, Long> transformParameters(Iterable<Assignment> transformations) throws NameUnassignedException {
