@@ -198,4 +198,13 @@ public class CommandSetNGTest {
         instance.sortIgnoringCase();
         assertEquals(instance.iterator().next().getName(), "ambilight_mode");
     }
+
+    @Test
+    public void testTemplate() throws GirrException, IOException, SAXException {
+        CommandSet cs = new CommandSet("src/test/girr/tv_template.girr");
+        assertEquals(cs.getNumberOfCommand(), 0);
+        Command.setAcceptEmptyCommands(true);
+        cs = new CommandSet("src/test/girr/tv_template.girr");
+        assertEquals(cs.getNumberOfCommand(), 25);
+    }
 }

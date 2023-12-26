@@ -138,6 +138,11 @@ public final class Command extends XmlExporter implements Named {
 
     private static boolean useInheritanceForXml = true;
 
+    /**
+     * If true, accept commands without content, that is, only with a name.
+     */
+    private static boolean acceptEmptyCommands = false;
+
     static {
         try {
             IrpDatabase database = new IrpDatabase((String) null);
@@ -159,6 +164,18 @@ public final class Command extends XmlExporter implements Named {
 
     public static boolean isUseInheritanceForXml() {
         return useInheritanceForXml;
+    }
+
+    /**
+     * If called with argument true, commands without a content, only a name, will be accepted.
+     * @param acceptEmpties
+     */
+    public static void setAcceptEmptyCommands(boolean acceptEmpties) {
+        acceptEmptyCommands = acceptEmpties;
+    }
+
+    public static boolean isAcceptEmptyCommands() {
+        return acceptEmptyCommands;
     }
 
     /**
@@ -933,7 +950,7 @@ public final class Command extends XmlExporter implements Named {
                     : prontoHexOk ? MasterType.ccf
                     : null;
 
-        if (masterType == null)
+        if (!acceptEmptyCommands && masterType == null)
             throw new GirrException("Command " + name + ": No usable data or parameters.");
 
         if (masterType == MasterType.parameters && !protocolOk)
