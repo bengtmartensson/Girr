@@ -892,7 +892,7 @@ public final class Command extends XmlExporter implements Named {
      */
     public String prettyValueString() {
         if (masterType == MasterType.empty)
-            return "no information present";
+            return "Empty";
 
         try {
             checkForParameters();
@@ -928,7 +928,7 @@ public final class Command extends XmlExporter implements Named {
     @Override
     public String toString() {
         if (masterType == MasterType.empty)
-            return "no information present";
+            return "Empty";
         try {
             return toPrintString();
         } catch (IrpException | IrCoreException | GirrException ex) {
@@ -948,10 +948,10 @@ public final class Command extends XmlExporter implements Named {
             masterType = (protocolOk && parametersOk) ? MasterType.parameters
                     : rawOk ? MasterType.raw
                     : prontoHexOk ? MasterType.ccf
-                    : null;
+                    : MasterType.empty;
 
-        if (!acceptEmptyCommands && masterType == null)
-            throw new GirrException("Command " + name + ": No usable data or parameters.");
+        if (!acceptEmptyCommands && masterType == MasterType.empty)
+            throw new GirrException("Command " + name + ": Empty commands not allowed.");
 
         if (masterType == MasterType.parameters && !protocolOk)
             throw new GirrException("Command " + name + ": MasterType is parameters, but no protocol found.");
@@ -1377,7 +1377,7 @@ public final class Command extends XmlExporter implements Named {
         /** The protocol/parameter version is the master. May have multiple Pronto Hex/raw representations if the protocol has a toggle. */
         parameters,
 
-        /** This is a dummy signal, without data. */
+        /** This is an empty signal without data. */
         empty;
 
         /**
