@@ -21,8 +21,8 @@ jobs:
       with:
         java-version: '8'
         distribution: 'adopt'
-#    - name: Build IrpTransmogrifier
-#      run: ./common/scripts/build-harctoolbox-project.sh IrpTransmogrifier
+    - name: Build IrpTransmogrifier
+      run: ./common/scripts/build-harctoolbox-project.sh IrpTransmogrifier
     - name: Build with Maven
       run: mvn -B -V install -Dmaven.test.skip=true -Dmaven.javadoc.skip=true package
     - name: List files
