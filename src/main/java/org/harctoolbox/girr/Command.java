@@ -1004,7 +1004,7 @@ public final class Command extends XmlExporter implements Named {
             notes.put(ENGLISH, "No signal information.");
             return;
         }
-        Decoder.AbstractDecodesCollection<? extends ElementaryDecode> decodes = decoder.decodeLoose(irSignal, decoderParameters);
+        Decoder.AbstractDecodesCollection<? extends ElementaryDecode> decodes = decoder.decodeIrSignalWithFallback(irSignal, decoderParameters);
 
         if (decodes.isEmpty())
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
