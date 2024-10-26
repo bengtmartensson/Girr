@@ -486,23 +486,23 @@ public final class Command extends XmlExporter implements Named {
      * @throws org.harctoolbox.girr.GirrException
      */
     public Command(String name, String comment, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
-        this(name, null, comment, null, protocolName, parameters, check);
+        this(name, comment, null, null, protocolName, parameters, check);
     }
 
     /**
      * Construct a Command from protocolName and parameters.
      *
      * @param name
-     * @param displayName
      * @param comment
+     * @param displayName
      * @param notes
      * @param protocolName
      * @param parameters
      * @param check If true, throw GirrException if the projectName cannot be made a protocol.
      * @throws org.harctoolbox.girr.GirrException
      */
-    public Command(String name, String displayName, String comment, Map<String, String> notes, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
-        this(MasterType.parameters, name, displayName, comment, notes);
+    public Command(String name, String comment, String displayName, Map<String, String> notes, String protocolName, Map<String, Long> parameters, boolean check) throws GirrException {
+        this(MasterType.parameters, name, comment, displayName, notes);
         if (protocolName == null)
             throw new GirrException("No protocol name");
         this.parameters = new LinkedHashMap<>(parameters);
@@ -1347,7 +1347,7 @@ public final class Command extends XmlExporter implements Named {
     // Don't use NameEngine to represent a set of transformations, since it is unordered.
     public Command transform(Iterable<Assignment> transformations) throws NameUnassignedException, GirrException {
         Map<String, Long> newParameters = transformParameters(transformations);
-        return new Command(name, displayName, comment, notes, protocolName, newParameters, true);
+        return new Command(name, comment, displayName, notes, protocolName, newParameters, true);
     }
 
     public Map<String, Long> transformParameters(Iterable<Assignment> transformations) throws NameUnassignedException {
