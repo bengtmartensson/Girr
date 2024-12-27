@@ -3,15 +3,19 @@ package org.harctoolbox.girr;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import static org.harctoolbox.girr.CommandNGTest.OUTDIR;
 import org.harctoolbox.ircore.IrCoreException;
 import org.harctoolbox.irp.IrpException;
+import org.harctoolbox.irp.NameEngine;
 import static org.testng.Assert.*;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 @SuppressWarnings("UseOfSystemOutOrSystemErr")
@@ -206,5 +210,28 @@ public class CommandSetNGTest {
         Command.setAcceptEmptyCommands(true);
         cs = new CommandSet("src/test/girr/tv_template.girr");
         assertEquals(cs.getNumberOfCommand(), 25);
+    }
+
+    // See https://github.com/bengtmartensson/IrScrutinizer/issues/539
+    @Test
+    @SuppressWarnings("null")
+    public void testInheritance() throws Exception {
+        System.out.println("testInheritance");
+        Command command1 = new Command("x", null, "Apple", new NameEngine("{D=1,F=2,PairID=254}").toMap());
+        Command command2 = new Command("y", null, "Apple", new NameEngine("{    F=3,PairID=254}").toMap());
+        Map<String, Command> commands = new HashMap<>(4);
+        commands.put("x", command1);
+        commands.put("y", command2);
+        CommandSet cmdSet = new CommandSet("cmdSet", null, commands, null, null);
+        Document doc = cmdSet.toDocument("cmdSet", false, false, false, false);
+        //XmlUtils.printDOM(new File("/tmp/junk.xml"), doc);
+        CommandSet cs = new CommandSet(doc);
+        Command c = cs.getCommand("y");
+        Map<String, Long> expectedParameters = command2.getParameters();
+        long appleDefaultD = 238L;
+        for (Map.Entry<String, Long> kvp : c.getParameters().entrySet()) {
+            String name = kvp.getKey();
+            assertEquals(kvp.getValue(), name.equals("D") ? appleDefaultD : expectedParameters.get(name));
+        }
     }
 }

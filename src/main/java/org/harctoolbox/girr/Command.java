@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.harctoolbox.girr.XmlStatic.COMMAND_ELEMENT_NAME;
@@ -67,6 +68,7 @@ import org.harctoolbox.irp.Assignment;
 import org.harctoolbox.irp.Decoder;
 import org.harctoolbox.irp.DomainViolationException;
 import org.harctoolbox.irp.ElementaryDecode;
+import org.harctoolbox.irp.Expression;
 import org.harctoolbox.irp.InvalidNameException;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
@@ -74,6 +76,7 @@ import org.harctoolbox.irp.IrpInvalidArgumentException;
 import org.harctoolbox.irp.IrpParseException;
 import org.harctoolbox.irp.NameEngine;
 import org.harctoolbox.irp.NameUnassignedException;
+import org.harctoolbox.irp.ParameterSpec;
 import org.harctoolbox.irp.Protocol;
 import org.harctoolbox.irp.ShortPronto;
 import static org.harctoolbox.xml.XmlUtils.ENGLISH;
@@ -103,6 +106,8 @@ import org.xml.sax.SAXException;
  * erroneous data. The other classes in the package may not; they should just
  * ignore individual unparseable commands.
  */
+
+@SuppressWarnings("serial")
 public final class Command extends XmlExporter implements Named {
 
     private final static Logger logger = Logger.getLogger(Command.class.getName());
@@ -1009,7 +1014,7 @@ public final class Command extends XmlExporter implements Named {
         if (decodes.isEmpty())
             notes.put(ENGLISH, "Decoding was invoked, but found no decode.");
         else {
-            ElementaryDecode firstDecode = decodes.first();
+            ElementaryDecode firstDecode = decodes.getPreferred() != null ? decodes.getPreferred() : decodes.first();
             protocolName = firstDecode.getName();
             parameters = firstDecode.getMap();
         }
@@ -1196,14 +1201,39 @@ public final class Command extends XmlExporter implements Named {
                         if (protocolName != null)
                             parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
                         element.appendChild(parametersEl);
-                        parameters.entrySet().stream().map((parameter) -> {
+                        for (Map.Entry<String, Long> kvp : parameters.entrySet()) {
                             Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
-                            parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameter.getKey());
-                            parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, parameter.getValue().toString());
-                            return parameterEl;
-                        }).forEachOrdered((parameterEl) -> {
-                            parametersEl.appendChild(parameterEl);
-                        });
+                            String parameterName = kvp.getKey();
+                            if (inheritedParameters == null || !Objects.equals(kvp.getValue(), inheritedParameters.get(parameterName))) {
+                                parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                                parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameterName);
+                                parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, kvp.getValue().toString());
+                                parametersEl.appendChild(parameterEl);
+                            }
+                        }
+                        if (inheritedParameters != null) {
+                            checkForProtocol();
+                            for (ParameterSpec p : protocol.getParameterSpecs()) {
+                                String parameterName = p.getName();
+                                if (parameterName.equals(TOGGLE_PARAMETER_NAME) || parameters.containsKey(parameterName))
+                                    continue;
+                                Expression deflt = p.getDefault();
+                                if (deflt == null)
+                                    continue;
+                                
+                                NameEngine nameEngine = new NameEngine(parameters);
+                                try {
+                                    Long defaultValue = deflt.toLong(nameEngine);
+                                    if (!Objects.equals(defaultValue, inheritedParameters.get(parameterName))) {
+                                        Element el = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                                        el.setAttribute(NAME_ATTRIBUTE_NAME, parameterName);
+                                        el.setAttribute(VALUE_ATTRIBUTE_NAME, Long.toString(defaultValue));
+                                        parametersEl.appendChild(el);
+                                    }
+                                } catch (NameUnassignedException ex) {
+                                }
+                            }
+                        }
                     }
                 }
             } catch (IrCoreException | IrpException ex) {
@@ -1284,8 +1314,8 @@ public final class Command extends XmlExporter implements Named {
         return actualMasterType;
     }
 
-    private boolean canReduce(String inheritedProtocolName, Map<String, Long> inheritedParameters) {
-        if (! useInheritanceForXml || ! protocolName.equals(inheritedProtocolName))
+    private boolean canReduce(String inheritedProtocolName, Map<String, Long> inheritedParameters) throws IrpException {
+        if (inheritedParameters == null || ! useInheritanceForXml || ! protocolName.equals(inheritedProtocolName))
             return false;
 
         for (Map.Entry<String, Long> kvp : parameters.entrySet()) {
@@ -1293,8 +1323,33 @@ public final class Command extends XmlExporter implements Named {
             if (parameterName.equals(F_PARAMETER_NAME))
                 continue;
             Long inheritedParameter = inheritedParameters.get(parameterName);
-            if (! (inheritedParameter != null && inheritedParameter.equals(kvp.getValue())))
+            if (!(inheritedParameter != null && inheritedParameter.equals(kvp.getValue())))
                 return false;
+        }
+
+        checkForProtocol();
+        for (ParameterSpec p : protocol.getParameterSpecs()) {
+            String parameterName = p.getName();
+            if (parameterName.equals(TOGGLE_PARAMETER_NAME))
+                continue;
+            Expression deflt = p.getDefault();
+            if (deflt == null)
+                continue;
+            
+            Long newValue = parameters.get(parameterName);
+            if (newValue != null) // has been checked already
+                continue;
+       
+            NameEngine nameEngine = new NameEngine(parameters);
+            try {
+                Long defaultValue = deflt.toLong(nameEngine);
+                Long inheritedValue = inheritedParameters.get(parameterName);
+                if (!Objects.equals(defaultValue, inheritedValue))
+                    return false;
+            } catch (NameUnassignedException ex) {
+                return false;
+                //Logger.getLogger(Command.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         return true;
     }
