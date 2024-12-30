@@ -1344,6 +1344,8 @@ public final class Command extends XmlExporter implements Named {
             try {
                 Long defaultValue = deflt.toLong(nameEngine);
                 Long inheritedValue = inheritedParameters.get(parameterName);
+                if (inheritedValue == null)
+                    inheritedValue = deflt.toLong(new NameEngine(inheritedParameters));
                 if (!Objects.equals(defaultValue, inheritedValue))
                     return false;
             } catch (NameUnassignedException ex) {
