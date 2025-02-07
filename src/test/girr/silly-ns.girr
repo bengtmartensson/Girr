@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="simplehtml.xsl"?>
+<gr:remotes
+         xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:html="http://www.w3.org/1999/xhtml"
+         xmlns:gr="http://www.harctoolbox.org/Girr"
+         xs:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1.2.xsd"
+         girrVersion="1.2"
+         title="Hand written example">
+    <gr:adminData>
+        <gr:creationData source="/etc/lirc/lircd.conf" creationDate="Thu Jul 11 11:05:14 CEST 2013"
+                       creatingUser="Archimedes" tool="lirc2xml" toolVersion="0.2.0java"
+                       tool2="decodeIr" tool2Version="2.44"/>
+        <gr:versioningData/>
+        <gr:notes xml:lang="en">Notes in English.</gr:notes>
+        <gr:notes xml:lang="de">Notitzen auf deutsch.</gr:notes>
+        <gr:notes xml:lang="sv">Notiser på svenska.</gr:notes>
+    </gr:adminData>
+    <gr:remote name="test" comment="just a test">
+        <gr:notes xml:lang="en">Notes in English</gr:notes>
+        <gr:notes xml:lang="de">Notitzen auf deutsch.</gr:notes>
+        <gr:notes xml:lang="sv">Notiser på svenska.</gr:notes>
+        <gr:applicationData application="jp1">
+            <gr:notes/>
+            <gr:appParameter name="SetupCode" value="1234"/>
+            <!--button-map>
+                <button name="play" display-name="Play" unshifted="cmd1" shifted="stop" metashifted="record"/>
+            </button-map-->
+        </gr:applicationData>
+        <gr:commandSet name="commandSet" comment="">
+            <gr:notes/>
+            <!--gr:parameters protocol="nec1">
+                <gr:parameter name="D" value="0"/>
+            </gr:parameters-->
+            <gr:command name="play" displayName="Play |>" comment="" master="ccf">
+                <gr:notes/>
+                <gr:ccf>0000 006C 0022 0002 015B 00AD 0016 0016 0116 0016 0016 0016 0116 0016 0016 0016 0116 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041 0016 0041</gr:ccf>
+            </gr:command>
+	    <gr:command name="Work" comment="" master="ccf">
+                <gr:notes/>
+                <gr:ccf>0000 006C 0022 0002 015B 00AD 0016 0016 0016 0016 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0041 0016 0041 0016 0041 0016 0016 0016 0016 0016 0016 0016 0041 0016 0041 0016 06A4 015B 0057 0016 0E6C</gr:ccf>
+            </gr:command>
+        </gr:commandSet>
+
+        <gr:commandSet name="godzilla">
+            <gr:parameters protocol="Motorola"> <!-- alias for Blaupunkt -->
+                <gr:parameter name="D" value="3"/>
+            </gr:parameters>
+            <gr:command name="Mothra" F="1"/>
+            <gr:command name="Rodan">
+                <gr:parameters protocol="ruwido R-stEp"> <!-- alias for CanalSat -->
+                    <gr:parameter name="D" value="0"/>
+                    <gr:parameter name="S" value="0"/>
+                    <gr:parameter name="F" value="0"/>
+                </gr:parameters>
+            </gr:command>
+            <gr:command F="0" master="parameters" name="Sony12_D1F0">
+                <gr:raw frequency="40000">
+                    <gr:repeat>
+                        <gr:flash>2400</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>1200</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>600</gr:gap>
+                        <gr:flash>600</gr:flash>
+                        <gr:gap>27600</gr:gap>
+                    </gr:repeat>
+                </gr:raw>
+                <gr:ccf>0000 0068 0000 000D 0060 0018 0018 0018 0018 0018 0018 0018 0018 0018 0018 0018 0018 0018 0018 0018 0030 0018 0018 0018 0018 0018 0018 0018 0018 0450</gr:ccf>
+                <gr:format name="sendir">sendir,1:1,1,40000,1,1,96,24,24,24,24,24,24,24,24,24,24,24,24,24,24,24,48,24,24,24,24,24,24,24,24,1104</gr:format>
+                <gr:format name="broadlink-base64">JgAgAEkSEhISEhISEhISEhISEhIlEhISEhISEhIADQU=</gr:format>
+                <gr:format name="broadlink-hex">2600200049121212121212121212121212121212251212121212121212000D05</gr:format>
+            </gr:command>
+        </gr:commandSet>
+    </gr:remote>
+</gr:remotes>

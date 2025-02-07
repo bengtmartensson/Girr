@@ -236,6 +236,7 @@ public final class Command extends XmlExporter implements Named {
             return null;
 
         Element el = doc.createElementNS(GIRR_NAMESPACE, tagName);
+        XmlStatic.setPrefix(el);
         if (fatRaw)
             insertFatElements(doc, el, sequence);
         else
@@ -249,20 +250,21 @@ public final class Command extends XmlExporter implements Named {
         for (int i = 0; i < durations.length; i++) {
             String duration = durations[i].replaceAll("[\\+-]", "");
             Element e = doc.createElementNS(GIRR_NAMESPACE, i % 2 == 0 ? FLASH_ELEMENT_NAME : GAP_ELEMENT_NAME);
+            XmlStatic.setPrefix(e);
             e.setTextContent(duration);
             el.appendChild(e);
         }
     }
 
     private static String parseSequence(Element element) {
-        if (element.getElementsByTagName(FLASH_ELEMENT_NAME).getLength() > 0) {
+        if (element.getElementsByTagNameNS(GIRR_NAMESPACE, FLASH_ELEMENT_NAME).getLength() > 0) {
             StringBuilder str = new StringBuilder(INITIAL_STRINGBUILDER_CAPACITY);
             NodeList nl = element.getChildNodes();
             for (int i = 0; i < nl.getLength(); i++) {
                 if (nl.item(i).getNodeType() != Node.ELEMENT_NODE)
                     continue;
                 Element el = (Element) nl.item(i);
-                switch (el.getTagName()) {
+                switch (el.getLocalName()) {
                     case FLASH_ELEMENT_NAME:
                         str.append(" +").append(el.getTextContent());
                         break;
@@ -271,7 +273,7 @@ public final class Command extends XmlExporter implements Named {
                         break;
                     default:
                         logger.log(Level.SEVERE, "Invalid tag name: {0}", el.getTagName());
-                        throw new ThisCannotHappenException("Invalid tag name");
+                        throw new ThisCannotHappenException("Invalid tag name: " + el.getTagName());
                 }
             }
             return str.substring(1);
@@ -350,8 +352,8 @@ public final class Command extends XmlExporter implements Named {
     public Command(Element element, String inheritProtocol, Map<String, Long> inheritParameters) throws GirrException {
         this(MasterType.safeValueOf(element.getAttribute(MASTER_ATTRIBUTE_NAME)), element.getAttribute(NAME_ATTRIBUTE_NAME),
                 element.getAttribute(COMMENT_ATTRIBUTE_NAME), element.getAttribute(DISPLAYNAME_ATTRIBUTE_NAME),
-                XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME)));
-        if (!element.getTagName().equals(COMMAND_ELEMENT_NAME))
+                XmlStatic.parseElementsByLanguage(element.getElementsByTagNameNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME)));
+        if (!element.getLocalName().equals(COMMAND_ELEMENT_NAME))
             throw new GirrException("Element is not of type " + COMMAND_ELEMENT_NAME);
 
         protocolName = inheritProtocol != null ? irpDatabase.expandAlias(inheritProtocol) : null;
@@ -362,13 +364,13 @@ public final class Command extends XmlExporter implements Named {
 
         try {
             NodeList nl;
-            NodeList paramsNodeList = element.getElementsByTagName(PARAMETERS_ELEMENT_NAME);
+            NodeList paramsNodeList = element.getElementsByTagNameNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
             if (paramsNodeList.getLength() > 0) {
                 Element params = (Element) paramsNodeList.item(0);
                 String proto = params.getAttribute(PROTOCOL_ATTRIBUTE_NAME);
                 if (!proto.isEmpty())
                     protocolName = irpDatabase.expandAlias(proto);
-                nl = params.getElementsByTagName(PARAMETER_ELEMENT_NAME);
+                nl = params.getElementsByTagNameNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
                 for (int i = 0; i < nl.getLength(); i++) {
                     Element el = (Element) nl.item(i);
                     parameters.put(el.getAttribute(NAME_ATTRIBUTE_NAME), IrCoreUtils.parseLong(el.getAttribute(VALUE_ATTRIBUTE_NAME)));
@@ -377,7 +379,7 @@ public final class Command extends XmlExporter implements Named {
             String Fstring = element.getAttribute(F_ATTRIBUTE_NAME);
             if (!Fstring.isEmpty())
                 parameters.put(F_PARAMETER_NAME, IrCoreUtils.parseLong(Fstring));
-            nl = element.getElementsByTagName(RAW_ELEMENT_NAME);
+            nl = element.getElementsByTagNameNS(GIRR_NAMESPACE, RAW_ELEMENT_NAME);
             if (nl.getLength() > 0) {
                 intro = new String[nl.getLength()];
                 repeat = new String[nl.getLength()];
@@ -400,18 +402,18 @@ public final class Command extends XmlExporter implements Named {
                         if (!ModulatedIrSequence.isValidDutyCycle(dutyCycle))
                             throw new GirrException("Invalid dutyCycle: " + dutyCycle + "; must be between 0 and 1.");
                     }
-                    NodeList nodeList = el.getElementsByTagName(INTRO_ELEMENT_NAME);
+                    NodeList nodeList = el.getElementsByTagNameNS(GIRR_NAMESPACE, INTRO_ELEMENT_NAME);
                     if (nodeList.getLength() > 0)
                         intro[T] = parseSequence((Element) nodeList.item(0));
-                    nodeList = el.getElementsByTagName(REPEAT_ELEMENT_NAME);
+                    nodeList = el.getElementsByTagNameNS(GIRR_NAMESPACE, REPEAT_ELEMENT_NAME);
                     if (nodeList.getLength() > 0)
                         repeat[T] = parseSequence((Element) nodeList.item(0));
-                    nodeList = el.getElementsByTagName(ENDING_ELEMENT_NAME);
+                    nodeList = el.getElementsByTagNameNS(GIRR_NAMESPACE, ENDING_ELEMENT_NAME);
                     if (nodeList.getLength() > 0)
                         ending[T] = parseSequence((Element) nodeList.item(0));
                 }
             }
-            nl = element.getElementsByTagName(PRONTO_HEX_ELEMENT_NAME);
+            nl = element.getElementsByTagNameNS(GIRR_NAMESPACE, PRONTO_HEX_ELEMENT_NAME);
             if (nl.getLength() > 0) {
                 prontoHex = new String[nl.getLength()];
                 for (int i = 0; i < nl.getLength(); i++) {
@@ -426,7 +428,7 @@ public final class Command extends XmlExporter implements Named {
                     prontoHex[T] = el.getTextContent();
                 }
             }
-            nl = element.getElementsByTagName(FORMAT_ELEMENT_NAME);
+            nl = element.getElementsByTagNameNS(GIRR_NAMESPACE, FORMAT_ELEMENT_NAME);
             for (int i = 0; i < nl.getLength(); i++) {
                 Element el = (Element) nl.item(0);
                 otherFormats.put(el.getAttribute(NAME_ATTRIBUTE_NAME), el.getTextContent());
@@ -1169,6 +1171,7 @@ public final class Command extends XmlExporter implements Named {
     Element toElement(Document doc, boolean fatRaw,
             boolean generateParameters, boolean generateProntoHex, boolean generateRaw, String inheritedProtocolName, Map<String, Long> inheritedParameters) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
+        XmlStatic.setPrefix(element);
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         MasterType actualMasterType = actualMasterType(generateParameters, generateProntoHex, generateRaw);
 
@@ -1181,6 +1184,7 @@ public final class Command extends XmlExporter implements Named {
 
         notes.entrySet().stream().map((note) -> {
             Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+            XmlStatic.setPrefix(notesEl);
             notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
             notesEl.setTextContent(note.getValue());
             return notesEl;
@@ -1198,14 +1202,17 @@ public final class Command extends XmlExporter implements Named {
                             element.setAttribute(F_ATTRIBUTE_NAME, parameterF.toString());
                     } else {
                         Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
+                        XmlStatic.setPrefix(parametersEl);
                         if (protocolName != null)
                             parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
                         element.appendChild(parametersEl);
                         for (Map.Entry<String, Long> kvp : parameters.entrySet()) {
                             Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                            XmlStatic.setPrefix(parameterEl);
                             String parameterName = kvp.getKey();
                             if (inheritedParameters == null || !Objects.equals(kvp.getValue(), inheritedParameters.get(parameterName))) {
                                 parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                                XmlStatic.setPrefix(parameterEl);
                                 parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameterName);
                                 parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, kvp.getValue().toString());
                                 parametersEl.appendChild(parameterEl);
@@ -1220,12 +1227,13 @@ public final class Command extends XmlExporter implements Named {
                                 Expression deflt = p.getDefault();
                                 if (deflt == null)
                                     continue;
-                                
+
                                 NameEngine nameEngine = new NameEngine(parameters);
                                 try {
                                     Long defaultValue = deflt.toLong(nameEngine);
                                     if (!Objects.equals(defaultValue, inheritedParameters.get(parameterName))) {
                                         Element el = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                                        XmlStatic.setPrefix(el);
                                         el.setAttribute(NAME_ATTRIBUTE_NAME, parameterName);
                                         el.setAttribute(VALUE_ATTRIBUTE_NAME, Long.toString(defaultValue));
                                         parametersEl.appendChild(el);
@@ -1247,6 +1255,7 @@ public final class Command extends XmlExporter implements Named {
                 if (intro != null || repeat != null || ending != null) {
                     for (int T = 0; T < numberOfToggleValues(); T++) {
                         Element rawEl = doc.createElementNS(GIRR_NAMESPACE, RAW_ELEMENT_NAME);
+                        XmlStatic.setPrefix(rawEl);
                         rawEl.setAttribute(FREQUENCY_ATTRIBUTE_NAME,
                                 Integer.toString(frequency != null ? frequency : (int) ModulatedIrSequence.DEFAULT_FREQUENCY));
                         if (dutyCycle != null && dutyCycle > 0.0)
@@ -1270,6 +1279,7 @@ public final class Command extends XmlExporter implements Named {
                 if (prontoHex != null) {
                     for (int T = 0; T < numberOfToggleValues(); T++) {
                         Element prontoHexEl = doc.createElementNS(GIRR_NAMESPACE, PRONTO_HEX_ELEMENT_NAME);
+                        XmlStatic.setPrefix(prontoHexEl);
                         if (numberOfToggleValues() > 1)
                             prontoHexEl.setAttribute(TOGGLE_ATTRIBUTE_NAME, Integer.toString(T));
                         prontoHexEl.setTextContent(prontoHex[T]);
@@ -1284,6 +1294,7 @@ public final class Command extends XmlExporter implements Named {
         if (otherFormats != null) {
             otherFormats.entrySet().stream().map((format) -> {
                 Element formatEl = doc.createElementNS(GIRR_NAMESPACE, FORMAT_ELEMENT_NAME);
+                XmlStatic.setPrefix(formatEl);
                 formatEl.setAttribute(NAME_ATTRIBUTE_NAME, format.getKey());
                 formatEl.setTextContent(format.getValue());
                 return formatEl;
@@ -1335,11 +1346,11 @@ public final class Command extends XmlExporter implements Named {
             Expression deflt = p.getDefault();
             if (deflt == null)
                 continue;
-            
+
             Long newValue = parameters.get(parameterName);
             if (newValue != null) // has been checked already
                 continue;
-       
+
             NameEngine nameEngine = new NameEngine(parameters);
             try {
                 Long defaultValue = deflt.toLong(nameEngine);

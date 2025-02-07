@@ -118,11 +118,11 @@ final class AdminData implements Serializable {
      */
 
     AdminData(Element element) throws GirrException {
-        if (!element.getTagName().equals(ADMINDATA_ELEMENT_NAME))
+        if (!element.getLocalName().equals(ADMINDATA_ELEMENT_NAME))
             throw new GirrException("Element not " + ADMINDATA_ELEMENT_NAME);
 
-        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
-        NodeList nodeList = element.getElementsByTagName(CREATIONDATA_ELEMENT_NAME);
+        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagNameNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME));
+        NodeList nodeList = element.getElementsByTagNameNS(GIRR_NAMESPACE, CREATIONDATA_ELEMENT_NAME);
         if (nodeList.getLength() > 0) {
             Element creationdata = (Element) nodeList.item(0);
             creatingUser = creationdata.getAttribute(CREATINGUSER_ATTRIBUTE_NAME);
@@ -142,7 +142,9 @@ final class AdminData implements Serializable {
      */
     Element toElement(Document doc) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, ADMINDATA_ELEMENT_NAME);
+        XmlStatic.setPrefix(element);
         Element creationEl = doc.createElementNS(GIRR_NAMESPACE, CREATIONDATA_ELEMENT_NAME);
+        XmlStatic.setPrefix(creationEl);
 
         setAttributeIfNonNull(creationEl, CREATINGUSER_ATTRIBUTE_NAME, creatingUser);
         setAttributeIfNonNull(creationEl, SOURCE_ATTRIBUTE_NAME, source);
@@ -158,6 +160,7 @@ final class AdminData implements Serializable {
         if (notes != null) {
             notes.entrySet().stream().map((note) -> {
                 Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+                XmlStatic.setPrefix(notesEl);
                 notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
                 notesEl.setTextContent(note.getValue());
                 return notesEl;

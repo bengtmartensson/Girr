@@ -121,7 +121,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
      * @throws org.harctoolbox.girr.GirrException
      */
     public Remote(Element element, String source) throws GirrException {
-        if (!element.getTagName().equals(REMOTE_ELEMENT_NAME))
+        if (!element.getLocalName().equals(REMOTE_ELEMENT_NAME))
             throw new GirrException("Element name is not " + REMOTE_ELEMENT_NAME);
 
         metaData = new MetaData(element.getAttribute(NAME_ATTRIBUTE_NAME),
@@ -130,17 +130,17 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
                 element.getAttribute(MODEL_ATTRIBUTE_NAME),
                 element.getAttribute(DEVICECLASS_ATTRIBUTE_NAME),
                 element.getAttribute(REMOTENAME_ATTRIBUTE_NAME));
-        NodeList nl = element.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
+        NodeList nl = element.getElementsByTagNameNS(GIRR_NAMESPACE, ADMINDATA_ELEMENT_NAME);
         adminData = nl.getLength() > 0 ? new AdminData((Element) nl.item(0)) : new AdminData();
         if (source != null && !source.isEmpty())
             adminData.setSourceIfEmpty(source);
         applicationParameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         comment = element.getAttribute(COMMENT_ATTRIBUTE_NAME);
-        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
-        nl = element.getElementsByTagName(APPLICATIONDATA_ELEMENT_NAME);
+        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagNameNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME));
+        nl = element.getElementsByTagNameNS(GIRR_NAMESPACE, APPLICATIONDATA_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Element el = (Element) nl.item(i);
-            NodeList nodeList = el.getElementsByTagName(APPPARAMETER_ELEMENT_NAME);
+            NodeList nodeList = el.getElementsByTagNameNS(GIRR_NAMESPACE, APPPARAMETER_ELEMENT_NAME);
             Map<String, String> map = new HashMap<>(32);
             for (int index = 0; index < nodeList.getLength(); index++) {
                 Element par = (Element) nodeList.item(index);
@@ -149,7 +149,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
             applicationParameters.put(el.getAttribute(APPLICATION_ATTRIBUTE_NAME), map);
         }
 
-        nl = element.getElementsByTagName(COMMANDSET_ELEMENT_NAME);
+        nl = element.getElementsByTagNameNS(GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
         commandSets = new LinkedHashMap<>(nl.getLength());
         for (int i = 0; i < nl.getLength(); i++) {
             CommandSet commandSet = new CommandSet((Element) nl.item(i));
@@ -231,6 +231,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
     @Override
     public Element toElement(Document doc, boolean fatRaw, boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
+        XmlStatic.setPrefix(element);
         Element adminDataEl = adminData.toElement(doc);
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
             element.appendChild(adminDataEl);
@@ -250,6 +251,7 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
         if (notes != null) {
             notes.entrySet().stream().map((note) -> {
                 Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+                XmlStatic.setPrefix(notesEl);
                 notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
                 notesEl.setTextContent(note.getValue());
                 return notesEl;
@@ -262,10 +264,12 @@ public final class Remote extends XmlExporter implements Named, Iterable<Command
             applicationParameters.entrySet().forEach((kvp) -> {
                 if (kvp.getValue() != null) {
                     Element appEl = doc.createElementNS(GIRR_NAMESPACE, APPLICATIONDATA_ELEMENT_NAME);
+                    XmlStatic.setPrefix(appEl);
                     appEl.setAttribute(APPLICATION_ATTRIBUTE_NAME, kvp.getKey());
                     element.appendChild(appEl);
                     kvp.getValue().entrySet().stream().map((param) -> {
                         Element paramEl = doc.createElementNS(GIRR_NAMESPACE, APPPARAMETER_ELEMENT_NAME);
+                        XmlStatic.setPrefix(paramEl);
                         paramEl.setAttribute(NAME_ATTRIBUTE_NAME, param.getKey());
                         paramEl.setAttribute(VALUE_ATTRIBUTE_NAME, param.getValue());
                         return paramEl;

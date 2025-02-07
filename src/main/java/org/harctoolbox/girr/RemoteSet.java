@@ -51,6 +51,7 @@ import org.harctoolbox.ircore.IrSignal;
 import org.harctoolbox.irp.IrpDatabase;
 import org.harctoolbox.irp.IrpException;
 import org.harctoolbox.irp.IrpParseException;
+import static org.harctoolbox.xml.XmlUtils.IRP_NAMESPACE_URI;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -174,7 +175,7 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     }
 
     public static RemoteSet parse(Element element, String source) throws GirrException {
-        switch (element.getTagName()) {
+        switch (element.getLocalName()) {
             case REMOTES_ELEMENT_NAME:
                 return new RemoteSet(element, source);
             case REMOTE_ELEMENT_NAME:
@@ -295,20 +296,20 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
      * @throws org.harctoolbox.girr.GirrException
      */
     public RemoteSet(Element root, String source) throws GirrException {
-        if (!root.getTagName().equals(REMOTES_ELEMENT_NAME))
-            throw new GirrException("Root element not of type \"" + REMOTES_ELEMENT_NAME + "\".");
+        if (!root.getLocalName().equals(REMOTES_ELEMENT_NAME))
+            throw new GirrException("Root element not of type \"" + REMOTES_ELEMENT_NAME + "\", but " + root.getTagName());
 
-        NodeList nl = root.getElementsByTagName(ADMINDATA_ELEMENT_NAME);
+        NodeList nl = root.getElementsByTagNameNS(GIRR_NAMESPACE, ADMINDATA_ELEMENT_NAME);
         adminData = nl.getLength() > 0 ? new AdminData((Element) nl.item(0)) : new AdminData();
         adminData.setSourceIfEmpty(source);
         remotes = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
-        nl = root.getElementsByTagName(REMOTE_ELEMENT_NAME);
+        nl = root.getElementsByTagNameNS(GIRR_NAMESPACE, REMOTE_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
             Remote remote = new Remote((Element) nl.item(i), source);
             remotes.put(remote.getName(), remote);
         }
 
-        nl = root.getElementsByTagName(IrpDatabase.IRP_NAMESPACE_PREFIX + ":" + IrpDatabase.PROTOCOLS_NAME);
+        nl = root.getElementsByTagNameNS(IRP_NAMESPACE_URI, IrpDatabase.PROTOCOLS_NAME);
         if (nl.getLength() > 0) {
             Element protocolsElement = (Element) nl.item(0);
             irpDatabase = mkIrpDatabase(protocolsElement);
@@ -542,6 +543,8 @@ public final class RemoteSet extends XmlExporter implements Iterable<Remote> {
     public Element toElement(Document doc, boolean fatRaw,
             boolean generateParameters, boolean generateProntoHex, boolean generateRaw) {
         Element element = doc.createElementNS(GIRR_NAMESPACE, REMOTES_ELEMENT_NAME);
+        XmlStatic.setPrefix(element);
+
         Element adminDataEl = adminData.toElement(doc);
         if (adminDataEl.hasChildNodes() || adminDataEl.hasAttributes())
             element.appendChild(adminDataEl);

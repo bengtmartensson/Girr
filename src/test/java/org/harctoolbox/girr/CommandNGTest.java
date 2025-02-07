@@ -594,6 +594,21 @@ public class CommandNGTest {
         assertEquals(actual, expected);
     }
 
+    @Test
+    public void testAliasesInXmlNS() throws Exception {
+        System.out.println("testAliasesInXml");
+        RemoteSet remoteSet = new RemoteSet(new File("src/test/girr/silly-ns.girr"));
+        Remote remote = remoteSet.iterator().next();
+        CommandSet cmdSet = remote.getCommandSet("godzilla");
+        String actual = cmdSet.getCommand("Mothra").getProtocolName();
+        String expected = "Blaupunkt";
+        assertEquals(actual, expected);
+
+        actual = remote.getCommand("godzilla", "Rodan").getProtocolName();
+        expected = "CanalSat";
+        assertEquals(actual, expected);
+    }
+
     /**
      * Test of transform method, of class Command.
      * @throws Exception

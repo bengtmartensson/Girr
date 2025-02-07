@@ -33,6 +33,7 @@ import static org.harctoolbox.xml.XmlUtils.XML_LANG_ATTRIBUTE_NAME;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.xml.sax.SAXException;
@@ -132,6 +133,8 @@ public abstract class XmlStatic {
     private static String stylesheetType                   = null;
     private static String stylesheetUrl                    = null;
 
+    private static String girrNSPrefix                     = null;
+
     /**
      * @param aStylesheetType the stylesheetType to set
      */
@@ -144,6 +147,15 @@ public abstract class XmlStatic {
      */
     public static void setStylesheetUrl(String aStylesheetUrl) {
         stylesheetUrl = aStylesheetUrl;
+    }
+
+    public static void setGirrNSPrefix(String prefix) {
+        girrNSPrefix = prefix;
+    }
+
+    public static void setPrefix(Node node) {
+        if (girrNSPrefix != null)
+           node.setPrefix(girrNSPrefix);
     }
 
     /**
@@ -173,7 +185,7 @@ public abstract class XmlStatic {
         document.appendChild(root);
         root.setAttribute(GIRR_VERSION_ATTRIBUTE_NAME, GIRR_VERSION);
         root.setAttribute(W3C_SCHEMA_NAMESPACE_ATTRIBUTE_NAME, W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        root.setAttribute(XMLNS_ATTRIBUTE, GIRR_NAMESPACE);
+        root.setAttribute(XMLNS_ATTRIBUTE + (girrNSPrefix != null ? ':' + girrNSPrefix : ""), GIRR_NAMESPACE);
         root.setAttribute(HTML_NAMESPACE_ATTRIBUTE_NAME, HTML_NAMESPACE_URI);
         root.setAttribute(SCHEMA_LOCATION_ATTRIBUTE_NAME, GIRR_NAMESPACE + " " + GIRR_SCHEMA_LOCATION_URI);
         if (title != null && ! title.isEmpty())

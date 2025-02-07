@@ -104,27 +104,27 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
      * @throws GirrException
      */
     public CommandSet(Element element) throws GirrException {
-        if (!element.getTagName().equals(COMMANDSET_ELEMENT_NAME))
+        if (!element.getLocalName().equals(COMMANDSET_ELEMENT_NAME))
             throw new GirrException("Element is not of type " + COMMANDSET_ELEMENT_NAME);
 
         name = element.getAttribute(NAME_ATTRIBUTE_NAME);
         protocolName = null;
         commands = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
         parameters = new LinkedHashMap<>(INITIAL_HASHMAP_CAPACITY);
-        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagName(NOTES_ELEMENT_NAME));
-        // Cannot use getElementsByTagName("parameters") because it will find
+        notes = XmlStatic.parseElementsByLanguage(element.getElementsByTagNameNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME));
+        // Cannot use getElementsByTagNameNS("parameters") because it will find
         // the parameters of the child commands, which is not what we want.
         NodeList nl = element.getChildNodes();
         for (int nodeNr = 0; nodeNr < nl.getLength(); nodeNr++) {
             if (nl.item(nodeNr).getNodeType() != Node.ELEMENT_NODE)
                 continue;
             Element el = (Element) nl.item(nodeNr);
-            if (!el.getTagName().equals(PARAMETERS_ELEMENT_NAME))
+            if (!el.getLocalName().equals(PARAMETERS_ELEMENT_NAME))
                 continue;
             String newProtocol = el.getAttribute(PROTOCOL_ATTRIBUTE_NAME);
             if (!newProtocol.isEmpty())
                 protocolName = newProtocol;
-            NodeList paramList = el.getElementsByTagName(PARAMETER_ELEMENT_NAME);
+            NodeList paramList = el.getElementsByTagNameNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
             for (int i = 0; i < paramList.getLength(); i++) {
                 Element e = (Element) paramList.item(i);
                 try {
@@ -135,11 +135,10 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
             }
         }
 
-        nl = element.getElementsByTagName(COMMAND_ELEMENT_NAME);
+        nl = element.getElementsByTagNameNS(GIRR_NAMESPACE, COMMAND_ELEMENT_NAME);
         for (int i = 0; i < nl.getLength(); i++) {
-            Command irCommand;
             try {
-                irCommand = new Command((Element) nl.item(i), protocolName, parameters);
+                Command irCommand = new Command((Element) nl.item(i), protocolName, parameters);
                 commands.put(irCommand.getName(), irCommand);
             } catch (GirrException ex) {
                 // Ignore erroneous commands, continue parsing
@@ -290,9 +289,11 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         if (Command.isUseInheritanceForXml())
             generateInheritanceParameters();
         Element element = doc.createElementNS(GIRR_NAMESPACE, COMMANDSET_ELEMENT_NAME);
+        XmlStatic.setPrefix(element);
         element.setAttribute(NAME_ATTRIBUTE_NAME, name);
         notes.entrySet().stream().map((note) -> {
             Element notesEl = doc.createElementNS(GIRR_NAMESPACE, NOTES_ELEMENT_NAME);
+            XmlStatic.setPrefix(notesEl);
             notesEl.setAttribute(XML_LANG_ATTRIBUTE_NAME, note.getKey());
             notesEl.setTextContent(note.getValue());
             return notesEl;
@@ -301,10 +302,12 @@ public final class CommandSet extends XmlExporter implements Named, Iterable<Com
         });
         if (shouldDoParameters(generateParameters, generateProntoHex, generateRaw)) {
             Element parametersEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETERS_ELEMENT_NAME);
+            XmlStatic.setPrefix(parametersEl);
             parametersEl.setAttribute(PROTOCOL_ATTRIBUTE_NAME, protocolName);
             element.appendChild(parametersEl);
             parameters.entrySet().stream().map((parameter) -> {
                 Element parameterEl = doc.createElementNS(GIRR_NAMESPACE, PARAMETER_ELEMENT_NAME);
+                XmlStatic.setPrefix(parameterEl);
                 parameterEl.setAttribute(NAME_ATTRIBUTE_NAME, parameter.getKey());
                 parameterEl.setAttribute(VALUE_ATTRIBUTE_NAME, parameter.getValue().toString());
                 return parameterEl;
