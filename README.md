@@ -3,7 +3,7 @@
 There are several Internet sites in whole or in part dedicated to infrared
 control of customer electronics. Very soon the question on exchange of IR
 signals, individual or as a set of commands from one remote or one device,
-comes up. For individual IR signals, the [Pronto Hex](http://harctoolbox.org/Glossary.html#CCF),
+comes up. For individual IR signals, the [Pronto Hex](https://harctoolbox.org/Glossary.html#CCF),
 sometimes called CCF, is the one most used. This describes _one_ signal, without
 a name or any other attributes. To use, the user will most likely have to
 copy-paste the information from a downloaded file, or a forum contribution,
@@ -21,21 +21,21 @@ with a few clicks. However, this is still a manual process, that is not suited
 for automation.
 
 On the other hand, there are a few file formats around, describing a
-complete setup of a programmable remote control, like the Philips Pronto [CCF file  format](http://harctoolbox.org/Glossary.html#ccfFileFormat) or the [XCF format](http://harctoolbox.org/Glossary.html#xcfFileFormat) of the Pronto
+complete setup of a programmable remote control, like the Philips Pronto [CCF file  format](https://harctoolbox.org/Glossary.html#ccfFileFormat) or the [XCF format](https://harctoolbox.org/Glossary.html#xcfFileFormat) of the Pronto
 Professional. These describe a complete setup, including layout of buttons and
 pages, font selection and other items not of interest for the exchange of IR
-signals. The ["device updates" (rmdu-files)](http://harctoolbox.org/Glossary.html#rmdu) of
-[RemoteMaster](http://harctoolbox.org/Glossary.html#RemoteMaster) also falls into this
+signals. The ["device updates" (rmdu-files)](https://harctoolbox.org/Glossary.html#rmdu) of
+[RemoteMaster](https://harctoolbox.org/Glossary.html#RemoteMaster) also falls into this
 category: They do contain the IR Signals, either as a raw representation or in
 a protocol/parameter format, but also a number of key bindings, more-or-less
-specific to a particular [JP1 remote](http://harctoolbox.org/Glossary.html#Jp1Remote).
+specific to a particular [JP1 remote](https://harctoolbox.org/Glossary.html#Jp1Remote).
 
-[The Lirc project](http://harctoolbox.org/Glossary.html#Lirc) however has a data base
+[The Lirc project](https://harctoolbox.org/Glossary.html#Lirc) however has a data base
 file format, containing named commands, grouped into named
 "remotes". However,
 the Lirc format was never intended as an exchange format, and, as a general
 rule, only Lirc program can read Lirc files. Also, Lirc has not a viable concept
-of [intro- and repeat sequences](http://harctoolbox.org/Glossary.html#IrSignal).
+of [intro- and repeat sequences](https://harctoolbox.org/Glossary.html#IrSignal).
 Lirc also does not handle meta data (manufacturer, device type, model, etc.
 
 This leads to our mission:
@@ -54,7 +54,7 @@ Everyone is invited to implement this format in other programs, or tools for
 the format.
 
 ## Program support
-[IrScrutinizer](http://harctoolbox.org/IrScrutinizer.html) uses Girr as its preferred format
+[IrScrutinizer](https://harctoolbox.org/IrScrutinizer.html) uses Girr as its preferred format
 for import and export of IR signals. It can interactively import and export from many
 different file formats and data bases.
 
@@ -70,16 +70,16 @@ it can export and import Girr files directly.
 
 [IrpTransmogrifier](https://github.com/bengtmartensson/IrpTransmogrifier) can generate the output
     from the `decode` and the `analyze` commands in Girr format.
-    (In order to avoid circular dependencies, it does not use the [support library](http://harctoolbox.org/Girr.html#Supporting+Java+library)
+    (In order to avoid circular dependencies, it does not use the [support library](https://harctoolbox.org/Girr.html#Supporting+Java+library)
     described here.)
 
 
-[GirrLib](http://harctoolbox.org/Girr.html#GirrLib) is a small collection of Girr files.
+[GirrLib](https://harctoolbox.org/Girr.html#GirrLib) is a small collection of Girr files.
 
 ## Copyright
 The rights to the described format, as well as [the
-describing file](http://harctoolbox.org/schemas/girr_ns.xsd) are in the public domain. That also goes for the present
-document. Note that this is in contrast to other documents on [www.harctoolbox.org](http://www.harctoolbox.org) for which no copying
+describing file](https://harctoolbox.org/schemas/girr_ns.xsd) are in the public domain. That also goes for the present
+document. Note that this is in contrast to other documents on [www.harctoolbox.org](https://www.harctoolbox.org) for which no copying
 or re-distribution rights are granted, or the therein contained software, which
 is licensed under the [Gnu General
 Public License, version 3](http://www.gnu.org/licenses/gpl.txt).
@@ -91,7 +91,7 @@ capitalized (not uppercase). Preferred file extension is
 `girr`, but this is not necessary. Also, e.g. `xml` is possible.
 
 ## Requirements on a universal IR command/remote format
-It should be an XML file determined by an [XML Schema](http://harctoolbox.org/Glossary.html#XMLSchema). It should, however, be
+It should be an XML file determined by an [XML Schema](https://harctoolbox.org/Glossary.html#XMLSchema). It should, however, be
 usable without validating parsers etc.
 
 The formal rules (enforced by Schema) should be as non-intrusive as
@@ -128,7 +128,7 @@ representation of IR Signals and -sequences.
 
 
 * The present work aims at a description for remotes, not devices (e.g. in
-the sense of [this](http://harctoolbox.org/harctoolbox_doc.html#Device+files)). Thus,
+the sense of [this](https://harctoolbox.org/harctoolbox_doc.html#Device+files)). Thus,
 command names are free form strings, with no semantics inferred.
 
 * Only unidirectional "commands" are considered, not data communication.
@@ -146,7 +146,7 @@ There are four different possible root element types in the format:
 `remotes`, `remote`,
 `commandSet`s, and `command`s. All can be the root element of a conforming Girr document, although some
 software may not handle all of them.
-(The previous versions of our [supporting library](http://harctoolbox.org/Girr.html#Supporting+Java+library)
+(The previous versions of our [supporting library](https://harctoolbox.org/Girr.html#Supporting+Java+library)
 only supported `remotes` as root element, but this restriction has been lifted.) Basically,
 the element `remotes` contains one or more `remote`s,
 each containing one or more `commandSet`s,
@@ -259,7 +259,7 @@ The parameter form references to a protocol using its name. Normally, this is as
 ### Version
 This article describes the Girr format version 1.2, identified by the
 attribute `girrVersion`, expected in the root element of an
-instance. (Not to be confused with the version of the [support library](http://harctoolbox.org/Girr.html#Supporting+Java+library).)
+instance. (Not to be confused with the version of the [support library](https://harctoolbox.org/Girr.html#Supporting+Java+library).)
 
 ### Namespace
 The Girr [namespace](http://en.wikipedia.org/wiki/Xml_namespace) is
@@ -275,13 +275,13 @@ Except for the `namespace` namespace (`http://www.w3.org/XML/1998/namespace`), t
     XInclude- and html elements can be used at appropriate places, see the schema.
 
 ### Schema
-The grammar of Girr is formally described as an [XML schema](http://harctoolbox.org/Glossary.html#XMLSchema) residing in the file
-    [girr_ns.xsd](http://harctoolbox.org/schemas/girr_ns.xsd). It contains internal documentation of
+The grammar of Girr is formally described as an [XML schema](https://harctoolbox.org/Glossary.html#XMLSchema) residing in the file
+    [girr_ns.xsd](https://harctoolbox.org/schemas/girr_ns.xsd). It contains internal documentation of
 the semantics of the different elements.
-The official schema location is [http://www.harctoolbox.org/schemas/girr_ns.xsd](http://www.harctoolbox.org/schemas/girr_ns.xsd).
+The official schema location is [https://www.harctoolbox.org/schemas/girr_ns.xsd](https://www.harctoolbox.org/schemas/girr_ns.xsd).
 
 
-Here is [generated schema documentation](http://harctoolbox.org/girr-schema-doc/girr_ns.html)
+Here is [generated schema documentation](https://harctoolbox.org/girr-schema-doc/girr_ns.html)
 (thanks to Gerald Manger).
 
 ## Stylesheets
@@ -289,9 +289,9 @@ A Girr file can be viewed in the browser, provided that it is associated with
 a style sheet. This is either a [cascading style
 sheet](http://en.wikipedia.org/wiki/Cascading_Style_Sheets) (css), which essentially tells the browser how different elements are to be
 rendered, or an [XSLT style
-sheet](http://harctoolbox.org/Glossary.html#XSLT), which internally translates the XML document to a HTML document,
+sheet](https://harctoolbox.org/Glossary.html#XSLT), which internally translates the XML document to a HTML document,
 normally with embedded style information. A description of these techniques is
-outside of the scope of the current document (see [this document](http://harctoolbox.org/transforming-xml-export.html) as an introduction); an example is given as [simplehtml.xsl](http://harctoolbox.org/stylesheets/simplehtml.xsl).
+outside of the scope of the current document (see [this document](https://harctoolbox.org/transforming-xml-export.html) as an introduction); an example is given as [simplehtml.xsl](https://harctoolbox.org/stylesheets/simplehtml.xsl).
 
 To use, add a line like
 
@@ -319,7 +319,7 @@ Previous versions only supported import and export of documents having
         `remotes`
 as root element.
 
-The library requires the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) classes.
+The library requires the [IrpTransmogrifier](https://harctoolbox.org/IrpTransmogrifier.html) classes.
 
 ## GirrLib
 I maintain a small library, GirrLib, [available at GitHub](https://github.com/bengtmartensson/GirrLib).
@@ -338,7 +338,7 @@ This project can be integrated into other projects using Maven. For this, includ
         </dependency>
 ```
 in the `pom.xml` of the importing project.
-        This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.
+        This will also include the [IrpTransmogrifier](https://harctoolbox.org/IrpTransmogrifier.html) jar.
 
 ## Sources
 The sources, both the Java library, the schema, and the current document, are
@@ -351,14 +351,14 @@ The purpose of this section is to make the article more
 self-contained. Information herein are described in greater detail
 elsewhere.
 
-The Internet community has classified a large number of [IR Protocol](http://harctoolbox.org/Glossary.html#IrProtocol)s, see e.g. [this
+The Internet community has classified a large number of [IR Protocol](https://harctoolbox.org/Glossary.html#IrProtocol)s, see e.g. [this
 listing](http://www.hifi-remote.com/wiki/index.php?title=DecodeIR). These protocols consist of a name of
 the protocol, a number of parameters and their allowed domains, and a recipe
 on how to turn the parameters
-into one, two, or three [IR sequence](http://harctoolbox.org/Glossary.html#IrSequence)s,
-making up an [IR signal](http://harctoolbox.org/Glossary.html#IrSignal). This recipe is
-often expressed in the [IRP Notation](http://harctoolbox.org/Glossary.html#IrpNotation),
+into one, two, or three [IR sequence](https://harctoolbox.org/Glossary.html#IrSequence)s,
+making up an [IR signal](https://harctoolbox.org/Glossary.html#IrSignal). This recipe is
+often expressed in the [IRP Notation](https://harctoolbox.org/Glossary.html#IrpNotation),
 which is a compact formal representation of the computations involved. For
-particular values of the parameters, a [rendering engine](http://harctoolbox.org/Glossary.html#Generating) computes the resulting IR
-signal, often in [Pronto Hex](http://harctoolbox.org/Glossary.html#ProntoHex) format, or in [raw format](http://harctoolbox.org/Glossary.html#RawIrSignal).
+particular values of the parameters, a [rendering engine](https://harctoolbox.org/Glossary.html#Generating) computes the resulting IR
+signal, often in [Pronto Hex](https://harctoolbox.org/Glossary.html#ProntoHex) format, or in [raw format](https://harctoolbox.org/Glossary.html#RawIrSignal).
 

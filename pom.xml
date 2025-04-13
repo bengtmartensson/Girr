@@ -16,7 +16,7 @@
         </license>
     </licenses>
     <description>A universal format for storage and exchange of IR signals.</description>
-    <url>http://www.harctoolbox.org/${project.artifactId}.html</url>
+    <url>https://www.harctoolbox.org/${project.artifactId}.html</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>

@@ -125,7 +125,7 @@ it can export and import Girr files directly.
 <p>The rights to the described format, as well as <a href="schemas/girr_ns.xsd">the
 describing file</a> are in the public domain. That also goes for the present
 document. Note that this is in contrast to other documents on <a
-href="http://www.harctoolbox.org">www.harctoolbox.org</a> for which no copying
+href="https://www.harctoolbox.org">www.harctoolbox.org</a> for which no copying
 or re-distribution rights are granted, or the therein contained software, which
 is licensed under the <a href="http://www.gnu.org/licenses/gpl.txt">Gnu General
 Public License, version 3</a>.</p>
@@ -332,7 +332,7 @@ instance. (Not to be confused with the version of the <a href="#Supporting+Java+
     <p>The grammar of Girr is formally described as an <a href="Glossary.html#XMLSchema">XML schema</a> residing in the file
     <a href="schemas/girr_ns.xsd">girr_ns.xsd</a>. It contains internal documentation of
 the semantics of the different elements.
-The official schema location is <a href="http://www.harctoolbox.org/schemas/girr_ns.xsd">http://www.harctoolbox.org/schemas/girr_ns.xsd</a>.
+The official schema location is <a href="https://www.harctoolbox.org/schemas/girr_ns.xsd">https://www.harctoolbox.org/schemas/girr_ns.xsd</a>.
 </p>
 
 <p>Here is <a href="girr-schema-doc/girr_ns.html">generated schema documentation</a>
@@ -399,7 +399,7 @@ as root element.</p>
             <version>1.2.3</version>  <!-- or another supported version -->
         </dependency>]]></source>
         <p>in the <code>pom.xml</code> of the importing project.
-        This will also include the [IrpTransmogrifier](http://harctoolbox.org/IrpTransmogrifier.html) jar.</p>
+        This will also include the [IrpTransmogrifier](https://harctoolbox.org/IrpTransmogrifier.html) jar.</p>
 </section>
 
 <section>

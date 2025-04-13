@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!--This file is in the Girr (General IR Remote) format, see http://www.harctoolbox.org/Girr.html--><command xmlns="http://www.harctoolbox.org/Girr" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" displayName="Power On/Off" girrVersion="1.2" master="parameters" name="power_toggle" xsi:schemaLocation="http://www.harctoolbox.org/Girr http://www.harctoolbox.org/schemas/girr_ns-1.2.xsd">
+<!--This file is in the Girr (General IR Remote) format, see https://www.harctoolbox.org/Girr.html--><command xmlns="http://www.harctoolbox.org/Girr" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" displayName="Power On/Off" girrVersion="1.2" master="parameters" name="power_toggle" xsi:schemaLocation="http://www.harctoolbox.org/Girr https://www.harctoolbox.org/schemas/girr_ns-1.2.xsd">
     <parameters protocol="nec1">
         <parameter name="D" value="153"/>
         <parameter name="S" value="136"/>

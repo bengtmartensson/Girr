@@ -58,17 +58,17 @@ public abstract class XmlStatic {
     /**
      * Homepage URL.
      */
-    public static final String GIRR_HOMEPAGE        = "http://www.harctoolbox.org/Girr.html";
+    public static final String GIRR_HOMEPAGE        = "https://www.harctoolbox.org/Girr.html";
 
     /**
      * URL for schema file supporting name spaces.
      */
-    public static final String GIRR_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr_ns-"  + GIRR_VERSION + ".xsd";
+    public static final String GIRR_SCHEMA_LOCATION_URI = "https://www.harctoolbox.org/schemas/girr_ns-"  + GIRR_VERSION + ".xsd";
 
     /**
      * URL for schema file, namespace-less version.
      */
-    public static final String GIRR_NONAMESPACE_SCHEMA_LOCATION_URI = "http://www.harctoolbox.org/schemas/girr.xsd";
+    public static final String GIRR_NONAMESPACE_SCHEMA_LOCATION_URI = "https://www.harctoolbox.org/schemas/girr.xsd";
 
     /**
      * Location of schema file (namespace version) in jar.
